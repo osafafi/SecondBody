@@ -23,20 +23,31 @@ a hand-built twelve week fixture would only prove they work on a fixture.
 
 ## What is in here
 
-| File                     | What it decides                                                               |
-| ------------------------ | ----------------------------------------------------------------------------- |
-| `loadIncrements`         | How big a step up is, and how to land on a weight a gym actually has          |
-| `exercisePrescription`   | Double progression, auto-regulation, and the two safety reductions            |
-| `sessionPlanning`        | The whole session: sets, weights, warm-up, ramp set. Composes everything else |
-| `warmupPlanning`         | Morning volumes or standard ones                                              |
-| `programPhases`          | Which phase a week is in, which session comes next                            |
-| `sessionScheduling`      | The 48-hour rail, and the next training day                                   |
-| `layoffRecovery`         | What happens after ten days away                                              |
-| `sessionVolume`          | Weight times reps, with dumbbell pairs and per-side reps counted properly     |
-| `estimatedOneRepMax`     | Epley, for comparing sets that are not comparable on weight alone             |
-| `habitTargets`           | The step target ramping from 5,000 to 9,000                                   |
-| `bodyWeightExpectations` | When to raise the "the scale will not move yet" conversation                  |
-| `coachLineSelection`     | Which line to say, and when to say nothing                                    |
+| File                         | What it decides                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------- |
+| `loadIncrements`             | How big a step up is, and how to land on a weight a gym actually has                |
+| `exercisePrescription`       | Double progression, auto-regulation, and the two safety reductions                  |
+| `sessionPlanning`            | The whole session: sets, weights, warm-up, ramp set. Composes everything else       |
+| `warmupPlanning`             | Morning volumes or standard ones                                                    |
+| `programPhases`              | Which phase a week is in, which session comes next                                  |
+| `sessionScheduling`          | The 48-hour rail, and the next training day                                         |
+| `layoffRecovery`             | What happens after ten days away                                                    |
+| `sessionVolume`              | Weight times reps, with dumbbell pairs and per-side reps counted properly           |
+| `estimatedOneRepMax`         | Epley, for comparing sets that are not comparable on weight alone                   |
+| `habitTargets`               | The step target ramping from 5,000 to 9,000                                         |
+| `bodyWeightExpectations`     | When to raise the "the scale will not move yet" conversation                        |
+| `coachLineSelection`         | Which line to say, and when to say nothing                                          |
+| `onboardingValidation`       | Whether an answer to an onboarding question is usable (M4)                          |
+| `activeSessionMachine`       | What may follow what inside a session, and where a resumed one picks up (M5)        |
+| `restTimer`                  | Rest arithmetic that survives the phone sleeping through the whole rest (M5)        |
+| `sessionLogging`             | The draft a set starts from, and the document a session ends as (M5)                |
+| `exercisePerformanceHistory` | Reading stored sessions back into what progression wants (M5)                       |
+| `programAssignmentProgress`  | Where the programme is, and where it goes next (M5)                                 |
+| `calendarDates`              | Calendar days as distinct from instants, and moving whole days (M6)                 |
+| `dailyTrainingStatus`        | Training, resting, recovering or already done — and whether to offer a session (M6) |
+| `trainingCalendar`           | The grid: what was trained, what is planned, what was missed (M6)                   |
+| `programProgressSummary`     | Week N of 12, and how much of the block is behind him (M6)                          |
+| `dailyCoachMoment`           | Which of six situations is the one worth a word today, if any (M6)                  |
 
 ## The rules these implement
 
@@ -57,3 +68,18 @@ The ones worth knowing before changing anything:
    which is heavier than the reduction asked for. `roundWeightDownToLoadableValue` gives 30.
 5. **Praise is spent, not sprayed.** `canSpendPraiseOnLoadDecision` allows it in exactly one
    situation. `selectCoachLine` returns null rather than reaching for something generic.
+6. **The 48 hours are a rail; the training days are a plan.** Only the first can stop a
+   session starting. A missed Wednesday is trained on Thursday — see the note at the top of
+   `dailyTrainingStatus.ts`.
+
+## Two ways of counting days, and when each is right
+
+`sessionScheduling.calculateWholeDaysBetween` counts elapsed 24-hour periods.
+`calendarDates.countCalendarDaysBetween` counts calendar days. They disagree by one more
+often than you would expect, and each is the wrong answer to the other's question:
+
+- **Elapsed periods** answer questions about recovery — the ten-day layoff rule uses it,
+  because a body does not know what day it is.
+- **Calendar days** answer questions the app says out loud. Trained at 19:00 last night and
+  read at 18:30 tonight is _yesterday_; counting 24-hour periods would call it today, on a
+  screen that is simultaneously showing a countdown with 25 hours left on it.

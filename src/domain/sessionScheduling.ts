@@ -9,6 +9,8 @@
  * section 12: never two strength sessions less than 48 hours apart.
  */
 
+import { addLocalDays } from './calendarDates';
+
 const MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_PER_DAY = 24 * MILLISECONDS_PER_HOUR;
 const DAYS_PER_WEEK = 7;
@@ -72,6 +74,11 @@ export function determineSessionStartEligibility(
  * Day numbers are JavaScript's: 0 is Sunday. The returned date keeps the time of
  * day it was given, because callers use it for display rather than for a
  * countdown.
+ *
+ * The walk moves whole calendar days rather than adding 24 hours — see the note
+ * at the top of `calendarDates.ts`. Adding 24 hours to a time just after
+ * midnight on the night the clocks go back lands on the same day again, which
+ * would make this return today when today is not a training day.
  */
 export function findNextTrainingDate(fromDate: Date, trainingDaysOfWeek: number[]): Date | null {
   if (trainingDaysOfWeek.length === 0) {
@@ -79,7 +86,7 @@ export function findNextTrainingDate(fromDate: Date, trainingDaysOfWeek: number[
   }
 
   for (let dayOffset = 0; dayOffset < DAYS_PER_WEEK; dayOffset += 1) {
-    const candidateDate = new Date(fromDate.getTime() + dayOffset * MILLISECONDS_PER_DAY);
+    const candidateDate = addLocalDays(fromDate, dayOffset);
 
     if (trainingDaysOfWeek.includes(candidateDate.getDay())) {
       return candidateDate;

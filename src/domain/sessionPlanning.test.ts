@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveSessionPlan, type SessionPlanRequest } from './sessionPlanning';
+import {
+  isExerciseSlotAvailable,
+  resolveSessionPlan,
+  type SessionPlanRequest,
+} from './sessionPlanning';
 import { findExerciseById } from '@/content/exercises/allExercises';
 import { twelveWeekFoundationProgram } from '@/content/programs/twelveWeekFoundation/twelveWeekFoundationProgram';
 import { buildPerformanceHistory, buildSetsAtReps } from '@/test/trainingTestFactories';
 import type { ExercisePerformanceHistory } from '@/types/performanceTypes';
+import type { ExerciseSlot } from '@/types/programTypes';
 
 /**
  * These run against the real programme, because the thing worth proving is that
@@ -305,5 +310,44 @@ describe('resolveSessionPlan — the warm-up and the ramp set', () => {
     const plan = resolveSessionPlan(buildRequest({ weekNumber: 5, sessionLetter: 'B' }));
 
     expect(plan?.rampSet?.exerciseId).toBe('inclineDumbbellPress');
+  });
+});
+
+describe('isExerciseSlotAvailable', () => {
+  function buildSlot(overrides: Partial<ExerciseSlot> = {}): ExerciseSlot {
+    return {
+      orderIndex: 1,
+      exerciseId: 'machineShoulderPress',
+      prescription: {
+        kind: 'weightAndReps',
+        repRange: { minimumReps: 8, maximumReps: 10 },
+        isPerSide: false,
+        startingWeightKilograms: 20,
+      },
+      restSecondsBetweenSets: 90,
+      slotNote: null,
+      requiresPainFreeAreas: [],
+      ...overrides,
+    };
+  }
+
+  it('allows a slot with no conditions on it', () => {
+    expect(isExerciseSlotAvailable(buildSlot(), ['lowerBack'], [])).toBe(true);
+  });
+
+  it('drops a slot whose required area is currently painful', () => {
+    const slot = buildSlot({ requiresPainFreeAreas: ['shoulders'] });
+
+    expect(isExerciseSlotAvailable(slot, ['shoulders'], [])).toBe(false);
+  });
+
+  it('allows that same slot once the area is clear', () => {
+    const slot = buildSlot({ requiresPainFreeAreas: ['shoulders'] });
+
+    expect(isExerciseSlotAvailable(slot, ['knees'], [])).toBe(true);
+  });
+
+  it('lets the blacklist beat everything else', () => {
+    expect(isExerciseSlotAvailable(buildSlot(), [], ['machineShoulderPress'])).toBe(false);
   });
 });

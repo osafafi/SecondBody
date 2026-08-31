@@ -1,8 +1,8 @@
 import { Outlet } from 'react-router-dom';
 
+import { PendingScreen } from '@/components/PendingScreen/PendingScreen';
 import { SignInScreen } from '@/features/authentication/SignInScreen';
 
-import styles from './AuthenticationGate.module.css';
 import { useAuthentication } from './useAuthentication';
 
 /**
@@ -22,12 +22,7 @@ export function AuthenticationGate() {
   const { authenticationStatus } = useAuthentication();
 
   if (authenticationStatus === 'checking') {
-    return (
-      <div className={styles.checkingScreen} role="status">
-        <span className={styles.checkingPulse} aria-hidden />
-        <span className={styles.checkingLabel}>Checking your session</span>
-      </div>
-    );
+    return <PendingScreen label="Checking your session" />;
   }
 
   if (authenticationStatus === 'signedOut') {

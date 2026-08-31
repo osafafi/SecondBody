@@ -17,6 +17,12 @@ export const COACH_LINE_CATEGORIES = [
   /** The sign-in screen, before there is anybody to talk to yet. */
   'signInWelcome',
 
+  /** The first onboarding question, before anything is known about the person. */
+  'onboardingOpening',
+
+  /** Onboarding finished. The profile is written and the app is about to open. */
+  'onboardingFinished',
+
   /** Opening a session, before the warm-up. */
   'sessionOpening',
 

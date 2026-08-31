@@ -1,0 +1,129 @@
+.screen {
+  display: flex;
+  min-height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5) var(--screen-horizontal-padding);
+  padding-top: calc(var(--safe-area-top) + var(--space-5));
+  padding-bottom: calc(var(--safe-area-bottom) + var(--space-5));
+}
+
+.panel {
+  display: flex;
+  width: 100%;
+  max-width: 28rem;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6) var(--space-5);
+}
+
+.progressRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.progressPip {
+  height: 3px;
+  flex: 1;
+  border-radius: var(--radius-full);
+  background: rgba(var(--surface-tint-rgb), 0.4);
+  transition: background var(--motion-medium) var(--motion-easing);
+}
+
+.progressPip.isReached {
+  background: linear-gradient(90deg, var(--brand-gradient-start), var(--brand-gradient-end));
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.stepCount {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.title {
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.question {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.textField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.fieldLabel {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.textInput {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-medium);
+  background: rgba(var(--surface-tint-rgb), 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  font-size: var(--text-body-size);
+  color: var(--text-primary);
+  transition: border-color var(--motion-fast) var(--motion-easing);
+}
+
+.textInput:focus {
+  border-color: var(--brand-gradient-start);
+  outline: none;
+}
+
+.problems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--danger-gradient-start);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/*
+ * The forward action always takes the remaining width, so the primary button
+ * sits under the thumb in the same place on every step whether or not Back is
+ * showing.
+ */
+.actions > *:last-child {
+  flex: 1;
+}
+
+.coachLine {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+  text-wrap: balance;
+}

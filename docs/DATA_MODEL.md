@@ -36,8 +36,24 @@ same reason.
 
 ## 3. Document shapes
 
-Types live in `src/types/`. These are the shapes, in TypeScript, with the fields named the
-way they are actually named.
+Types live in `src/types/` — `userAccountTypes.ts`, `trainingHistoryTypes.ts` and
+`dailyTrackingTypes.ts`. These are the shapes, in TypeScript, with the fields named the way
+they are actually named.
+
+**Two things below differ from what the application types actually say, and both are
+deliberate.**
+
+`Timestamp` is what Firestore stores. The application types use `Date`, because
+`src/domain/` reads these types and must not know Firebase exists — see CLAUDE.md section 3.
+Converting between the two is the repositories' job, in
+`src/services/repositories/*DocumentMapping.ts`, and is exactly the translation logic
+CLAUDE.md section 5 asks to have tested with fakes. A calendar day (`recordedOn`,
+`startedOn`, `achievedOn`) is an ISO `YYYY-MM-DD` string in both, because a day is not an
+instant and storing it as one would move it across midnight depending on who is reading.
+
+Weights on a performed set are `number | null`, not `number`. A dead bug and a treadmill
+walk have no weight, `PerformedSetRecord` in `performanceTypes.ts` has said so since M2, and
+storing `0` would be a lie that the volume charts then average in.
 
 ### `profile/current`
 
@@ -126,10 +142,12 @@ type PerformedExercise = {
 
 type PerformedSet = {
   setNumber: number;
-  prescribedWeightKilograms: number;
+
+  // Null for bodyweight and unloaded movements. See the note in section 3.
+  prescribedWeightKilograms: number | null;
   prescribedReps: number;
 
-  actualWeightKilograms: number;
+  actualWeightKilograms: number | null;
   actualReps: number;
 
   // Drives the auto-regulation described in TRAINING_PROGRAM.md section 7.
@@ -214,7 +232,13 @@ service cloud.firestore {
 ```
 
 These live in `firestore.rules` at the repository root and are deployed with
-`firebase deploy --only firestore:rules`.
+`firebase deploy --only firestore:rules`. They were written and deployed in M4 — see
+[SETUP_FIREBASE.md](SETUP_FIREBASE.md) step 5.
+
+Note what the ruleset does **not** contain: any per-collection rule, any field validation,
+any index declaration. One person owns one subtree, and every query the repositories make is
+single-field so Firestore indexes it automatically. `firebase.json` ships rules and nothing
+else.
 
 ## 5. Why the Firebase config is not a secret
 

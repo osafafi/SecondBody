@@ -1,0 +1,31 @@
+.screen {
+  display: flex;
+  min-height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5) var(--screen-horizontal-padding);
+}
+
+.panel {
+  display: flex;
+  width: 100%;
+  max-width: 26rem;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-5);
+  text-align: center;
+}
+
+.title {
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.message {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+  text-wrap: balance;
+}

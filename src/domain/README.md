@@ -48,6 +48,9 @@ a hand-built twelve week fixture would only prove they work on a fixture.
 | `trainingCalendar`           | The grid: what was trained, what is planned, what was missed (M6)                   |
 | `programProgressSummary`     | Week N of 12, and how much of the block is behind him (M6)                          |
 | `dailyCoachMoment`           | Which of six situations is the one worth a word today, if any (M6)                  |
+| `bodyWeightTrend`            | The seven-day rolling average, and whether the scale is where it should be (M7)     |
+| `trainingVolumeTrend`        | Work done, bucketed into weeks, with the empty weeks kept (M7)                      |
+| `personalRecordProgress`     | Which lifts in a finished session were the best they have ever been (M7)            |
 
 ## The rules these implement
 

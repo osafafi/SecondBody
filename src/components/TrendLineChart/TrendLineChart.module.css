@@ -1,0 +1,57 @@
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* The band the weight is expected to be inside. Present, but never loud. */
+.band {
+  fill: rgba(var(--surface-tint-rgb), 0.18);
+  stroke: rgba(var(--surface-tint-rgb), 0.32);
+  stroke-width: 1;
+}
+
+/* The raw readings. Evidence behind the line, not the line itself. */
+.marker {
+  fill: var(--text-muted);
+  opacity: 0.45;
+}
+
+.line {
+  fill: none;
+  stroke: var(--brand-gradient-end);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.latestPoint {
+  fill: var(--brand-gradient-start);
+  stroke: var(--background-elevated);
+  stroke-width: 2;
+}
+
+.axis {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+
+  font-size: var(--text-caption-size);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.bandLabel {
+  text-align: center;
+  color: var(--text-secondary);
+}

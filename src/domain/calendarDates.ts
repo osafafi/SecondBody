@@ -86,3 +86,30 @@ export function startOfLocalWeek(date: Date, firstDayOfWeek: number): Date {
 
   return startOfLocalDay(addLocalDays(date, -daysSinceWeekStart));
 }
+
+/**
+ * Midnight, locally, on the day an ISO `YYYY-MM-DD` string names.
+ *
+ * The inverse of `formatIsoDate`, and deliberately not `new Date(isoDate)`:
+ * that parses a bare date as UTC, so anywhere west of Greenwich it lands on the
+ * evening of the day before. Every stored calendar day in this app — a weigh-in,
+ * a programme start — was written by `formatIsoDate` from a local clock and has
+ * to be read back the same way.
+ */
+export function parseIsoDate(isoDate: string): Date {
+  const [year, month, dayOfMonth] = isoDate.split('-').map(Number);
+
+  return new Date(year ?? 0, (month ?? 1) - 1, dayOfMonth ?? 1);
+}
+
+/**
+ * Whole weeks between a stored calendar day and now.
+ *
+ * Whole, so week 1 lasts a week: something started last Wednesday is nought
+ * weeks old on Tuesday and one week old on Wednesday. The expected weight range
+ * and the trend verdict both step on that boundary, and rounding would move
+ * them half a week early.
+ */
+export function countWholeWeeksSince(isoStartDate: string, now: Date): number {
+  return Math.max(0, Math.floor(countCalendarDaysBetween(parseIsoDate(isoStartDate), now) / 7));
+}

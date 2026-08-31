@@ -1,0 +1,45 @@
+/*
+ * The screen's own layout only. Every panel with a look of its own — the weight
+ * trend, the log control, the volume chart, the records — owns its styles beside
+ * its component.
+ */
+
+.pendingPanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  padding: var(--space-5) var(--space-4);
+}
+
+.pendingLabel {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.errorPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+}
+
+.errorTitle {
+  font-size: var(--text-heading-size);
+  font-weight: var(--text-heading-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.errorMessage {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+/* The gap belongs to the screen, not to each panel. See TodayScreen.module.css. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}

@@ -2,6 +2,7 @@ import type { CoachLine, CoachLineCategory } from '@/types/coachVoiceTypes';
 
 import { authenticationCoachLines } from './authenticationCoachLines';
 import { habitCoachLines } from './habitCoachLines';
+import { onboardingCoachLines } from './onboardingCoachLines';
 import { programCoachLines } from './programCoachLines';
 import { sessionCoachLines } from './sessionCoachLines';
 import { setFeedbackCoachLines } from './setFeedbackCoachLines';
@@ -18,6 +19,7 @@ import { setFeedbackCoachLines } from './setFeedbackCoachLines';
  */
 export const allCoachLines: CoachLine[] = [
   ...authenticationCoachLines,
+  ...onboardingCoachLines,
   ...sessionCoachLines,
   ...setFeedbackCoachLines,
   ...programCoachLines,

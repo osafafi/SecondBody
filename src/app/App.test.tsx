@@ -3,25 +3,31 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SignedInUser } from '@/types/authenticationTypes';
+import type { UserProfile } from '@/types/userAccountTypes';
 
 /**
  * Firebase is mocked out of these tests entirely.
  *
  * Not to make them faster — because there is nothing here worth testing about
  * Firebase, and CLAUDE.md section 5 says so directly. What these tests are for
- * is the wiring: that the gate lets a signed-in user through to the app and
- * stops a signed-out one at the sign-in screen.
+ * is the wiring: that the two gates let a signed-in, onboarded user through, and
+ * that each of them stops the case it exists to stop.
+ *
+ * Mocking the service modules also means `firebaseApp.ts` is never imported, so
+ * no app is initialised and no IndexedDB cache is opened in jsdom.
  *
  * `vi.hoisted` is needed because `vi.mock` factories are lifted above the
  * imports, so anything they close over has to be lifted with them.
  */
-const authenticationTestState = vi.hoisted(() => ({
+const backend = vi.hoisted(() => ({
   signedInUser: null as { userId: string; displayName: string | null } | null,
+  storedProfile: null as unknown,
+  shouldProfileReadFail: false,
 }));
 
 vi.mock('@/services/auth/googleAuthenticationService', () => ({
   observeSignedInUser: (handleSignedInUserChanged: (user: SignedInUser | null) => void) => {
-    handleSignedInUserChanged(authenticationTestState.signedInUser as SignedInUser | null);
+    handleSignedInUserChanged(backend.signedInUser as SignedInUser | null);
 
     return () => {};
   },
@@ -31,30 +37,72 @@ vi.mock('@/services/auth/googleAuthenticationService', () => ({
 }));
 
 vi.mock('@/services/repositories/userDocumentRepository', () => ({
-  USERS_COLLECTION_NAME: 'users',
   ensureUserDocumentExists: () => Promise.resolve(),
+}));
+
+vi.mock('@/services/repositories/userProfileRepository', () => ({
+  observeUserProfile: (
+    _userId: string,
+    handleProfileChanged: (profile: unknown) => void,
+    handleProfileReadFailed: (error: unknown) => void,
+  ) => {
+    if (backend.shouldProfileReadFail) {
+      handleProfileReadFailed(new Error('offline'));
+    } else {
+      handleProfileChanged(backend.storedProfile);
+    }
+
+    return () => {};
+  },
+  readUserProfile: () => Promise.resolve(backend.storedProfile),
+  writeUserProfile: () => Promise.resolve(),
+}));
+
+vi.mock('@/services/repositories/userSettingsRepository', () => ({
+  readUserSettings: () => Promise.resolve({}),
+  writeUserSettings: () => Promise.resolve(),
+  writeCompleteUserSettings: () => Promise.resolve(),
 }));
 
 const { App } = await import('./App');
 
+function buildOnboardedProfile(): UserProfile {
+  return {
+    displayName: 'Omar',
+    birthYear: 1990,
+    heightCentimetres: 178,
+    startingWeightKilograms: 92,
+    targetWeightKilograms: 83,
+    painAreas: [],
+    excludedExerciseIds: [],
+    availableEquipmentIds: ['dumbbells'],
+    trainingDaysOfWeek: [1, 3, 5],
+    hasCompletedOnboarding: true,
+    createdAt: new Date('2026-08-31T10:00:00.000Z'),
+    updatedAt: new Date('2026-08-31T10:00:00.000Z'),
+  };
+}
+
+beforeEach(() => {
+  window.localStorage.clear();
+  // HashRouter reads the hash, so reset it between tests.
+  window.location.hash = '';
+  backend.signedInUser = { userId: 'test-user', displayName: 'Omar' };
+  backend.storedProfile = buildOnboardedProfile();
+  backend.shouldProfileReadFail = false;
+});
+
 describe('App', () => {
-  beforeEach(() => {
-    window.localStorage.clear();
-    // HashRouter reads the hash, so reset it between tests.
-    window.location.hash = '';
-    authenticationTestState.signedInUser = { userId: 'test-user', displayName: 'Omar' };
-  });
-
-  it('opens on the Today screen', () => {
+  it('opens on the Today screen', async () => {
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'Today', level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Today', level: 1 })).toBeInTheDocument();
   });
 
-  it('shows all four navigation destinations', () => {
+  it('shows all four navigation destinations', async () => {
     render(<App />);
 
-    const navigation = screen.getByRole('navigation', { name: 'Main navigation' });
+    const navigation = await screen.findByRole('navigation', { name: 'Main navigation' });
 
     for (const destinationName of ['Today', 'Schedule', 'Progress', 'Settings']) {
       expect(screen.getByRole('link', { name: destinationName })).toBeInTheDocument();
@@ -67,20 +115,15 @@ describe('App', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole('link', { name: 'Settings' }));
+    await user.click(await screen.findByRole('link', { name: 'Settings' }));
 
     expect(screen.getByRole('heading', { name: 'Settings', level: 1 })).toBeInTheDocument();
   });
 });
 
 describe('the authentication gate', () => {
-  beforeEach(() => {
-    window.localStorage.clear();
-    window.location.hash = '';
-  });
-
   it('shows the sign-in screen instead of the app when nobody is signed in', () => {
-    authenticationTestState.signedInUser = null;
+    backend.signedInUser = null;
 
     render(<App />);
 
@@ -89,10 +132,57 @@ describe('the authentication gate', () => {
   });
 
   it('keeps the bottom navigation out of reach while signed out', () => {
-    authenticationTestState.signedInUser = null;
+    backend.signedInUser = null;
 
     render(<App />);
 
     expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
+  });
+});
+
+describe('the onboarding gate', () => {
+  it('asks the first onboarding question when there is no profile yet', async () => {
+    backend.storedProfile = null;
+
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'About you', level: 1 })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Today', level: 1 })).not.toBeInTheDocument();
+  });
+
+  /*
+   * A profile that exists but was abandoned halfway through on another device.
+   * The flag is what says so, not the document's existence.
+   */
+  it('resumes onboarding when a profile exists but was never finished', async () => {
+    backend.storedProfile = { ...buildOnboardedProfile(), hasCompletedOnboarding: false };
+
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'About you', level: 1 })).toBeInTheDocument();
+  });
+
+  /*
+   * The branch that matters most. A failed read must not look like "no profile",
+   * or a dropped connection walks someone who onboarded months ago back into
+   * being asked their height.
+   */
+  it('offers a retry rather than onboarding again when the profile cannot be read', async () => {
+    backend.shouldProfileReadFail = true;
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole('heading', { name: /could not load your profile/i, level: 1 }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'About you' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+  });
+
+  it('lets an onboarded user straight through to the app', async () => {
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'Today', level: 1 })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'About you' })).not.toBeInTheDocument();
   });
 });

@@ -1,4 +1,4 @@
-.checkingScreen {
+.screen {
   display: flex;
   min-height: 100dvh;
   flex-direction: column;
@@ -12,16 +12,16 @@
  * hundred milliseconds, and a brisk, high-contrast spinner in that window reads
  * as the app struggling rather than starting.
  */
-.checkingPulse {
+.pulse {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: var(--radius-full);
   background: linear-gradient(140deg, var(--brand-gradient-start), var(--brand-gradient-end));
   opacity: 0.55;
-  animation: checkingPulse var(--motion-slow) ease-in-out infinite alternate;
+  animation: pulse var(--motion-slow) ease-in-out infinite alternate;
 }
 
-@keyframes checkingPulse {
+@keyframes pulse {
   from {
     opacity: 0.3;
     transform: scale(0.9);
@@ -34,12 +34,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .checkingPulse {
+  .pulse {
     animation: none;
   }
 }
 
-.checkingLabel {
+.label {
   font-size: var(--text-caption-size);
   color: var(--text-muted);
 }

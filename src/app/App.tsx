@@ -11,6 +11,8 @@ import { AppShell } from './AppShell';
 import { APP_ROUTE_PATHS } from './appRoutes';
 import { AuthenticationGate } from './AuthenticationGate';
 import { AuthenticationProvider } from './AuthenticationProvider';
+import { OnboardingGate } from './OnboardingGate';
+import { UserProfileProvider } from './UserProfileProvider';
 
 /**
  * Application root: providers, then routes.
@@ -27,49 +29,58 @@ export function App() {
   return (
     <ColorPaletteProvider>
       <AuthenticationProvider>
-        <HashRouter>
-          <Routes>
-            {/* Everything that reads or writes user data sits behind the gate. */}
-            <Route element={<AuthenticationGate />}>
-              {/* Screens that live inside the shell, with the bottom navigation. */}
-              <Route element={<AppShell />}>
-                <Route path={APP_ROUTE_PATHS.today} element={<TodayScreen />} />
-                <Route path={APP_ROUTE_PATHS.schedule} element={<ScheduleScreen />} />
-                <Route path={APP_ROUTE_PATHS.progress} element={<ProgressScreen />} />
-                <Route path={APP_ROUTE_PATHS.settings} element={<SettingsScreen />} />
+        <UserProfileProvider>
+          <HashRouter>
+            <Routes>
+              {/* Everything that reads or writes user data sits behind the gates. */}
+              <Route element={<AuthenticationGate />}>
+                {/*
+                 * Signed in, but the profile still has to exist before a screen
+                 * can render a programme built from it.
+                 */}
+                <Route element={<OnboardingGate />}>
+                  {/* Screens inside the shell, with the bottom navigation. */}
+                  <Route element={<AppShell />}>
+                    <Route path={APP_ROUTE_PATHS.today} element={<TodayScreen />} />
+                    <Route path={APP_ROUTE_PATHS.schedule} element={<ScheduleScreen />} />
+                    <Route path={APP_ROUTE_PATHS.progress} element={<ProgressScreen />} />
+                    <Route path={APP_ROUTE_PATHS.settings} element={<SettingsScreen />} />
+                  </Route>
+                </Route>
               </Route>
-            </Route>
 
-            {/*
-             * The exercise media contact sheet is a tool for reviewing generated
-             * animations, not a screen of the app. It sits outside the shell so it
-             * can use the full width of the window — the point of it is seeing many
-             * animations at once, which a phone-width column cannot do.
-             *
-             * It also sits outside the authentication gate: it renders content from
-             * `src/content/` and touches nothing personal, so requiring a sign-in to
-             * look at a sheet of animations would be friction for no gain.
-             *
-             * `import.meta.env.DEV` is a compile-time constant, so this branch and
-             * the screen it names are removed from the production bundle entirely.
-             */}
-            {import.meta.env.DEV ? (
-              <Route
-                path={APP_ROUTE_PATHS.exerciseMediaReview}
-                element={<ExerciseMediaReviewScreen />}
-              />
-            ) : null}
+              {/*
+               * The exercise media contact sheet is a tool for reviewing generated
+               * animations, not a screen of the app. It sits outside the shell so it
+               * can use the full width of the window — the point of it is seeing many
+               * animations at once, which a phone-width column cannot do.
+               *
+               * It also sits outside both gates: it renders content from
+               * `src/content/` and touches nothing personal, so signing in and filling
+               * in a profile to look at a sheet of animations would be friction for no
+               * gain.
+               *
+               * `import.meta.env.DEV` is a compile-time constant, so this branch and
+               * the screen it names are removed from the production bundle entirely.
+               */}
+              {import.meta.env.DEV ? (
+                <Route
+                  path={APP_ROUTE_PATHS.exerciseMediaReview}
+                  element={<ExerciseMediaReviewScreen />}
+                />
+              ) : null}
 
-            {/*
-             * The active session screen will be registered OUTSIDE the shell in M5,
-             * so it takes over the whole display with nothing to tap by accident
-             * mid-set. It goes INSIDE the gate — it writes sets to Firestore.
-             */}
+              {/*
+               * The active session screen will be registered OUTSIDE the shell in M5,
+               * so it takes over the whole display with nothing to tap by accident
+               * mid-set. It goes INSIDE both gates — it writes sets to Firestore.
+               */}
 
-            {/* Anything unrecognised goes home rather than showing a blank screen. */}
-            <Route path="*" element={<Navigate to={APP_ROUTE_PATHS.today} replace />} />
-          </Routes>
-        </HashRouter>
+              {/* Anything unrecognised goes home rather than showing a blank screen. */}
+              <Route path="*" element={<Navigate to={APP_ROUTE_PATHS.today} replace />} />
+            </Routes>
+          </HashRouter>
+        </UserProfileProvider>
       </AuthenticationProvider>
     </ColorPaletteProvider>
   );

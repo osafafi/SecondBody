@@ -9,14 +9,14 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ## Current state
 
-|                       |                                                                               |
-| --------------------- | ----------------------------------------------------------------------------- |
-| **Current milestone** | M4 — Firebase data layer                                                      |
-| **Status**            | Auth foundation done and verified. Repositories and onboarding still to write |
-| **Current branch**    | `feat/firebase-data-layer`, branched off `main`                               |
-| **App runs?**         | Yes — `npm run dev`. Sign-in screen first, then the same four screens         |
-| **Backend wired?**    | Partly. Firebase project live, rules deployed, Google Sign-In working         |
-| **Deployed?**         | No — arrives in M9                                                            |
+|                       |                                                                   |
+| --------------------- | ----------------------------------------------------------------- |
+| **Current milestone** | M4 — Firebase data layer                                          |
+| **Status**            | Complete. Awaiting review on `feat/firebase-data-layer`           |
+| **Current branch**    | `feat/firebase-data-layer`, branched off `main`                   |
+| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then the same four screens |
+| **Backend wired?**    | Yes. Auth, rules, seven typed repositories and onboarding         |
+| **Deployed?**         | No — arrives in M9                                                |
 
 > **Read session 6 before touching the exercise animations.** The generated SVGs are gone.
 > The media is now sourced from an open dataset, and it is **not this project's to
@@ -24,24 +24,24 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ### What to do next
 
-**M3 and the palette cleanup are already merged into `main`.** Both landed locally before
-session 8; the milestone table below still lists them as separate branches because that is how
-they were built.
+**M4 is finished.** Review `feat/firebase-data-layer`, then start **M5 — the active session**
+on `feat/active-session`. Read [TRAINING_PROGRAM.md](TRAINING_PROGRAM.md) sections 5 to 7 and
+the `workoutSessions` shape in [DATA_MODEL.md](DATA_MODEL.md#3-document-shapes) first.
 
-M4 is in progress on `feat/firebase-data-layer` and is **paused at a deliberate checkpoint**.
-The auth foundation is written, verified and committed. Omar is signing in for real to confirm
-`users/{uid}` appears before anything gets built on top of it. Once he confirms, continue with:
+M5 inherits a working backend and needs no setup of its own. What is already there for it:
 
-1. Typed repositories for the rest of the collections in
-   [DATA_MODEL.md](DATA_MODEL.md#2-collection-layout) — profile, settings, programAssignments,
-   workoutSessions, bodyMetrics, dailyHabits, personalRecords.
-2. The onboarding flow that writes `profile/current` on first run, which is what
-   `hasCompletedOnboarding` exists for.
+- `createWorkoutSession` / `saveWorkoutSession` / `readInProgressWorkoutSession` in
+  `src/services/repositories/workoutSessionRepository.ts`. The last of those is what lets the
+  app offer to resume a session the phone interrupted.
+- `useUserProfile()` for pain areas, equipment and excluded exercises — the three things that
+  decide what a session may prescribe.
+- `readActiveProgramAssignment` for where in the twelve weeks he is.
+- `ExerciseAnimation` from M3, still drawn only by the development review screen.
 
-**Every setup step only Omar could do is done.** The Firebase project exists
-(`second-body-osi`, me-central1), Google Sign-In is enabled, Firestore is created, the rules
-are deployed and the authorised-domain list is correct and verified. Do not ask for them
-again — read session 8 first.
+**Every Firebase setup step is done and verified.** The project exists (`second-body-osi`,
+me-central1), Google Sign-In is on, Firestore is created, the rules are deployed and the
+authorised-domain list is correct. Do not ask Omar for any of it again — read sessions 8 and
+9 first.
 
 From M3 you inherit `ExerciseAnimation`, ready for the session player in M5. Nothing in the
 shipping app draws it yet — only the development review screen does. Twenty-seven exercises
@@ -60,7 +60,7 @@ One branch and one pull request each. Do not mix milestones.
 | M1  | `feat/design-system`           | Tokens, palettes, `GradientSurface` and primitives, app shell, bottom nav, palette switcher   | **Done**    |
 | M2  | `feat/training-content`        | Exercise database, 12-week programme, mobility routines, coach voice, `domain/` logic + tests | **Done**    |
 | M3  | `feat/exercise-media-pipeline` | Media spec, dataset match table, copy tool, verifier, 27 animations + 9 fallbacks             | **Done**    |
-| M4  | `feat/firebase-data-layer`     | Firebase init, Google Sign-In, typed repositories, security rules, onboarding                 | In progress |
+| M4  | `feat/firebase-data-layer`     | Firebase init, Google Sign-In, typed repositories, security rules, onboarding                 | **Done**    |
 | M5  | `feat/active-session`          | Session player state machine, set logging, rest timer, wake lock                              | Not started |
 | M6  | `feat/dashboard-and-schedule`  | Today screen, calendar, 48-hour recovery awareness                                            | Not started |
 | M7  | `feat/progress-tracking`       | Weight trend, volume charts, personal records                                                 | Not started |
@@ -579,6 +579,72 @@ that was the one question worth his time.
   repository, that screen can read the real value.
 - `ensureUserDocumentExists` costs one read and one write per sign-in. That is deliberate and
   documented in [DATA_MODEL.md](DATA_MODEL.md#6-cost) — it is not worth optimising.
+
+---
+
+### Session 9 - 2026-08-31 - M4 repositories and onboarding
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/firebase-data-layer`, continuing from the session 8 checkpoint
+
+Omar signed in, confirmed `users/{uid}` appeared, and asked for the rest of the milestone.
+This is the second half: the seven typed repositories and the onboarding flow.
+
+**Done**
+
+- **Persisted types**, in three files grouped by concern rather than one per collection:
+  `userAccountTypes.ts`, `trainingHistoryTypes.ts`, `dailyTrackingTypes.ts`.
+- **`firestoreDocumentReading.ts`** — the shared reader every mapping is built on. Firestore
+  hands back `DocumentData`, and casting that to `UserProfile` would make the type system
+  lie about fields that may not be there. Every field is read through a check that either
+  produces the right type or throws naming the document and the field.
+- **Three mapping files** (`userAccount`, `trainingHistory`, `dailyTracking`), holding all
+  the translation logic and every decision in it. **65 tests.**
+- **Seven repositories**, each thin enough to have nothing worth testing:
+  `userProfile`, `userSettings`, `programAssignment`, `workoutSession`, `bodyMetrics`,
+  `dailyHabits`, `personalRecords`. Plus `userCollectionPaths.ts`, which is the only place a
+  collection name is spelled.
+- **`src/domain/onboardingValidation.ts`** + 21 tests. Takes the current year as an argument,
+  because `src/domain/` may not read a clock.
+- **`OnboardingFlow`** — five steps, with `OnboardingNumberField` and `OnboardingChoiceGrid`.
+- **`UserProfileProvider` / `OnboardingGate`**, nested inside the M4 authentication gate.
+- `PendingScreen` extracted from `AuthenticationGate`, now shared by both gates.
+- Six `onboardingOpening` / `onboardingFinished` coach lines.
+- Docs: `DATA_MODEL.md` records both deviations from its own sketch; new READMEs for
+  `services/repositories/` and `features/onboarding/`.
+- **570 tests, up from 474.** `npm run verify` green, production build clean.
+
+**Decisions made and why**
+
+| Decision                                                                      | Reason                                                                                                                                                                                                                                                                                                   |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| App types use `Date`, never Firestore's `Timestamp`                           | `src/domain/` reads these types and must not know Firebase exists. Converting is the repositories' job, and it is precisely the translation logic CLAUDE.md section 5 wants tested with fakes                                                                                                            |
+| A timestamp is recognised by having `toDate()`, not by `instanceof Timestamp` | Keeps the entire mapping layer free of a Firebase import, so it is unit testable without initialising an app — the same trick as `popupSignInFallback.ts` in session 8                                                                                                                                   |
+| Statuses strict, vocabulary lists lenient, preferences most lenient           | Three different failure meanings. A session status of `paused` is a bug worth hearing about. A renamed equipment id should not lock Omar out of his app. A renamed preference option should not brick a release until every document is migrated                                                         |
+| Optional numbers are null, never defaulted to zero                            | An unmeasured waist and a 0 cm waist are different facts, and the charts average these. A defaulted zero drags a trend line down while looking exactly like data                                                                                                                                         |
+| `PerformedSet` weights are nullable, departing from DATA_MODEL.md             | A dead bug has no weight. `PerformedSetRecord` has said so since M2. The doc was updated to match the code rather than the other way round                                                                                                                                                               |
+| Every query is single-field                                                   | Firestore indexes those automatically; a composite index must be declared and deployed, and `firebase.json` ships rules only. No screen needed one                                                                                                                                                       |
+| The profile is watched with `onSnapshot`, not fetched                         | Started as a fix for `react-hooks/set-state-in-effect`, which wants setState in a subscription callback rather than after an effect's fetch. It turned out to be the better design anyway: the local cache makes the first callback instant, and onboarding's write re-fires it with no explicit refetch |
+| Profile state is tagged with the user id it belongs to                        | Without it there is a render where the new user's id is in context and the previous user's profile is still in state. Tagging means anything belonging to someone else simply does not count as loaded                                                                                                   |
+| A failed profile read is its own state, not "no profile"                      | Otherwise a dropped connection walks someone who onboarded months ago back into being asked their height. `merge` means nothing would be lost, but being asked is its own kind of broken                                                                                                                 |
+| The equipment step starts fully ticked                                        | The inventory was counted in Omar's gym in person in session 4, so "all of it" is the right answer for him. Unticking beats ticking twenty-six boxes                                                                                                                                                     |
+
+**Notes for the next session**
+
+- **The onboarding screens have not been seen by a human.** Their behaviour is covered by
+  tests, but signing in needs Omar's Google account, which an agent cannot and should not do.
+  He will meet the flow on his next load, because `profile/current` does not exist yet.
+- `writeUserSettings` takes a partial and spreads it directly rather than routing through the
+  mapping. That is safe **only** because every preference is a primitive whose stored name
+  matches its type name. If a settings field ever needs converting, that shortcut has to go —
+  the comment on it says so.
+- `excludedExerciseIds` is written as an empty array and has no onboarding question. It is
+  for something a physio ruled out, which is a conversation rather than a checkbox.
+- The bundle is 940 kB before gzip and Vite warns about it. Firebase is most of that. Worth a
+  dynamic import in M9 rather than now.
+- Nothing reads `bodyMetrics`, `dailyHabits`, `personalRecords` or `programAssignments` yet.
+  They are written and tested ahead of the screens that use them in M6 to M8, which is why
+  they exist with no caller.
 
 ---
 

@@ -1,9 +1,13 @@
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 
-import { firestoreDatabase } from '../firebase/firebaseApp';
+import { buildUserDocumentReference } from './userCollectionPaths';
 
-/** The single root collection. Everything else hangs off a user document. */
-export const USERS_COLLECTION_NAME = 'users';
+/**
+ * `users/{userId}` — the root document everything else hangs off.
+ *
+ * It holds almost nothing itself. Its job is to exist, so that the single rule
+ * in `firestore.rules` has a subtree to protect.
+ */
 
 /**
  * Makes sure `users/{userId}` exists, and records that its owner was just here.
@@ -16,7 +20,7 @@ export const USERS_COLLECTION_NAME = 'users';
  * that is not worth optimising.
  */
 export async function ensureUserDocumentExists(userId: string): Promise<void> {
-  const userDocumentReference = doc(firestoreDatabase, USERS_COLLECTION_NAME, userId);
+  const userDocumentReference = buildUserDocumentReference(userId);
   const existingUserDocument = await getDoc(userDocumentReference);
 
   if (existingUserDocument.exists()) {

@@ -1,0 +1,90 @@
+.paletteList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  list-style: none;
+}
+
+.paletteOption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-medium);
+  text-align: left;
+
+  transition:
+    background var(--motion-fast) var(--motion-easing),
+    transform var(--motion-fast) var(--motion-easing);
+}
+
+.paletteOption:active {
+  transform: scale(0.985);
+}
+
+.paletteOption:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+.isSelected {
+  background: linear-gradient(
+    140deg,
+    rgba(var(--surface-tint-rgb), 0.24),
+    rgba(var(--surface-tint-rgb), 0.06)
+  );
+}
+
+/*
+ * The swatch previews the palette using that palette's own colours, passed in as
+ * inline custom properties. This is the one place inline style is correct: the
+ * colours belong to a palette that is NOT the active one, so they cannot come
+ * from the document's custom properties.
+ */
+.swatch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-medium);
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--swatch-brand-start), var(--swatch-brand-end));
+  box-shadow: 0 4px 14px -6px var(--swatch-brand-start);
+}
+
+/* A corner triangle of the background colour, so a swatch shows the palette's
+   darkness as well as its brand hue. */
+.swatchCorner {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 60%;
+  height: 60%;
+  background: var(--swatch-background);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.paletteText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.paletteName {
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.paletteHint {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.selectedIcon {
+  margin-left: auto;
+  color: var(--brand-gradient-start);
+}

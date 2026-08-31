@@ -1,0 +1,83 @@
+.navigation {
+  position: fixed;
+  right: var(--space-3);
+  bottom: calc(var(--space-3) + var(--safe-area-bottom));
+  left: var(--space-3);
+  z-index: 20;
+
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: stretch;
+
+  height: var(--bottom-navigation-height);
+  padding: var(--space-2);
+}
+
+.navigationItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+
+  border-radius: var(--radius-medium);
+  color: var(--text-muted);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: 0.01em;
+
+  transition:
+    color var(--motion-fast) var(--motion-easing),
+    transform var(--motion-fast) var(--motion-easing);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.navigationItem:active {
+  transform: scale(0.94);
+}
+
+.navigationItem:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+/*
+ * The active item gets a soft gradient pill behind it rather than a colour
+ * change alone, so which tab you are on is obvious at a glance with a thumb
+ * partly covering the bar.
+ */
+.isActive {
+  color: var(--text-primary);
+}
+
+.isActive::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(
+    150deg,
+    rgba(var(--surface-tint-rgb), 0.34),
+    rgba(var(--surface-tint-rgb), 0.08)
+  );
+  box-shadow: 0 4px 16px -8px rgba(var(--surface-tint-rgb), 0.9);
+}
+
+.icon {
+  /* The icon inherits the item colour, and the active item additionally gets a
+     subtle glow so it reads as lit rather than merely lighter. */
+  filter: none;
+}
+
+.isActive .icon {
+  color: var(--brand-gradient-start);
+  filter: drop-shadow(0 0 6px rgba(var(--surface-tint-rgb), 0.6));
+}
+
+.label {
+  line-height: 1;
+}

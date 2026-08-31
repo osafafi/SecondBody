@@ -1,0 +1,112 @@
+/*
+ * A gradient-filled container for a single icon.
+ *
+ * Omar asked for "plenty of icons everywhere". This is how an icon gets enough
+ * visual weight to anchor a row or a stat without the interface turning noisy.
+ *
+ * Note the use of color-mix() for the semantic tones: it derives a translucent
+ * wash from the palette's own semantic colour, so these badges recolour with the
+ * palette instead of being frozen to one hue.
+ */
+
+.badge {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-medium);
+  isolation: isolate;
+}
+
+.badge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.04));
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+/* --- Sizes ----------------------------------------------------------------- */
+
+.sizeSmall {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-small);
+}
+
+.sizeMedium {
+  width: 40px;
+  height: 40px;
+}
+
+.sizeLarge {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-large);
+}
+
+/* --- Tones ----------------------------------------------------------------- */
+/* Each tone is a gradient wash rather than a solid fill, so a row of badges
+   reads as one family instead of a set of coloured squares. */
+
+.toneBrand {
+  background: linear-gradient(
+    140deg,
+    rgba(var(--surface-tint-rgb), 0.32),
+    rgba(var(--surface-tint-rgb), 0.1)
+  );
+  color: var(--brand-gradient-start);
+}
+
+.toneNeutral {
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02));
+  color: var(--text-secondary);
+}
+
+.toneSuccess {
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--success-gradient-start) 26%, transparent),
+    color-mix(in srgb, var(--success-gradient-start) 7%, transparent)
+  );
+  color: var(--success-gradient-start);
+}
+
+.toneWarning {
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--warning-gradient-start) 26%, transparent),
+    color-mix(in srgb, var(--warning-gradient-start) 7%, transparent)
+  );
+  color: var(--warning-gradient-start);
+}
+
+.toneDanger {
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--danger-gradient-start) 26%, transparent),
+    color-mix(in srgb, var(--danger-gradient-start) 7%, transparent)
+  );
+  color: var(--danger-gradient-start);
+}
+
+/* --- Solid ----------------------------------------------------------------- */
+/* Full brand gradient, for the one badge on a screen that matters most. */
+
+.isSolid {
+  background: linear-gradient(135deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  color: var(--text-primary);
+  box-shadow: 0 6px 18px -8px rgba(var(--surface-tint-rgb), 0.8);
+}

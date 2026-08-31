@@ -51,6 +51,6 @@ a chart is not an achievement.
   eligible — a carry stores metres in `actualReps` and Epley on that is a confident,
   meaningless number.
 - **Weight can be logged here.** `LogBodyWeightPanel` is the first caller of
-  `addBodyMetricEntry`. The quick log on the Today screen is still M8's; this is the
+  `addBodyMetricEntry`. M8 added a second, smaller one on the Today screen; this is the
   deliberate version, on the screen where the number is being looked at anyway. A trend with
   no way to add a reading is a chart of an empty collection.

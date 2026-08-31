@@ -6,6 +6,16 @@ import { useColorPalette } from '@/theme/useColorPalette';
 
 import styles from './ColorPalettePicker.module.css';
 
+export type ColorPalettePickerProps = {
+  /**
+   * Called with the chosen palette so the screen can store it against the
+   * account. The palette is applied to the document either way — persisting it
+   * is a separate concern, and a Firestore write that fails must not stop the
+   * colours changing.
+   */
+  onPaletteSelected: (paletteId: string) => void;
+};
+
 /**
  * Builds the inline custom properties that let a swatch preview a palette other
  * than the active one.
@@ -32,8 +42,13 @@ function buildSwatchStyle(
  *
  * The list is driven entirely by the palette registry, so adding a palette makes
  * it appear here with no change to this file.
+ *
+ * Two things happen on a tap, in this order: the palette is applied to the
+ * document and cached in localStorage by the theme provider, and then the choice
+ * is reported to the screen, which stores it against the account so it follows
+ * him to another device. See `useStoredColorPaletteSync`.
  */
-export function ColorPalettePicker() {
+export function ColorPalettePicker({ onPaletteSelected }: ColorPalettePickerProps) {
   const { selectedColorPalette, availableColorPalettes, selectColorPaletteById } =
     useColorPalette();
 
@@ -49,7 +64,10 @@ export function ColorPalettePicker() {
               className={[styles.paletteOption, isSelected ? styles.isSelected : null]
                 .filter(Boolean)
                 .join(' ')}
-              onClick={() => selectColorPaletteById(palette.paletteId)}
+              onClick={() => {
+                selectColorPaletteById(palette.paletteId);
+                onPaletteSelected(palette.paletteId);
+              }}
               aria-pressed={isSelected}
             >
               <span

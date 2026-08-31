@@ -29,11 +29,14 @@ export type LogBodyWeightPanelProps = {
 };
 
 /**
- * The only way into `bodyMetrics` until the habits screen lands in M8.
+ * The deliberate way into `bodyMetrics`, on the screen where the number is
+ * being looked at anyway.
  *
  * M7 draws a weight trend, and a trend with no way to add a reading is a chart
- * of an empty collection. The quick log on Today is still M8's — this is the
- * deliberate version, on the screen where the number is being looked at anyway.
+ * of an empty collection. M8 added `QuickWeightLogPanel` on the Today screen as
+ * well — a folded-shut two-tap version for the way past the bathroom. The two
+ * are deliberately not one component: sharing would mean one of the screens
+ * carrying the other's chrome.
  *
  * The stepper is prefilled rather than blank because the common case is a weight
  * within a few hundred grams of the last one, and because a blank field on a

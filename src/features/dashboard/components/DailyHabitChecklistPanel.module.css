@@ -1,0 +1,216 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-4);
+}
+
+/* --- What the day looks like so far --------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.headlineText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.eyebrow {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.title {
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.subtitle {
+  font-size: var(--text-caption-size);
+  color: var(--text-secondary);
+}
+
+/* --- The five rows -------------------------------------------------------- */
+
+.habitList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 3.25rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-medium);
+  background: rgba(var(--surface-tint-rgb), 0.12);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--motion-easing),
+    background var(--motion-fast) var(--motion-easing);
+}
+
+/*
+ * A met habit is tinted rather than ticked-and-greyed. The row is still live —
+ * a habit can be unticked, because a tick pressed by a thumb in a coat pocket
+ * has to be undoable.
+ */
+.row.isMet {
+  border-color: rgba(var(--surface-tint-rgb), 0.5);
+  background: rgba(var(--surface-tint-rgb), 0.26);
+}
+
+.rowIcon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  background: rgba(var(--surface-tint-rgb), 0.24);
+  color: var(--text-secondary);
+}
+
+.row.isMet .rowIcon {
+  background: linear-gradient(140deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  color: var(--text-primary);
+}
+
+.rowText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.rowName {
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.rowTarget {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.tickBox {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-small);
+  color: var(--text-primary);
+}
+
+.row.isMet .tickBox {
+  border-color: transparent;
+  background: linear-gradient(140deg, var(--brand-gradient-start), var(--brand-gradient-end));
+}
+
+/*
+ * Hidden from view but not from the accessibility tree or the keyboard: the row
+ * is only paint, and this is what gets focused, toggled with space and
+ * announced as checked.
+ */
+.hiddenCheckbox {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.row:focus-within {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+/* --- The two numbers ------------------------------------------------------ */
+
+.numericField {
+  flex: none;
+  width: 7rem;
+}
+
+.saveNumberButton {
+  margin-top: var(--space-2);
+}
+
+/* --- The notes underneath ------------------------------------------------- */
+
+.errorMessage {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--danger-gradient-start);
+}
+
+.coachLine {
+  font-size: var(--text-body-size);
+  font-style: italic;
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+.reasons {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: var(--space-3);
+}
+
+.reasonsSummary {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.reasonList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+}
+
+.reason {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.reasonName {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.reasonText {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}

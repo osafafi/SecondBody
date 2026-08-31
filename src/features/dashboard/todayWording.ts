@@ -92,3 +92,15 @@ export function describeDaysSinceLastSession(daysSinceLastSession: number): stri
 export function describeMovementCount(movementCount: number): string {
   return movementCount === 1 ? '1 movement' : `${String(movementCount)} movements`;
 }
+
+/**
+ * "84.3 kg". One decimal place, because a bathroom scale has one.
+ *
+ * The Progress screen has an identical formatter in its own wording file.
+ * Features may not import from each other — see CLAUDE.md section 3 — and one
+ * shared line of `toFixed` is not worth a shared module that both features would
+ * then have to agree about. If a third screen ever shows a weight, promote it.
+ */
+export function formatWeightKilograms(weightKilograms: number): string {
+  return `${weightKilograms.toFixed(1)} kg`;
+}

@@ -1,0 +1,97 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-4);
+}
+
+/* --- How much the coach says ---------------------------------------------- */
+
+.verbosityFieldset {
+  border: none;
+}
+
+.legend {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.verbosityOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.verbosityOption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-medium);
+  background: rgba(var(--surface-tint-rgb), 0.12);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--motion-easing),
+    background var(--motion-fast) var(--motion-easing);
+}
+
+.verbosityOption.isSelected {
+  border-color: transparent;
+  background: linear-gradient(140deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+.verbosityLabel {
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.verbosityHint {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+.verbosityOption.isSelected .verbosityHint {
+  color: var(--text-primary);
+}
+
+/*
+ * Hidden from view but not from the accessibility tree or the keyboard: the
+ * option is only paint, and this is what gets focused, moved between with the
+ * arrow keys and announced as selected.
+ */
+.hiddenRadio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.verbosityOption:focus-within {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+/* --- What the session player does with the phone -------------------------- */
+
+.switches {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.errorMessage {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--danger-gradient-start);
+}

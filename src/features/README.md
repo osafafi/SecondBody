@@ -23,17 +23,18 @@ Features may import freely from all of the above. Only `src/app/` imports featur
 This is what keeps a new feature from becoming a refactor. See
 [ARCHITECTURE.md](../../docs/ARCHITECTURE.md#2-layers-and-the-dependency-rule).
 
-## Planned features
+## The features
 
-| Folder             | What it owns                                                              | Milestone |
-| ------------------ | ------------------------------------------------------------------------- | --------- |
-| `onboarding/`      | First-run profile setup: height, weight, goals, pain areas, gym equipment | M4        |
-| `dashboard/`       | The Today screen — what is on, streak, habit ticks, quick weight log      | M6        |
-| `activeSession/`   | The live workout player. The heart of the app. **Built**                  | M5        |
-| `schedule/`        | Calendar of planned vs completed sessions, phase progress                 | M6        |
-| `progress/`        | Weight trend, training volume, personal records                           | M7        |
-| `exerciseLibrary/` | Browse every exercise with its animation and coaching notes               | M5        |
-| `settings/`        | Palette picker, profile editing, targets, coach verbosity                 | M8        |
+| Folder                 | What it owns                                                              | Milestone |
+| ---------------------- | ------------------------------------------------------------------------- | --------- |
+| `onboarding/`          | First-run profile setup: height, weight, goals, pain areas, gym equipment | M4        |
+| `activeSession/`       | The live workout player. The heart of the app                             | M5        |
+| `dashboard/`           | The Today screen — what is on, the habit checklist, the quick weigh-in    | M6, M8    |
+| `schedule/`            | Calendar of planned vs completed sessions, phase progress                 | M6        |
+| `progress/`            | Weight trend, training volume, personal records                           | M7        |
+| `settings/`            | Palette picker, profile editing, coaching and session preferences         | M8        |
+| `exerciseMediaReview/` | A dev-only contact sheet of every exercise animation                      | M3        |
+| `exerciseLibrary/`     | Browse every exercise with its animation and coaching notes. Not built    | —         |
 
 ## Anatomy of a feature
 

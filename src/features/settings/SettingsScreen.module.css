@@ -21,3 +21,27 @@
   line-height: var(--line-height-normal);
   color: var(--text-secondary);
 }
+
+/*
+ * The media attribution. Quiet, but present on every build — it is a condition
+ * of using the animations, not a nicety. See
+ * src/content/exerciseMedia/exerciseMediaAttribution.ts.
+ */
+.creditsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+}
+
+.creditsLine {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+}
+
+.creditsLink {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}

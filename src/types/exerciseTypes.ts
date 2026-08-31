@@ -10,11 +10,14 @@ import type {
 /**
  * The brief the exercise animation generator works from.
  *
- * M3 turns each of these into an animated SVG by combining it with
- * docs/EXERCISE_MEDIA_SPEC.md and the committed exemplar file. It lives on the
- * exercise definition rather than in the generator so that a wrong animation is
- * fixed by correcting the description of the movement, in the same file that
- * describes the movement to the user.
+ * The animations are no longer drawn from this — they are matched to an open
+ * dataset, one record at a time, by eye. See docs/EXERCISE_MEDIA_SPEC.md.
+ *
+ * This is what they are matched *against*: the person choosing between four
+ * plausible-looking candidates reads these three sentences and picks the one
+ * that shows them. It stays on the exercise definition, next to the form cues,
+ * because a wrong animation is then fixed in the same file that describes the
+ * movement to the user.
  */
 export type ExerciseMediaBrief = {
   /** Where the body and the equipment start. One sentence, present tense. */
@@ -37,7 +40,7 @@ export type ExerciseMediaBrief = {
 export type ExerciseDefinition = {
   /**
    * Stable camelCase identifier. It is also the media filename
-   * (`public/exercise-media/{exerciseId}.svg`), so it must stay camelCase and
+   * (`public/exercise-media/{exerciseId}.gif`), so it must stay camelCase and
    * must never change once sessions have been logged against it.
    */
   exerciseId: string;

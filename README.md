@@ -41,6 +41,8 @@ can test on the device you will actually use.
 | `npm run test:watch`              | Unit tests in watch mode                                   |
 | `npm run lint` / `lint:fix`       | ESLint                                                     |
 | `npm run format` / `format:check` | Prettier                                                   |
+| `npm run media:copy`              | Copy matched exercise animations out of the cloned dataset |
+| `npm run media:verify`            | Check the committed animations against the match table     |
 
 ## Documentation
 
@@ -54,7 +56,7 @@ Start here if you are picking this project up:
 | [docs/TRAINING_PROGRAM.md](docs/TRAINING_PROGRAM.md)       | You are touching exercises, programmes or progression            |
 | [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)             | You are writing any UI                                           |
 | [docs/DATA_MODEL.md](docs/DATA_MODEL.md)                   | You are reading or writing user data                             |
-| [docs/EXERCISE_MEDIA_SPEC.md](docs/EXERCISE_MEDIA_SPEC.md) | You are generating or editing exercise animations                |
+| [docs/EXERCISE_MEDIA_SPEC.md](docs/EXERCISE_MEDIA_SPEC.md) | You are adding or changing an exercise animation                 |
 | [docs/SETUP_FIREBASE.md](docs/SETUP_FIREBASE.md)           | You are setting up the backend for the first time                |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)                   | You are shipping to GitHub Pages                                 |
 | [docs/ROADMAP.md](docs/ROADMAP.md)                         | You are wondering what to build next                             |

@@ -74,26 +74,19 @@ export type ColorPaletteDefinition = {
   warningGradientEnd: string;
   dangerGradientStart: string;
   dangerGradientEnd: string;
-
-  // ---------------------------------------------------------------------------
-  // Exercise illustrations
-  //
-  // The generated exercise SVGs reference these as CSS custom properties rather
-  // than baking in literal colours. That is what makes switching palette
-  // recolour every exercise animation as well as the interface.
-  //
-  // The exhaustive list of properties an SVG may use is in
-  // docs/EXERCISE_MEDIA_SPEC.md section 4. Keep the two in step.
-  // ---------------------------------------------------------------------------
-
-  muscleBodyFill: string;
-  muscleBodyStroke: string;
-  muscleHighlightPrimary: string;
-  muscleHighlightSecondary: string;
-  muscleEquipmentFill: string;
-  muscleEquipmentStroke: string;
-  muscleMotionTrail: string;
 };
+
+/*
+ * There used to be seven more fields here — `muscleBodyFill` and friends — which
+ * the generated exercise SVGs referenced so the animations recoloured along with
+ * the interface. The SVGs were replaced with dataset GIFs, which are raster and
+ * take no colour from the page, and the fields were removed with them.
+ *
+ * They are worth a note rather than silence, because "why can I not recolour the
+ * animations" is a reasonable question to arrive here with. The answer is in
+ * docs/EXERCISE_MEDIA_SPEC.md. Media that draws itself again would add its own
+ * fields back, with values chosen against the artwork that actually uses them.
+ */
 
 /**
  * The palette fields that are metadata rather than colours. These are skipped

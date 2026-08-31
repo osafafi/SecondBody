@@ -15,6 +15,8 @@ ticks live in Firestore. See [docs/DATA_MODEL.md](../../docs/DATA_MODEL.md).
 ```
 content/
   exercises/    One file per group of related movements, plus a flat registry.
+  exerciseMedia/ Which dataset animation belongs to which exercise, and why. See
+                docs/EXERCISE_MEDIA_SPEC.md before touching this.
   programs/     The twelve week programme: phases, weeks, and three sessions per phase.
   mobility/     The at-home "Desk Undo" routine.
   habits/       The daily checklist and its targets.
@@ -32,8 +34,8 @@ a warm-up step and a mobility step all hold an id, so:
 - Cat-cow appearing in both the gym warm-up and the home routine is one definition, not two
   that drift apart.
 - An exercise's logged history survives the programme that first prescribed it.
-- The animation filename is the id — `public/exercise-media/{exerciseId}.svg` — so the media
-  pipeline in M3 needs no separate mapping.
+- The animation filename is the id — `public/exercise-media/{exerciseId}.gif` — so nothing
+  has to be looked up at render time beyond whether the file exists at all.
 
 The registries (`allExercises.ts`, `allProgramTemplates.ts`, `allCoachLines.ts`,
 `allMobilityRoutines.ts`) are the only things the rest of the app imports.
@@ -72,7 +74,15 @@ it is dead content.
 
 | Adding         | Where                                                         | Also do                                                         |
 | -------------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
-| An exercise    | The matching `exercises/*.ts` group                           | Write a `mediaBrief`, then generate its SVG (M3)                |
+| An exercise    | The matching `exercises/*.ts` group                           | Write a `mediaBrief`, then find it an animation. See below      |
 | A programme    | A folder under `programs/`, then register it                  | Every slot's `exerciseId` must resolve                          |
 | A coach line   | The matching `coachVoice/*.ts` file                           | Id must be prefixed with its category. Mark `isPraise` honestly |
 | A piece of kit | `equipment/gymEquipment.ts` and `EquipmentId` in `src/types/` | -                                                               |
+
+### Finding an exercise an animation
+
+Every exercise must appear in exactly one of the two lists in
+`exerciseMedia/exerciseMediaMatches.ts`: matched to a dataset animation, or given a written
+reason there is none. The verifier fails the build if one is in neither, so an exercise
+cannot quietly lose its preview. [docs/EXERCISE_MEDIA_SPEC.md](../../docs/EXERCISE_MEDIA_SPEC.md)
+section 6 is the procedure.

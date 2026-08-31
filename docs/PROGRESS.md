@@ -9,30 +9,34 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ## Current state
 
-|                       |                                                                       |
-| --------------------- | --------------------------------------------------------------------- |
-| **Current milestone** | M2 — training content (merged), plus a content correction on `main`   |
-| **Status**            | Complete                                                              |
-| **Current branch**    | `main`                                                                |
-| **App runs?**         | Yes — `npm run dev`. Same four screens as M1. Neither change added UI |
-| **Backend wired?**    | No — arrives in M4                                                    |
-| **Deployed?**         | No — arrives in M9                                                    |
+|                       |                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------- |
+| **Current milestone** | M3 — exercise media pipeline                                                    |
+| **Status**            | Complete, awaiting review on `feat/exercise-media-pipeline`                     |
+| **Current branch**    | `feat/palette-contract-cleanup`, stacked on `feat/exercise-media-pipeline`      |
+| **App runs?**         | Yes — `npm run dev`. Same four screens, plus a dev-only `#/exercise-media` tool |
+| **Backend wired?**    | No — arrives in M4                                                              |
+| **Deployed?**         | No — arrives in M9                                                              |
+
+> **Read session 6 before touching the exercise animations.** The generated SVGs are gone.
+> The media is now sourced from an open dataset, and it is **not this project's to
+> redistribute freely** — see [EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md) section 2.
 
 ### What to do next
 
-Start **M3 — exercise media pipeline** on branch `feat/exercise-media-pipeline`. Read
-[EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md) first.
+Push `feat/exercise-media-pipeline` and open its pull request. Then `feat/palette-contract-cleanup`,
+which is stacked on it and has to go second. Then start **M4 — Firebase data
+layer** on branch `feat/firebase-data-layer`. Read [SETUP_FIREBASE.md](SETUP_FIREBASE.md) and
+[DATA_MODEL.md](DATA_MODEL.md) first.
 
-Everything M3 needs from M2 is in place: **36 exercises, each with a `mediaBrief`** giving the
-start position, end position and equipment to draw. The generator reads those from
-`src/content/exercises/` — `requireExerciseById(id).mediaBrief` — and the filenames are the
-exercise ids, which the content tests already prove are camelCase.
+**M4 needs things only Omar can do**, and they block the milestone rather than the end of it:
+create the Firebase project, enable Google as an auth provider, create the Firestore database,
+and add the authorised domains. Ask for those before writing code that assumes them.
 
-The 24 movements the Phase 1 sessions and the warm-up use are the ones worth generating
-first. Then the three Phase 2 and 3 additions (`shoulderPressMachine`, `gobletSquat`,
-`dumbbellSplitSquat`, plus `rowingMachineEasy`), then the mobility-only drills, and last the
-three that are defined but not prescribed (`seatedHipAdduction`, `ellipticalEasy`,
-`barbellRomanianDeadlift`).
+From M3 you inherit `ExerciseAnimation`, ready for the session player in M5. Nothing in the
+shipping app draws it yet — only the development review screen does. Twenty-seven exercises
+have an animation and nine draw a "No preview yet" fallback; the nine are listed, with
+reasons, in `src/content/exerciseMedia/exerciseMediaMatches.ts`.
 
 ---
 
@@ -45,7 +49,7 @@ One branch and one pull request each. Do not mix milestones.
 | M0  | `feat/repo-foundation`         | Git, Vite + TS scaffold, lint, format, tests, all docs, CI                                    | **Done**    |
 | M1  | `feat/design-system`           | Tokens, palettes, `GradientSurface` and primitives, app shell, bottom nav, palette switcher   | **Done**    |
 | M2  | `feat/training-content`        | Exercise database, 12-week programme, mobility routines, coach voice, `domain/` logic + tests | **Done**    |
-| M3  | `feat/exercise-media-pipeline` | Media spec, exemplar SVG, codex generator, validator, Phase 1 animations                      | Not started |
+| M3  | `feat/exercise-media-pipeline` | Media spec, dataset match table, copy tool, verifier, 27 animations + 9 fallbacks             | **Done**    |
 | M4  | `feat/firebase-data-layer`     | Firebase init, Google Sign-In, typed repositories, security rules, onboarding                 | Not started |
 | M5  | `feat/active-session`          | Session player state machine, set logging, rest timer, wake lock                              | Not started |
 | M6  | `feat/dashboard-and-schedule`  | Today screen, calendar, 48-hour recovery awareness                                            | Not started |
@@ -284,6 +288,216 @@ bars and several benches.
 
 ---
 
+### Session 5 - 2026-08-31 - M3 exercise media pipeline
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/exercise-media-pipeline`
+
+**Done**
+
+- **The exemplar**, `public/exercise-media/_exemplar-seated-cable-row.svg`, hand-drawn and
+  hand-checked. It is not only a style reference: it is a **rig**. Every limb is a capsule
+  drawn from `(0,0)` down its own +Y axis, so its joint is its origin and the whole animation
+  is one `rotate()` per segment about `transform-origin: 0 0`. That turns the generator's job
+  from "draw a person" into "work out the joint angles", which is the difference between
+  thirty-six drawings that match and thirty-six that do not.
+- **`tools/exercise-media/validateExerciseSvg.mjs`** — every requirement in the contract that
+  a machine can check, with failure messages that name the requirement number. **27
+  tests**, each breaking exactly one rule in a known-good file, so the suite could not pass by
+  rejecting everything.
+- **`tools/exercise-media/generateExerciseSvg.mjs`** — builds a prompt from the specification,
+  the exemplar and the exercise's own `mediaBrief`, form cues and common mistakes, runs
+  `codex exec`, and writes the file **only once the validator accepts it**.
+- **`tools/exercise-media/exerciseMediaContract.mjs`** — the machine-readable half of the
+  specification, plus the code that reads the training content and works out what to draw next.
+- **All 36 exercises drawn**, in the order the programme needs them: Phase 1 and the warm-up
+  first, then what Phases 2 and 3 add, then the mobility-only drills, then the three that
+  exist only as substitutes. 31 passed the contract on the first attempt and 5 on the second;
+  none needed a third. Median file is 6.8 KB against a 12 KB budget.
+- **`ExerciseAnimation`** — fetches the file and inlines it into a **shadow root**. Both halves
+  of that matter, and the reasons are in the decision table below.
+- **`src/components/icons/muscleGroupIcons.ts`** — the concept-to-icon mapping
+  DESIGN_SYSTEM.md section 7 has been promising since M1, covering muscle groups, which is
+  what M3 draws. It is what an exercise falls back to when it has no animation yet.
+- **A development-only review screen** at `#/exercise-media`, listing every animation at phone
+  size and large, with the palette switcher beside them. It is registered behind
+  `import.meta.env.DEV` and is verifiably absent from the production bundle.
+- **Amended EXERCISE_MEDIA_SPEC.md**: a new section 5 documenting the rig, the proportions and
+  the timing; section 7 rewritten to describe what the generator actually does; and
+  requirement 9 now yields to a front view for movements in the frontal plane.
+- `npm run verify` passes. 459 tests, all green.
+
+**Decisions made and why**
+
+| Decision                                                         | Reason                                                                                                                                                                                                                            |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The exemplar is a rig, and the rig is documented in the spec     | Consistency cannot come from asking nicely. If the exemplar only showed _what_ to draw, every file would invent its own construction. Showing _how_ it is built makes matching it the path of least resistance                    |
+| The generator validates **before** writing, not after            | The specification originally said write, then delete on failure. Validating in memory means a broken asset never exists at all — there is no window in which a half-good file is on disk, and nothing to clean up after a bad run |
+| A rejected attempt is retried with the failures in the prompt    | "Re-run it, output varies" wastes a two-minute call on the same mistake. Handing back the validator's actual complaints fixes it on the next attempt                                                                              |
+| Animations are inlined, never put in an `<img>`                  | An `<img>` is an isolated document that inherits nothing. The palette lives in CSS custom properties on `:root`, so an `<img>` animation would freeze on its fallback colours — losing the entire reason for choosing SVG         |
+| ...and inlined into a **shadow root**                            | A `<style>` inside an inlined SVG is not scoped: it applies document-wide. Two animations on one screen would fight over `.torso` and over each other's `@keyframes` names, and their duplicate ids would break `aria-labelledby` |
+| Custom properties are the one thing allowed across that boundary | They inherit through a shadow root, which is exactly the property needed: styles stay in, the palette comes through                                                                                                               |
+| The tools import the content's TypeScript directly               | Node strips the types and the grouped content files import nothing but types. No build step, and no second copy of the exercise list to drift                                                                                     |
+| ...but not the aggregating modules                               | `allExercises.ts` imports its neighbours without file extensions. Vite resolves that; Node's ESM loader does not. The tools list the directory instead, so a new group file is picked up without anyone remembering to come back  |
+| Generation order is computed from the programme                  | "Phase 1 first, then Phases 2 and 3, then mobility, then the unprescribed" is a fact about the content. Written down as a list it would be wrong the first time a session changed                                                 |
+| The validator requires the primary highlight, not the secondary  | Plenty of exercises genuinely have no secondary muscle group. Whether a given file should have one is a question about that exercise, so it is a test that reads the content rather than a rule the file-local validator applies  |
+| Muscle group icons are mnemonic, not literal                     | `lucide-react` has no anatomical set and a second icon library is not allowed. One icon per body region is honest; a distinct glyph for each of the three deltoid heads at 20 px would be false precision                         |
+| The review screen is dev-only and sits outside `AppShell`        | It is a tool, not a screen. It needs the full width of a window, which is the one thing the app's phone-width column will not give it — and it must not ship                                                                      |
+| A front view is correct for the abduction and adduction machines | The contract says profile facing right. A profile of a movement that happens side to side shows a limb moving straight at the viewer, which reads as not moving at all. Codified in spec section 5 rather than left to be guessed |
+
+**Notes for the next session**
+
+- **The exemplar is not `seatedCableRow.svg`.** It is `_exemplar-seated-cable-row.svg`, and
+  the underscore is load-bearing: it sorts first and it is obviously not an exercise id. The
+  low row has its own generated file like everything else.
+- **Regenerating is cheap and non-destructive.** `npm run media:generate <id> --overwrite`
+  redraws one; without `--overwrite` the generator skips anything already drawn, so `--all` is
+  resumable after an interruption. Roughly two minutes per exercise, four at a time.
+- **If an animation is wrong twice, fix the `mediaBrief`, not the prompt.** The brief is the
+  input. Section 9 of the specification says this and it is worth repeating.
+- **`ExerciseAnimation` caches a missing file as missing** for the life of the page, so an
+  exercise drawn while the review screen is open needs a reload before it appears. That is the
+  right behaviour in the app — an exercise with no animation should not fire a losing request
+  on every mount — and only ever an inconvenience during a generation run.
+- **The browser pane's screenshots lag the page.** Session 2 noted the same thing. Driving the
+  page with `javascript_tool` and reading state back is reliable; a screenshot taken
+  immediately after an interaction is often the previous frame. Take a second one.
+- `src/components/icons/` now exists but covers **muscle groups only**. Movement patterns,
+  equipment, effort ratings and habits get theirs in the milestone that first draws them.
+
+### Session 6 - 2026-08-31 - Dataset GIFs replace the generated SVGs
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/exercise-media-pipeline` — the same branch as session 5, because this
+replaces what session 5 built rather than adding to it
+
+Omar looked at the thirty-six generated SVGs and did not like them. He found
+[`hasaneyldrm/exercises-dataset`](https://github.com/hasaneyldrm/exercises-dataset) — 1324
+anatomical animations — and asked for the closest GIF for each exercise, with a "no preview
+available" fallback for anything that could not be matched, which he would resolve himself.
+
+**Done**
+
+- **The dataset is cloned to `vendor/exercises-dataset`, which is gitignored.** 296 MB, of
+  which 269 MB is animations this project does not use. Only the matched files are copied out
+  and committed, so nothing after the first copy needs the clone — not the app, not the tests,
+  not CI.
+- **`src/content/exerciseMedia/exerciseMediaMatches.ts` is the reviewable artefact.** 27
+  matches and 9 written refusals. **Every row was chosen by opening the dataset's own
+  thumbnail and looking at it**, not by comparing strings — the dataset contains
+  `biceps leg concentration curl`, which any fuzzy matcher hands straight to `seatedLegCurl`.
+  Each match records the dataset's id and its name; each close match records what differs;
+  each refusal records what was searched for and what the nearest miss was.
+- **19 exact matches, 8 close ones.** Close means the same movement with something visibly
+  different: a band where the gym has a cable (`pallofPress`), an underhand grip where the cue
+  says neutral (`chestSupportedDumbbellRow`), shoulders on the floor rather than against a
+  bench (`dumbbellHipThrust`, because the dataset has no hip thrust at all).
+- **Nine exercises draw "No preview yet".** `rowingMachineEasy`, `catCow`, `wallSlides`,
+  `chinTucks`, `bodyweightHipHinge`, `threadTheNeedle`, `ninetyNinetyHipSwitch`,
+  `couchStretch`, `doorwayPecStretch`. Seven of the nine are mobility drills, which is not a
+  coincidence — the dataset is a strength collection and is thin on corrective work.
+- **`tools/exercise-media/copyDatasetGifs.mjs`** copies matched files into
+  `public/exercise-media/{exerciseId}.gif`. It refuses to write a file whose dataset record no
+  longer carries the name the match table recorded, so a re-clone that shifted ids cannot
+  quietly copy a squat over a deadlift.
+- **`tools/exercise-media/verifyExerciseMedia.mjs`** proves the table and the committed files
+  agree, needs no clone, and runs in CI and inside `npm run verify` through its test.
+- **`ExerciseAnimation` now renders an `<img>`** and consults the committed table rather than
+  requesting a file and handling a 404.
+- **The attribution ships.** A Credits section in Settings, `ATTRIBUTION.md` beside the files,
+  and section 2 of the specification. This is a licence condition, not a courtesy.
+- **Deleted:** all 36 SVGs including the exemplar, `generateExerciseSvg.mjs`,
+  `validateExerciseSvg.mjs` and its 27 tests, and `exerciseMediaContract.mjs`. 449 tests, all
+  green.
+
+**Decisions made and why**
+
+| Decision                                                              | Reason                                                                                                                                                                                                                       |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A curated table in `src/content/`, not a matching script              | A script would have to be re-run and re-trusted. The judgement of "is this drawing this movement" is made once, by eye, and committed where a pull request can argue with it. It is content, and content is reviewed         |
+| A wrong animation is worse than no animation                          | "No preview yet" is visible, honest and fixable. A confidently wrong drawing teaches the wrong movement in a gym and nobody finds out. Nine exercises were refused on that basis rather than given the nearest quad stretch  |
+| Close matches carry a written sentence, enforced by the verifier      | The note is the only thing that makes the compromise reviewable. A close match without one is just an unexplained approximation                                                                                              |
+| `gobletSquat` and `gobletSquatToBox` share one file                   | The dataset has a goblet squat and a squat-to-a-bench, and neither has both properties. The goblet hold is the cue that matters more, so the bench is what is given up. Recorded in the table rather than hidden             |
+| The images are inverted in CSS                                        | The source files are dark line art on white. Untouched, each is a 180 px white square: a glare in a dim gym and the one bright rectangle in a dark app. `invert(1) hue-rotate(180deg)` blackens the ground and keeps the red |
+| `<img>`, not the inlined shadow root session 5 built                  | That existed so the SVGs could inherit the palette. A GIF is raster and inherits nothing however it is embedded, so inlining costs lazy loading, off-thread decoding and the browser cache for nothing in return             |
+| The committed table decides whether a file exists, not a 404          | Whether an animation exists is committed knowledge, and a test proves the table matches the disk. A phone on gym wifi should not wait out a failed request to learn something that was known at build time                   |
+| The `muscle*` palette fields stay, unused — **reversed in session 7** | Seven fields across three palettes, written for the SVGs. Nothing reads them now. Removing them is a design-system change, and hand-drawn media would want them back. Documented as unused in DESIGN_SYSTEM.md instead       |
+| `mediaBrief` stays on `ExerciseDefinition`                            | It stopped being a generator input and became a matching input: it is what the candidate thumbnails were checked against. Three sentences describing the movement, next to the form cues, earns its place either way         |
+| The clone is gitignored rather than a submodule                       | A submodule makes every future checkout pay 296 MB for 27 files. Copy them out, commit them, and print the clone command when the tool cannot find the clone                                                                 |
+
+**Notes for the next session**
+
+- **The licence needs Omar's attention, and it is the one thing here that is not purely a code
+  decision.** The animations are Gym Visual's, redistributed in that dataset with permission,
+  at 180×180, with attribution. Its NOTICE is explicit that cloning it is not a licence. This
+  repository is public, so committing these files is redistribution. The terms are honoured as
+  far as this project can honour them — original resolution, attribution in the app and beside
+  the files — but whether to publish them at all is his call. It is written up in
+  [EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md) section 2 and in
+  `public/exercise-media/ATTRIBUTION.md`.
+- **Resolving one of the nine is a three-step job:** find a GIF, put it at
+  `public/exercise-media/{exerciseId}.gif`, and move the row from `exercisesWithoutMediaMatch`
+  into `exerciseMediaMatches`. The verifier fails loudly if only two of the three are done.
+- **The eight close matches are the ones worth a second opinion** on the review screen at
+  `#/exercise-media`. `dumbbellHipThrust` is the loosest of them — a barbell glute bridge with
+  the shoulders on the floor. If it reads as the wrong exercise, demote it to a fallback.
+- **The animations cannot be paused.** A looping GIF in an `<img>` ignores
+  `prefers-reduced-motion`, which the old SVGs honoured. Nobody has asked for this and it does
+  not justify a control of its own, but it is a real regression and M5 is where it would be
+  felt.
+- **Screenshots below the fold come back blank** in the browser pane on the review screen.
+  Sessions 2 and 5 both noted the pane lagging; this is worse than lag. Removing the earlier
+  `<section>` elements with `javascript_tool` and screenshotting at scroll zero is what worked.
+
+### Session 7 - 2026-08-31 - The muscle palette fields come out
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/palette-contract-cleanup`, branched off `feat/exercise-media-pipeline`
+
+Session 6 replaced the generated exercise SVGs with dataset GIFs and left the seven `muscle*`
+colour fields in the palette contract, documented as deliberately unused. **That call is
+reversed here.** They are gone.
+
+**Done**
+
+- Removed `muscleBodyFill`, `muscleBodyStroke`, `muscleHighlightPrimary`,
+  `muscleHighlightSecondary`, `muscleEquipmentFill`, `muscleEquipmentStroke` and
+  `muscleMotionTrail` from `ColorPaletteDefinition` and from all three palettes. Twenty-four
+  lines.
+- `colorPaletteTypes.ts` keeps a short note where they were, because "why can I not recolour
+  the animations" is a reasonable question to arrive at that file with.
+- `applyColorPaletteToDocument.test.ts` **replaced** its two muscle references rather than
+  deleting them. One was a kebab-case conversion case and the other a spot-check that values
+  arrive intact; both were testing the mechanism, not the muscle colours. They are now
+  `warningGradientStart` and `--danger-gradient-end`, plus `--text-secondary` so the
+  spot-check covers one field per group in the contract.
+- `docs/DESIGN_SYSTEM.md` updated: the fields are out of the quoted contract, and the section
+  explaining why the animations do not follow the palette says they were removed rather than
+  kept.
+
+**Why, given session 6 decided the opposite**
+
+| Session 6 said                            | Why that was wrong                                                                                                                                                                                                                                                                 |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Removing them is a design-system change" | So is leaving seven dead fields in the document that defines the design system. `colorPaletteTypes.ts` opens by saying every field produces a custom property that components read. That was false for a third of its colour fields                                                |
+| "It costs three lines per palette"        | It costs seven **design decisions** per palette, made with nothing to check them against. There is no way to know whether `muscleEquipmentStroke: '#7C574A'` is right, because nothing draws it — and the "every palette defines every field" test makes inventing them compulsory |
+| "Hand-drawn media would want them back"   | It would want its own values. These were tuned against artwork that no longer exists, so new artwork would re-pick them anyway. What was actually being preserved was seven names, and re-adding seven names is additive and takes a minute                                        |
+
+**Notes for the next session**
+
+- **This is stacked on `feat/exercise-media-pipeline` and is deliberately its own branch.**
+  The fields are only dead because of that branch, so it has to merge first — but the removal
+  is a judgement call rather than a defect, so it is kept separable in case Omar wants M3
+  without it.
+- **Nothing else in the app changed.** No component read these, no CSS referenced them, and
+  the four screens render identically. 449 tests, unchanged in number: the two muscle
+  assertions were substituted rather than dropped.
+- If SVG or hand-drawn media ever returns, add the fields it needs back to
+  `ColorPaletteDefinition` and give each palette a value chosen against the actual artwork.
+  The contract's shape does not need redesigning for that; it is an additive change.
+
+---
+
 ## Locked decisions
 
 Settled with Omar during the M0 interview. Do not silently revisit these — if one needs to
@@ -301,7 +515,7 @@ change, raise it with him.
 | Home equipment | Mat, resistance bands, foam roller                                                                                                               |
 | Gym equipment  | Counted in person, session 4. It is `src/content/equipment/gymEquipment.ts`. No leg press, no hip thrust machine, no landmine, no confirmed rack |
 | Goal           | Body recomposition to ~82-84 kg with more muscle. **Not** weight loss alone                                                                      |
-| Visuals        | Animated SVG generated by codex, recoloured by the active palette                                                                                |
+| Visuals        | 180×180 GIFs matched from an open dataset, inverted for the dark theme. **Changed by Omar in session 6**; codex-generated SVG was tried first    |
 | Repository     | `second-body`, public. No personal data committed, ever                                                                                          |
 | Git workflow   | Claude commits locally on feature branches. **Omar pushes and opens all pull requests**                                                          |
 | Backend        | New Firebase project, Google Sign-In, Firestore locked to one uid                                                                                |

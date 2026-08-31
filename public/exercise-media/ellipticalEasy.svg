@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="exerciseMediaTitle">
+  <title id="exerciseMediaTitle">Elliptical, Easy</title>
+  <desc>A person stands tall in profile on an elliptical trainer with their hands resting lightly on the fixed centre bar. One foot sweeps steadily from the front of the elliptical path to the back while the torso remains upright, the heel stays down, and the person looks ahead.</desc>
+  <style>
+    .segment {
+      transform-box: view-box;
+      transform-origin: 0 0;
+    }
+    .torso { transform: rotate(0deg); }
+    .upper-arm { transform: rotate(-40deg); }
+    .forearm { transform: rotate(0deg); }
+    .thigh { transform: rotate(-43deg); }
+    .shin { transform: rotate(9deg); }
+    .foot { transform: rotate(34deg); }
+    .near-pedal { transform: translate(0px, 0px); }
+    .far-pedal { transform: translate(0px, 0px); }
+    .near-pedal-arm { transform: rotate(-58deg) scaleY(0.98); }
+    .far-pedal-arm { transform: rotate(41deg) scaleY(0.82); }
+    .muscle-highlight-primary,
+    .muscle-highlight-secondary {
+      opacity: 0.85;
+      filter: blur(4px);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .thigh { animation: thighStride 3s ease-in-out infinite; }
+      .shin { animation: shinStride 3s ease-in-out infinite; }
+      .foot { animation: footStride 3s ease-in-out infinite; }
+      .near-pedal { animation: nearPedalStride 3s ease-in-out infinite; }
+      .far-pedal { animation: farPedalStride 3s ease-in-out infinite; }
+      .near-pedal-arm { animation: nearArmStride 3s ease-in-out infinite; }
+      .far-pedal-arm { animation: farArmStride 3s ease-in-out infinite; }
+      .muscle-highlight-primary,
+      .muscle-highlight-secondary { animation: muscleGlow 3s ease-in-out infinite; }
+      @keyframes thighStride {
+        0% { transform: rotate(-43deg); }
+        42% { transform: rotate(40deg); }
+        55% { transform: rotate(40deg); }
+        100% { transform: rotate(-43deg); }
+      }
+      @keyframes shinStride {
+        0% { transform: rotate(9deg); }
+        42% { transform: rotate(-56deg); }
+        55% { transform: rotate(-56deg); }
+        100% { transform: rotate(9deg); }
+      }
+      @keyframes footStride {
+        0% { transform: rotate(34deg); }
+        42% { transform: rotate(16deg); }
+        55% { transform: rotate(16deg); }
+        100% { transform: rotate(34deg); }
+      }
+      @keyframes nearPedalStride {
+        0% { transform: translate(0px, 0px); }
+        42% { transform: translate(-136px, 10px); }
+        55% { transform: translate(-136px, 10px); }
+        100% { transform: translate(0px, 0px); }
+      }
+      @keyframes farPedalStride {
+        0% { transform: translate(0px, 0px); }
+        42% { transform: translate(136px, -10px); }
+        55% { transform: translate(136px, -10px); }
+        100% { transform: translate(0px, 0px); }
+      }
+      @keyframes nearArmStride {
+        0% { transform: rotate(-58deg) scaleY(0.98); }
+        42% { transform: rotate(41deg) scaleY(0.82); }
+        55% { transform: rotate(41deg) scaleY(0.82); }
+        100% { transform: rotate(-58deg) scaleY(0.98); }
+      }
+      @keyframes farArmStride {
+        0% { transform: rotate(41deg) scaleY(0.82); }
+        42% { transform: rotate(-58deg) scaleY(0.98); }
+        55% { transform: rotate(-58deg) scaleY(0.98); }
+        100% { transform: rotate(41deg) scaleY(0.82); }
+      }
+      @keyframes muscleGlow {
+        0% { opacity: 0.3; }
+        42% { opacity: 0.85; }
+        55% { opacity: 0.85; }
+        100% { opacity: 0.3; }
+      }
+    }
+  </style>
+  <g fill="var(--muscle-equipment-fill, #241F42)" stroke="var(--muscle-equipment-stroke, #5A5385)" stroke-width="2" stroke-linejoin="round">
+    <line x1="24" y1="352" x2="376" y2="352" stroke-linecap="round"/>
+    <path d="M 70 346 Q 139 321 201 313 Q 269 321 333 346 Z"/>
+    <circle cx="200" cy="282" r="33"/>
+    <circle cx="200" cy="282" r="8" fill="var(--muscle-equipment-stroke, #5A5385)" stroke="none"/>
+    <path d="M 211 267 L 245 132 L 258 135 L 225 274 Z"/>
+    <rect x="230" y="105" width="53" height="34" rx="8"/>
+    <rect x="239" y="114" width="35" height="15" rx="4" fill="var(--muscle-equipment-stroke, #5A5385)"/>
+    <line x1="249" y1="137" x2="249" y2="204" stroke-linecap="round"/>
+    <rect x="229" y="197" width="40" height="14" rx="7"/>
+    <g transform="translate(200,282)">
+      <g class="segment far-pedal-arm">
+        <rect x="-4" y="0" width="8" height="100" rx="4" vector-effect="non-scaling-stroke"/>
+      </g>
+      <g class="segment near-pedal-arm">
+        <rect x="-4" y="0" width="8" height="100" rx="4" vector-effect="non-scaling-stroke"/>
+      </g>
+    </g>
+    <g class="segment far-pedal">
+      <rect x="112" y="344" width="70" height="13" rx="6"/>
+    </g>
+    <g class="segment near-pedal">
+      <rect x="248" y="334" width="70" height="13" rx="6"/>
+    </g>
+  </g>
+  <g transform="translate(168,202)">
+    <g class="segment torso">
+      <rect x="-9" y="-124" width="21" height="34" rx="8" fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M -18 12 C -26 -20 -28 -70 -22 -92 Q -19 -99 -10 -99 L 13 -99 Q 23 -99 25 -91 C 29 -66 25 -18 18 12 Z" fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round"/>
+      <ellipse class="muscle-highlight-primary" cx="-13" cy="-5" rx="12" ry="18" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+      <path d="M 3 -162 C 14 -162 23 -153 23 -142 C 23 -137 26 -134 27 -131 C 28 -129 26 -128 23 -128 C 22 -122 14 -118 3 -118 C -9 -118 -17 -127 -17 -140 C -17 -152 -9 -162 3 -162 Z" fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round"/>
+      <g transform="translate(0,-96)">
+        <g class="segment upper-arm">
+          <rect x="-11" y="-11" width="22" height="89" rx="11" fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round"/>
+          <g transform="translate(0,67)">
+            <g class="segment forearm">
+              <rect x="-9" y="-9" width="18" height="80" rx="9" fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round"/>
+              <g transform="translate(0,62)">
+                <circle cx="0" cy="0" r="10" fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3"/>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="segment thigh">
+      <rect x="-14" y="-14" width="28" height="116" rx="14" fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round"/>
+      <ellipse class="muscle-highlight-primary" cx="6" cy="38" rx="9" ry="28" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+      <ellipse class="muscle-highlight-secondary" cx="-6" cy="47" rx="7" ry="25" fill="var(--muscle-highlight-secondary, #3D8BFF)" stroke="none"/>
+      <g transform="translate(0,88)">
+        <g class="segment shin">
+          <rect x="-11" y="-11" width="22" height="106" rx="11" fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round"/>
+          <ellipse class="muscle-highlight-secondary" cx="-2" cy="43" rx="8" ry="27" fill="var(--muscle-highlight-secondary, #3D8BFF)" stroke="none"/>
+          <g transform="translate(0,84)">
+            <g class="segment foot">
+              <path d="M -10 -12 L 30 -12 Q 40 -12 40 -3 L 40 5 Q 40 11 31 11 L -10 11 Q -15 11 -15 0 Z" fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

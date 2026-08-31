@@ -244,6 +244,13 @@ Icons are load-bearing here, not decoration — Omar is a visual thinker and ask
   `aria-hidden`.
 - One consistent icon per concept across the whole app. The mapping lives in
   `src/components/icons/` so it cannot drift.
+- **Mapped so far: muscle groups**, in `muscleGroupIcons.ts`. Movement patterns, equipment,
+  effort ratings and habits get theirs in the milestone that first draws them, rather than
+  being guessed at now.
+- `lucide-react` has no anatomical icon set and a second icon library is not allowed, so the
+  muscle group icons are **mnemonic rather than literal**: one icon per body region, shared
+  by the muscles in it. A distinct glyph for each of the front, side and rear deltoids would
+  be false precision at 20 px, and the muscle's name is always shown beside it.
 
 ## 8. Accessibility, briefly
 

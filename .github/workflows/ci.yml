@@ -46,15 +46,11 @@ jobs:
       - name: Test
         run: npm run test
 
-      # The generator that produces these files is added in M3. Until then there is
-      # nothing to validate, so the step skips itself rather than failing the build.
+      # Checks every committed animation against docs/EXERCISE_MEDIA_SPEC.md
+      # section 3. The test suite runs the same check, so this is belt and
+      # braces — but it is the step whose failure message names the file.
       - name: Validate exercise animations
-        run: |
-          if [ -f tools/exercise-media/validateExerciseSvg.mjs ]; then
-            node tools/exercise-media/validateExerciseSvg.mjs
-          else
-            echo "No exercise media validator yet (arrives in M3). Skipping."
-          fi
+        run: npm run media:validate
 
       - name: Build
         run: npm run build

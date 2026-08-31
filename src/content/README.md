@@ -33,7 +33,7 @@ a warm-up step and a mobility step all hold an id, so:
   that drift apart.
 - An exercise's logged history survives the programme that first prescribed it.
 - The animation filename is the id — `public/exercise-media/{exerciseId}.svg` — so the media
-  pipeline in M3 needs no separate mapping.
+  pipeline needs no separate mapping.
 
 The registries (`allExercises.ts`, `allProgramTemplates.ts`, `allCoachLines.ts`,
 `allMobilityRoutines.ts`) are the only things the rest of the app imports.
@@ -72,7 +72,7 @@ it is dead content.
 
 | Adding         | Where                                                         | Also do                                                         |
 | -------------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
-| An exercise    | The matching `exercises/*.ts` group                           | Write a `mediaBrief`, then generate its SVG (M3)                |
+| An exercise    | The matching `exercises/*.ts` group                           | Write a `mediaBrief`, then `npm run media:generate <id>`        |
 | A programme    | A folder under `programs/`, then register it                  | Every slot's `exerciseId` must resolve                          |
 | A coach line   | The matching `coachVoice/*.ts` file                           | Id must be prefixed with its category. Mark `isPraise` honestly |
 | A piece of kit | `equipment/gymEquipment.ts` and `EquipmentId` in `src/types/` | -                                                               |

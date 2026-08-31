@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="exerciseMediaTitle">
+  <title id="exerciseMediaTitle">90/90 Hip Switch</title>
+  <desc>A person sits upright on a thin exercise mat with both knees bent at right angles and their hands lightly supporting them from behind. Both knees rotate slowly to the opposite side while the feet remain planted, creating a mirror-image hip position. The hips, glutes, and inner thighs glow during the controlled switch.</desc>
+  <style>
+    .segment {
+      transform-box: view-box;
+      transform-origin: 0 0;
+    }
+    .left-thigh { transform: rotate(35deg); }
+    .left-shin { transform: rotate(-71deg); }
+    .right-thigh { transform: rotate(-35deg); }
+    .right-shin { transform: rotate(71deg); }
+    .torso { transform: rotate(0deg); }
+    .muscle-highlight-primary,
+    .muscle-highlight-secondary {
+      opacity: 0.85;
+      filter: blur(4px);
+    }
+    .motion-trail { opacity: 0.45; }
+    @media (prefers-reduced-motion: no-preference) {
+      .left-thigh {
+        animation: leftThighSwitch 3s ease-in-out infinite;
+        animation-iteration-count: infinite;
+      }
+      .left-shin {
+        animation: leftShinSwitch 3s ease-in-out infinite;
+        animation-iteration-count: infinite;
+      }
+      .right-thigh {
+        animation: rightThighSwitch 3s ease-in-out infinite;
+        animation-iteration-count: infinite;
+      }
+      .right-shin {
+        animation: rightShinSwitch 3s ease-in-out infinite;
+        animation-iteration-count: infinite;
+      }
+      .torso {
+        animation: torsoSwitch 3s ease-in-out infinite;
+        animation-iteration-count: infinite;
+      }
+      .muscle-highlight-primary,
+      .muscle-highlight-secondary,
+      .motion-trail {
+        animation: muscleGlow 3s ease-in-out infinite;
+        animation-iteration-count: infinite;
+      }
+      @keyframes leftThighSwitch {
+        0% { transform: rotate(35deg); }
+        42% { transform: rotate(-35deg); }
+        55% { transform: rotate(-35deg); }
+        100% { transform: rotate(35deg); }
+      }
+      @keyframes leftShinSwitch {
+        0% { transform: rotate(-71deg); }
+        42% { transform: rotate(72deg); }
+        55% { transform: rotate(72deg); }
+        100% { transform: rotate(-71deg); }
+      }
+      @keyframes rightThighSwitch {
+        0% { transform: rotate(-35deg); }
+        42% { transform: rotate(35deg); }
+        55% { transform: rotate(35deg); }
+        100% { transform: rotate(-35deg); }
+      }
+      @keyframes rightShinSwitch {
+        0% { transform: rotate(71deg); }
+        42% { transform: rotate(-72deg); }
+        55% { transform: rotate(-72deg); }
+        100% { transform: rotate(71deg); }
+      }
+      @keyframes torsoSwitch {
+        0% { transform: rotate(0deg); }
+        42% { transform: rotate(2deg); }
+        55% { transform: rotate(2deg); }
+        100% { transform: rotate(0deg); }
+      }
+      @keyframes muscleGlow {
+        0% { opacity: 0.3; }
+        42% { opacity: 0.85; }
+        55% { opacity: 0.85; }
+        100% { opacity: 0.3; }
+      }
+    }
+  </style>
+  <g fill="var(--muscle-equipment-fill, #241F42)" stroke="var(--muscle-equipment-stroke, #5A5385)" stroke-width="2" stroke-linejoin="round">
+    <rect x="48" y="347" width="304" height="10" rx="5"/>
+    <line x1="30" y1="357" x2="370" y2="357" stroke-linecap="round"/>
+  </g>
+  <path class="motion-trail" d="M 126 270 Q 200 232 274 270" fill="none" stroke="var(--muscle-motion-trail, #7C5CFF)" stroke-width="3" stroke-linecap="round" stroke-dasharray="7 9"/>
+  <path class="motion-trail" d="M 269 261 L 282 274 L 264 278 Z" fill="var(--muscle-motion-trail, #7C5CFF)" stroke="none"/>
+  <g fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round">
+    <g transform="translate(190,212)">
+      <g class="segment left-thigh">
+        <rect x="-14" y="-14" width="28" height="116" rx="14"/>
+        <ellipse class="muscle-highlight-primary" cx="0" cy="22" rx="10" ry="22" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+        <ellipse class="muscle-highlight-secondary" cx="-5" cy="57" rx="7" ry="24" fill="var(--muscle-highlight-secondary, #3D8BFF)" stroke="none"/>
+        <g transform="translate(0,88)">
+          <g class="segment left-shin">
+            <rect x="-11" y="-11" width="22" height="106" rx="11"/>
+            <g transform="translate(0,84)">
+              <path d="M -10 -11 L 30 -11 Q 40 -11 40 -2 L 40 6 Q 40 12 31 12 L -10 12 Q -15 12 -15 1 Z"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g transform="translate(210,212)">
+      <g class="segment right-thigh">
+        <rect x="-14" y="-14" width="28" height="116" rx="14"/>
+        <ellipse class="muscle-highlight-primary" cx="0" cy="22" rx="10" ry="22" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+        <ellipse class="muscle-highlight-secondary" cx="5" cy="57" rx="7" ry="24" fill="var(--muscle-highlight-secondary, #3D8BFF)" stroke="none"/>
+        <g transform="translate(0,88)">
+          <g class="segment right-shin">
+            <rect x="-11" y="-11" width="22" height="106" rx="11"/>
+            <g transform="translate(0,84)">
+              <path d="M 10 -11 L -30 -11 Q -40 -11 -40 -2 L -40 6 Q -40 12 -31 12 L 10 12 Q 15 12 15 1 Z"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+  <g transform="translate(200,212)">
+    <g class="segment torso">
+      <g fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round">
+        <path d="M -25 8 Q -28 -1 -19 -11 L 19 -11 Q 28 -1 25 8 Q 16 20 0 20 Q -16 20 -25 8 Z"/>
+        <ellipse class="muscle-highlight-primary" cx="-13" cy="1" rx="11" ry="12" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+        <ellipse class="muscle-highlight-primary" cx="13" cy="1" rx="11" ry="12" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+        <path d="M -18 5 C -24 -25 -27 -70 -22 -92 Q -19 -99 -10 -99 L 10 -99 Q 19 -99 22 -92 C 27 -70 24 -25 18 5 Z"/>
+        <ellipse class="muscle-highlight-primary" cx="-14" cy="-2" rx="9" ry="15" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+        <ellipse class="muscle-highlight-primary" cx="14" cy="-2" rx="9" ry="15" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+        <rect x="-9" y="-124" width="18" height="32" rx="8"/>
+        <path d="M 0 -163 C 13 -163 22 -154 22 -141 C 22 -128 13 -118 0 -118 C -13 -118 -22 -128 -22 -141 C -22 -154 -13 -163 0 -163 Z"/>
+        <g transform="translate(-18,-91)">
+          <g class="segment" transform="rotate(24)">
+            <rect x="-11" y="-11" width="22" height="89" rx="11"/>
+            <g transform="translate(0,67)">
+              <g class="segment" transform="rotate(10)">
+                <rect x="-9" y="-9" width="18" height="80" rx="9"/>
+                <g transform="translate(0,62)">
+                  <ellipse cx="0" cy="3" rx="12" ry="8"/>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+        <g transform="translate(18,-91)">
+          <g class="segment" transform="rotate(-24)">
+            <rect x="-11" y="-11" width="22" height="89" rx="11"/>
+            <g transform="translate(0,67)">
+              <g class="segment" transform="rotate(-10)">
+                <rect x="-9" y="-9" width="18" height="80" rx="9"/>
+                <g transform="translate(0,62)">
+                  <ellipse cx="0" cy="3" rx="12" ry="8"/>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

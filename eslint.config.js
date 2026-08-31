@@ -33,5 +33,18 @@ export default tseslint.config(
       ],
     },
   },
+
+  // The build-time tools are plain Node ES modules, not application code: no
+  // TypeScript, no React, and they run in Node rather than a browser.
+  {
+    extends: [js.configs.recommended],
+    files: ['tools/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: 'module',
+      globals: { ...globals.node, ...globals.nodeBuiltin },
+    },
+  },
+
   prettierConfig,
 );

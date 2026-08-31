@@ -26,6 +26,8 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setupTestEnvironment.ts'],
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    // The build-time tools are tested too: the exercise media validator is what
+    // stops a broken animation reaching a phone, so it needs to be right.
+    include: ['src/**/*.{test,spec}.{ts,tsx}', 'tools/**/*.test.mjs'],
   },
 });

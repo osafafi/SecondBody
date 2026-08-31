@@ -1,0 +1,127 @@
+/*
+ * The contact sheet for reviewing generated exercise animations.
+ *
+ * This is a development tool, not a screen of the app, so it is the one place
+ * that is allowed to lay out wider than a phone — the whole point is seeing many
+ * animations at once.
+ */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  padding: var(--space-4);
+}
+
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.controlLabel {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.toggleButton {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--text-label-size);
+  cursor: pointer;
+}
+
+.toggleButton:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+.isActive {
+  background: linear-gradient(135deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  border-color: transparent;
+  color: var(--text-primary);
+}
+
+.categorySection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.categoryHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: var(--text-title-size);
+  color: var(--text-primary);
+}
+
+.categoryCount {
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-full);
+  background: rgba(var(--surface-tint-rgb), 0.2);
+  color: var(--text-secondary);
+  font-size: var(--text-caption-size);
+}
+
+.phoneGrid,
+.largeGrid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.phoneGrid {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+.largeGrid {
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.exerciseName {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-label-size);
+  color: var(--text-primary);
+}
+
+.exerciseMeta {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  word-break: break-word;
+}
+
+.backLink {
+  color: var(--text-secondary);
+  font-size: var(--text-label-size);
+}

@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="exerciseMediaTitle">
+  <title id="exerciseMediaTitle">Incline Treadmill Walk</title>
+  <desc>A person walks upright in profile on an inclined treadmill without holding the handrails. One leg pushes behind as the opposite arm swings forward, then the stride reverses with the forward foot landing flat on the belt. The glutes, calves, hamstrings, and quadriceps glow with the steady walking motion.</desc>
+  <style>
+    .segment {
+      transform-box: view-box;
+      transform-origin: 0 0;
+    }
+    .torso { transform: rotate(0deg); }
+    .thigh { transform: rotate(27deg); }
+    .shin { transform: rotate(-11deg); }
+    .foot { transform: rotate(0deg); }
+    .upper-arm { transform: rotate(-22deg); }
+    .forearm { transform: rotate(14deg); }
+    .muscle-highlight-primary,
+    .muscle-highlight-secondary {
+      opacity: 0.85;
+      filter: blur(4px);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .torso { animation: torsoWalk 3s ease-in-out infinite; }
+      .thigh { animation: thighWalk 3s ease-in-out infinite; }
+      .shin { animation: shinWalk 3s ease-in-out infinite; }
+      .foot { animation: footWalk 3s ease-in-out infinite; }
+      .upper-arm { animation: upperArmWalk 3s ease-in-out infinite; }
+      .forearm { animation: forearmWalk 3s ease-in-out infinite; }
+      .belt-tread { animation: beltWalk 3s linear infinite; }
+      .muscle-highlight-primary { animation: primaryGlow 3s ease-in-out infinite; }
+      .muscle-highlight-secondary { animation: secondaryGlow 3s ease-in-out infinite; }
+      .torso,
+      .thigh,
+      .shin,
+      .foot,
+      .upper-arm,
+      .forearm,
+      .belt-tread,
+      .muscle-highlight-primary,
+      .muscle-highlight-secondary {
+        animation-iteration-count: infinite;
+      }
+      @keyframes torsoWalk {
+        0% { transform: rotate(0deg); }
+        42% { transform: rotate(1deg); }
+        55% { transform: rotate(1deg); }
+        100% { transform: rotate(0deg); }
+      }
+      @keyframes thighWalk {
+        0% { transform: rotate(27deg); }
+        42% { transform: rotate(-27deg); }
+        55% { transform: rotate(-27deg); }
+        100% { transform: rotate(27deg); }
+      }
+      @keyframes shinWalk {
+        0% { transform: rotate(-11deg); }
+        42% { transform: rotate(11deg); }
+        55% { transform: rotate(11deg); }
+        100% { transform: rotate(-11deg); }
+      }
+      @keyframes footWalk {
+        0% { transform: rotate(0deg); }
+        42% { transform: rotate(8deg); }
+        55% { transform: rotate(8deg); }
+        100% { transform: rotate(0deg); }
+      }
+      @keyframes upperArmWalk {
+        0% { transform: rotate(-22deg); }
+        42% { transform: rotate(22deg); }
+        55% { transform: rotate(22deg); }
+        100% { transform: rotate(-22deg); }
+      }
+      @keyframes forearmWalk {
+        0% { transform: rotate(14deg); }
+        42% { transform: rotate(-14deg); }
+        55% { transform: rotate(-14deg); }
+        100% { transform: rotate(14deg); }
+      }
+      @keyframes beltWalk {
+        0% { stroke-dashoffset: 0; }
+        42% { stroke-dashoffset: 30; }
+        55% { stroke-dashoffset: 30; }
+        100% { stroke-dashoffset: 60; }
+      }
+      @keyframes primaryGlow {
+        0% { opacity: 0.85; }
+        42% { opacity: 0.35; }
+        55% { opacity: 0.35; }
+        100% { opacity: 0.85; }
+      }
+      @keyframes secondaryGlow {
+        0% { opacity: 0.35; }
+        42% { opacity: 0.85; }
+        55% { opacity: 0.85; }
+        100% { opacity: 0.35; }
+      }
+    }
+  </style>
+  <g fill="var(--muscle-equipment-fill, #241F42)" stroke="var(--muscle-equipment-stroke, #5A5385)" stroke-width="2" stroke-linejoin="round">
+    <line x1="24" y1="352" x2="376" y2="352" stroke-linecap="round"/>
+    <path d="M 48 334 L 326 294 L 337 309 L 58 350 Z"/>
+    <line class="belt-tread" x1="58" y1="333" x2="326" y2="295" fill="none" stroke="var(--muscle-equipment-stroke, #5A5385)" stroke-width="2" stroke-linecap="round" stroke-dasharray="12 8"/>
+    <circle cx="72" cy="337" r="11"/>
+    <circle cx="318" cy="302" r="11"/>
+    <path d="M 85 344 L 78 352 L 55 352" fill="none" stroke="var(--muscle-equipment-stroke, #5A5385)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 306 309 L 322 352 L 350 352" fill="none" stroke="var(--muscle-equipment-stroke, #5A5385)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 323 297 L 303 205 L 247 205" fill="none" stroke="var(--muscle-equipment-stroke, #5A5385)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 303 205 L 321 170" fill="none" stroke="var(--muscle-equipment-stroke, #5A5385)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 302 153 L 348 153 L 341 184 L 310 184 Z"/>
+    <rect x="312" y="161" width="25" height="10" rx="3"/>
+  </g>
+  <g transform="translate(190,198) scale(0.76)" fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round">
+    <g class="segment thigh">
+      <rect x="-14" y="-14" width="28" height="116" rx="14"/>
+      <ellipse class="muscle-highlight-secondary" cx="7" cy="38" rx="6" ry="25" fill="var(--muscle-highlight-secondary, #3D8BFF)" stroke="none"/>
+      <ellipse class="muscle-highlight-secondary" cx="-7" cy="49" rx="5" ry="23" fill="var(--muscle-highlight-secondary, #3D8BFF)" stroke="none"/>
+      <g transform="translate(0,88)">
+        <g class="segment shin">
+          <rect x="-11" y="-11" width="22" height="106" rx="11"/>
+          <ellipse class="muscle-highlight-primary" cx="-3" cy="48" rx="8" ry="25" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+          <g transform="translate(0,84)">
+            <g class="segment foot">
+              <path d="M -10 -12 L 30 -12 Q 40 -12 40 -3 L 40 5 Q 40 11 31 11 L -10 11 Q -15 11 -15 0 Z"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="segment torso">
+      <rect x="-9" y="-124" width="21" height="34" rx="8"/>
+      <path d="M -18 12 C -26 -20 -28 -70 -22 -92 Q -19 -99 -10 -99 L 13 -99 Q 23 -99 25 -91 C 29 -66 25 -18 18 12 Z"/>
+      <ellipse class="muscle-highlight-primary" cx="-13" cy="-4" rx="11" ry="18" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+      <path d="M 3 -162 C 14 -162 23 -153 23 -142 C 23 -137 26 -134 27 -131 C 28 -129 26 -128 23 -128 C 22 -122 14 -118 3 -118 C -9 -118 -17 -127 -17 -140 C -17 -152 -9 -162 3 -162 Z"/>
+      <g transform="translate(0,-96)">
+        <g class="segment upper-arm">
+          <rect x="-11" y="-11" width="22" height="89" rx="11"/>
+          <g transform="translate(0,67)">
+            <g class="segment forearm">
+              <rect x="-9" y="-9" width="18" height="80" rx="9"/>
+              <g transform="translate(0,62)">
+                <circle cx="0" cy="0" r="9"/>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

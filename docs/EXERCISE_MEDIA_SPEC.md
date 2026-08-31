@@ -50,7 +50,7 @@ Every generated file MUST:
 | 6   | Loop over exactly **3 seconds**, `animation-iteration-count: infinite`, returning to the start position                                                                                     |
 | 7   | Wrap all animation in `@media (prefers-reduced-motion: no-preference)`, so the figure renders in its start position when motion is reduced                                                  |
 | 8   | Use stroke width `3` for body outlines and `2` for equipment                                                                                                                                |
-| 9   | Draw the figure in profile, facing right, occupying roughly 70% of the canvas height                                                                                                        |
+| 9   | Draw the figure in profile, facing right, occupying roughly 70% of the canvas height — **unless** the movement happens in the frontal plane (see section 5), where a front view is correct  |
 | 10  | Highlight the primary target muscle with `--muscle-highlight-primary` and the secondary with `--muscle-highlight-secondary`, each at 0.85 opacity, pulsing gently in time with the movement |
 | 11  | Include `<title>` and `<desc>` elements. The `<desc>` describes the movement for screen readers                                                                                             |
 | 12  | Carry `role="img"` and `aria-labelledby` pointing at the `<title>`                                                                                                                          |
@@ -71,7 +71,131 @@ Every generated file MUST:
 | `--muscle-equipment-stroke`    | `#5A5385` | Equipment outlines                           |
 | `--muscle-motion-trail`        | `#7C5CFF` | The optional arc showing direction of travel |
 
-## 5. File naming
+## 5. How the figure is built
+
+The exemplar is not only a style reference, it is a **rig**. Copying its construction is what
+makes thirty-six separate files look like one person drew them in one sitting.
+
+### The skeleton
+
+A limb segment is drawn in its own coordinate system, starting at `(0, 0)` and extending
+**downward along +Y**. Its joint is therefore always the origin, so rotating it about `0 0` is
+the whole of the animation. The parent positions the joint with a `transform` attribute; the
+child does nothing but rotate:
+
+```xml
+<g transform="translate(0,-96)">
+  <g class="segment upper-arm">
+    <rect x="-11" y="-11" width="22" height="89" rx="11" ... />
+    <g transform="translate(0,67)">
+      <g class="segment forearm">
+        <rect x="-9" y="-9" width="18" height="80" rx="9" ... />
+      </g>
+    </g>
+  </g>
+</g>
+```
+
+```css
+.segment {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+```
+
+Keeping the translation in the attribute and the rotation in CSS is deliberate: a CSS
+`transform` replaces the attribute rather than composing with it, so a group that needs both
+needs two elements.
+
+**Rotations are degrees clockwise on screen, relative to the parent segment.** Zero points
+straight down. The figure faces right, so **negative angles swing a limb forward** and
+positive angles swing it back. A rotation composes with every ancestor's, which is the point:
+rotate the torso and the arm goes with it.
+
+The torso is the one segment drawn **upward** from its origin, because its joint is the hip.
+Zero is upright; positive leans the chest forward, towards the right.
+
+### The proportions
+
+Use these lengths. They are what make two animations look like the same person.
+
+| Segment                | Length | Capsule half-width | Corner radius |
+| ---------------------- | ------ | ------------------ | ------------- |
+| Torso (hip → shoulder) | 96     | 18 waist, 25 chest | shaped path   |
+| Head                   | r 21   | —                  | shaped path   |
+| Upper arm              | 67     | 11                 | 11            |
+| Forearm                | 62     | 9                  | 9             |
+| Thigh                  | 88     | 14                 | 14            |
+| Shin                   | 84     | 11                 | 11            |
+| Foot                   | 40     | —                  | shaped path   |
+
+Limbs are **capsules**: a rounded rect that overhangs the joint at each end by its half-width,
+so the joints stay round as the limb swings. Draw **one arm and one leg** — this is a profile,
+and a second set of limbs reads as clutter at the size this is actually looked at.
+
+Lay the scene out on the ground line at **y = 352**, with the figure spanning roughly y = 75
+to y = 350.
+
+### When profile is the wrong view
+
+A profile is right for almost everything, because almost everything here happens in the
+sagittal plane — squats, hinges, presses, rows. It is the wrong view for a movement that
+happens **side to side**, where a profile would show a leg or an arm moving directly towards
+the viewer and therefore not appearing to move at all.
+
+The hip abduction and adduction machines are the clear cases: draw those from the front,
+with both legs, and rig them the same way. So are the band pull-apart and the wall slide.
+Requirement 9 yields to this — an animation whose movement is invisible teaches nothing,
+which is the thing the whole contract exists to prevent.
+
+The same reasoning applies to how far away the camera is. A chin tuck moves the head about
+two centimetres; a whole standing figure at 70% of the canvas would show nothing at all, so
+it is drawn as a head and shoulders instead. Zoom in when the movement is small enough that
+a full figure would hide it, and only then.
+
+### Cables, bands and anything else that changes length
+
+A `<line>` cannot have its endpoints animated in CSS. Anchor it at the fixed end, draw it
+100 units long, and animate a rotation and a vertical scale together — the rotation aims it
+and the scale sets its length:
+
+```css
+.cable {
+  transform: rotate(-56deg) scaleY(1.16);
+}
+```
+
+Give it `vector-effect="non-scaling-stroke"` so the scale does not thicken the line.
+
+### The muscle highlights
+
+A highlight is an ellipse laid **over** the segment it belongs to, inside that segment's
+group, so it travels with the limb. Give it `filter: blur(4px)` — a hard-edged blob reads as a
+sticker, a soft one reads as a muscle working.
+
+### The timing
+
+Every file runs on the same three-second clock, and the shape of the loop is the shape of the
+rep: work, a beat at the hard end, then a slower return.
+
+```css
+0% {
+  /* start position */
+}
+42% {
+  /* end position */
+}
+55% {
+  /* still at the end position — the pause at the top of the rep */
+}
+100% {
+  /* back to the start */
+}
+```
+
+Highlights follow the same clock, fading from about 0.3 up to 0.85 as the muscle shortens.
+
+## 6. File naming
 
 `public/exercise-media/{exerciseId}.svg`, where `exerciseId` is the camelCase id from
 `src/content/exercises/`.
@@ -85,7 +209,7 @@ public/exercise-media/dumbbellRomanianDeadlift.svg
 The exemplar is prefixed with an underscore so it sorts first and is obviously not an
 exercise: `_exemplar-seated-cable-row.svg`.
 
-## 6. Generating a file
+## 7. Generating a file
 
 ```bash
 node tools/exercise-media/generateExerciseSvg.mjs seatedCableRow
@@ -95,18 +219,34 @@ The script:
 
 1. Loads the exercise definition from `src/content/exercises/`.
 2. Builds a prompt from **this document** + **the exemplar file** + a per-exercise brief
-   (start position, end position, target muscles, equipment).
-3. Runs `codex exec` with that prompt.
-4. Writes the result to `public/exercise-media/{exerciseId}.svg`.
-5. Runs the validator and **deletes the file if it fails**, so a broken asset never lands.
+   (start position, end position, target muscles, equipment, form cues, common mistakes).
+3. Runs `codex exec` with that prompt, in a temporary directory with read-only sandboxing, so
+   a generation run cannot touch the repository.
+4. Validates what comes back **before writing anything**. A file only ever appears on disk
+   once it satisfies the contract, so a broken asset never lands even momentarily.
+5. On a failure, tries again with the validator's complaints appended to the prompt. Three
+   attempts by default, then it gives up and says so.
 
-Generate everything the current programme needs:
+Generate everything the current programme needs, most urgent first:
 
 ```bash
 node tools/exercise-media/generateExerciseSvg.mjs --all
 ```
 
-## 7. Validating
+| Flag              | Effect                                                           |
+| ----------------- | ---------------------------------------------------------------- |
+| `--all`           | Every exercise the content defines, in generation priority order |
+| `--limit N`       | Stop after the first N of them                                   |
+| `--overwrite`     | Redraw exercises that already have a file                        |
+| `--attempts N`    | Tries per exercise before giving up (default 3)                  |
+| `--concurrency N` | Exercises drawn at once (default 3)                              |
+| `--dry-run`       | Print the prompt for one exercise and generate nothing           |
+
+Priority order is computed from the programme rather than written down: the movements in
+Phase 1 and the warm-up first, then what Phases 2 and 3 add, then the mobility-only drills,
+and last the movements that exist as substitutes but are never prescribed.
+
+## 8. Validating
 
 ```bash
 node tools/exercise-media/validateExerciseSvg.mjs           # everything
@@ -121,7 +261,7 @@ with a 3s keyframe animation; a reduced-motion media query is present; `<title>`
 
 CI runs this on every push. A file that fails validation blocks the build.
 
-## 8. Reviewing a generated animation
+## 9. Reviewing a generated animation
 
 The validator checks the contract, not whether the animation is any good. Before committing,
 open it and confirm:
@@ -133,10 +273,14 @@ open it and confirm:
 - It reads clearly at roughly 160 x 160 px, which is how big it is on a phone.
 - It still looks right after switching the palette in Settings.
 
-If it is wrong, re-run the generator — output varies between runs. If it is wrong twice,
-fix the brief in the exercise definition rather than fighting the generator.
+Run the dev server and open `#/exercise-media` to page through every animation at both sizes,
+with the palette switcher live. That screen exists only in development.
 
-## 9. When codex is unavailable
+If it is wrong, re-run the generator with `--overwrite` — output varies between runs. If it is
+wrong twice, fix the `mediaBrief` in the exercise definition rather than fighting the
+generator. The brief is the input; arguing with the output is the slow way round.
+
+## 10. When codex is unavailable
 
 The generator is a build-time tool, not a runtime dependency. The app renders committed SVG
 files and does not know or care how they were produced. Hand-written SVG that passes the

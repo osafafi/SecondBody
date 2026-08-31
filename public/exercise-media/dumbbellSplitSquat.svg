@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="exerciseMediaTitle">
+  <title id="exerciseMediaTitle">Dumbbell Split Squat</title>
+  <desc>A person in profile holds two dumbbells at their sides in a long split stance. Keeping the torso upright and the front foot flat, they lower straight down until the back knee is just above the floor, pause, then drive through the front heel to stand.</desc>
+  <style>
+    .segment {
+      transform-box: view-box;
+      transform-origin: 0 0;
+    }
+    .body-drop { transform: translate(0, 0); }
+    .front-thigh { transform: rotate(-35deg); }
+    .front-shin { transform: rotate(20deg); }
+    .front-foot { transform: rotate(15deg); }
+    .rear-thigh { transform: rotate(35deg); }
+    .rear-shin { transform: rotate(13deg); }
+    .rear-foot { transform: rotate(-33deg); }
+    .upper-arm { transform: rotate(-4deg); }
+    .forearm { transform: rotate(4deg); }
+    .muscle-highlight-primary,
+    .muscle-highlight-secondary {
+      opacity: 0.85;
+      filter: blur(4px);
+    }
+    .motion-trail { opacity: 0.5; }
+    @media (prefers-reduced-motion: no-preference) {
+      .body-drop { animation: bodyDrop 3s ease-in-out infinite; }
+      .front-thigh { animation: frontThighSplit 3s ease-in-out infinite; }
+      .front-shin { animation: frontShinSplit 3s ease-in-out infinite; }
+      .front-foot { animation: frontFootSplit 3s ease-in-out infinite; }
+      .rear-thigh { animation: rearThighSplit 3s ease-in-out infinite; }
+      .rear-shin { animation: rearShinSplit 3s ease-in-out infinite; }
+      .rear-foot { animation: rearFootSplit 3s ease-in-out infinite; }
+      .muscle-highlight-primary,
+      .muscle-highlight-secondary { animation: muscleGlow 3s ease-in-out infinite; }
+      .motion-trail { animation: trailPulse 3s ease-in-out infinite; }
+      @keyframes bodyDrop {
+        0% { transform: translate(0, 0); }
+        42% { transform: translate(0, 36px); }
+        55% { transform: translate(0, 36px); }
+        100% { transform: translate(0, 0); }
+      }
+      @keyframes frontThighSplit {
+        0% { transform: rotate(-35deg); }
+        42% { transform: rotate(-65deg); }
+        55% { transform: rotate(-65deg); }
+        100% { transform: rotate(-35deg); }
+      }
+      @keyframes frontShinSplit {
+        0% { transform: rotate(20deg); }
+        42% { transform: rotate(71deg); }
+        55% { transform: rotate(71deg); }
+        100% { transform: rotate(20deg); }
+      }
+      @keyframes frontFootSplit {
+        0% { transform: rotate(15deg); }
+        42% { transform: rotate(-6deg); }
+        55% { transform: rotate(-6deg); }
+        100% { transform: rotate(15deg); }
+      }
+      @keyframes rearThighSplit {
+        0% { transform: rotate(35deg); }
+        42% { transform: rotate(15deg); }
+        55% { transform: rotate(15deg); }
+        100% { transform: rotate(35deg); }
+      }
+      @keyframes rearShinSplit {
+        0% { transform: rotate(13deg); }
+        42% { transform: rotate(53deg); }
+        55% { transform: rotate(53deg); }
+        100% { transform: rotate(13deg); }
+      }
+      @keyframes rearFootSplit {
+        0% { transform: rotate(-33deg); }
+        42% { transform: rotate(-68deg); }
+        55% { transform: rotate(-68deg); }
+        100% { transform: rotate(-33deg); }
+      }
+      @keyframes muscleGlow {
+        0% { opacity: 0.3; }
+        42% { opacity: 0.85; }
+        55% { opacity: 0.85; }
+        100% { opacity: 0.3; }
+      }
+      @keyframes trailPulse {
+        0% { opacity: 0.2; }
+        42% { opacity: 0.7; }
+        55% { opacity: 0.7; }
+        100% { opacity: 0.2; }
+      }
+    }
+  </style>
+  <g fill="var(--muscle-equipment-fill, #241F42)" stroke="var(--muscle-equipment-stroke, #5A5385)" stroke-width="2" stroke-linejoin="round">
+    <line x1="28" y1="352" x2="372" y2="352" stroke-linecap="round"/>
+  </g>
+  <path class="motion-trail" d="M 335 225 L 335 294" fill="none" stroke="var(--muscle-motion-trail, #7C5CFF)" stroke-width="3" stroke-linecap="round" stroke-dasharray="7 9"/>
+  <path class="motion-trail" d="M 326 283 L 335 299 L 344 283 Z" fill="var(--muscle-motion-trail, #7C5CFF)" stroke="none"/>
+  <g transform="translate(200,199)">
+    <g class="segment body-drop">
+      <g fill="var(--muscle-body-fill, #1C1934)" stroke="var(--muscle-body-stroke, #4A4470)" stroke-width="3" stroke-linejoin="round">
+        <g class="segment rear-thigh">
+          <rect x="-14" y="-14" width="28" height="116" rx="14"/>
+          <ellipse class="muscle-highlight-secondary" cx="-4" cy="43" rx="8" ry="25" fill="var(--muscle-highlight-secondary, #3D8BFF)" stroke="none"/>
+          <g transform="translate(0,88)">
+            <g class="segment rear-shin">
+              <rect x="-11" y="-11" width="22" height="106" rx="11"/>
+              <g transform="translate(0,84)">
+                <g class="segment rear-foot">
+                  <path d="M -9 -9 L 30 -9 Q 40 -9 40 0 L 40 5 Q 40 10 31 10 L -9 10 Q -14 10 -14 0 Z"/>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+        <g class="segment front-thigh">
+          <rect x="-14" y="-14" width="28" height="116" rx="14"/>
+          <ellipse class="muscle-highlight-primary" cx="3" cy="42" rx="10" ry="27" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+          <ellipse class="muscle-highlight-secondary" cx="-6" cy="48" rx="6" ry="22" fill="var(--muscle-highlight-secondary, #3D8BFF)" stroke="none"/>
+          <g transform="translate(0,88)">
+            <g class="segment front-shin">
+              <rect x="-11" y="-11" width="22" height="106" rx="11"/>
+              <g transform="translate(0,84)">
+                <g class="segment front-foot">
+                  <path d="M -10 -10 L 31 -10 Q 40 -10 40 -1 L 40 6 Q 40 11 31 11 L -10 11 Q -15 11 -15 0 Z"/>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+        <g transform="translate(-12,-96)">
+          <g transform="rotate(3)">
+            <rect x="-10" y="-10" width="20" height="87" rx="10"/>
+            <g transform="translate(0,67)">
+              <g transform="rotate(-3)">
+                <rect x="-8" y="-8" width="16" height="78" rx="8"/>
+                <ellipse class="muscle-highlight-secondary" cx="0" cy="29" rx="6" ry="19" fill="var(--muscle-highlight-secondary, #3D8BFF)" stroke="none"/>
+                <g transform="translate(0,62)" fill="var(--muscle-equipment-fill, #241F42)" stroke="var(--muscle-equipment-stroke, #5A5385)" stroke-width="2">
+                  <rect x="-16" y="-5" width="32" height="10" rx="5"/>
+                  <rect x="-22" y="-11" width="7" height="22" rx="2"/>
+                  <rect x="15" y="-11" width="7" height="22" rx="2"/>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+        <rect x="-9" y="-124" width="21" height="34" rx="8"/>
+        <path d="M -18 12 C -24 -20 -25 -70 -21 -92 Q -18 -99 -9 -99 L 13 -99 Q 22 -99 25 -91 C 27 -65 24 -18 18 12 Z"/>
+        <ellipse class="muscle-highlight-primary" cx="-13" cy="-4" rx="13" ry="17" fill="var(--muscle-highlight-primary, #A855F7)" stroke="none"/>
+        <ellipse class="muscle-highlight-secondary" cx="12" cy="-49" rx="7" ry="24" fill="var(--muscle-highlight-secondary, #3D8BFF)" stroke="none"/>
+        <path d="M 3 -162 C 14 -162 23 -153 23 -142 C 23 -137 26 -134 27 -131 C 28 -129 26 -128 23 -128 C 22 -122 14 -118 3 -118 C -9 -118 -17 -127 -17 -140 C -17 -152 -9 -162 3 -162 Z"/>
+        <g transform="translate(7,-96)">
+          <g class="segment upper-arm">
+            <rect x="-11" y="-11" width="22" height="89" rx="11"/>
+            <g transform="translate(0,67)">
+              <g class="segment forearm">
+                <rect x="-9" y="-9" width="18" height="80" rx="9"/>
+                <ellipse class="muscle-highlight-secondary" cx="0" cy="29" rx="7" ry="20" fill="var(--muscle-highlight-secondary, #3D8BFF)" stroke="none"/>
+                <g transform="translate(0,62)" fill="var(--muscle-equipment-fill, #241F42)" stroke="var(--muscle-equipment-stroke, #5A5385)" stroke-width="2">
+                  <rect x="-17" y="-5" width="34" height="10" rx="5"/>
+                  <rect x="-23" y="-12" width="7" height="24" rx="2"/>
+                  <rect x="16" y="-12" width="7" height="24" rx="2"/>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

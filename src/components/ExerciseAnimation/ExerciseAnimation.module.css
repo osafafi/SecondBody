@@ -1,0 +1,39 @@
+/*
+ * The frame an exercise animation is drawn in.
+ *
+ * The drawing itself brings no colours of its own — every one of them is a CSS
+ * custom property the active palette defines, which is why the animations
+ * recolour along with the rest of the interface. See
+ * docs/EXERCISE_MEDIA_SPEC.md section 4.
+ *
+ * The box is square and fills whatever it is given, so the caller decides how
+ * big it is. On a phone that is around 160 px.
+ */
+
+.animation {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-large);
+  overflow: hidden;
+
+  /* Recessed, so the figure reads as sitting inside a panel rather than on top
+     of one. Matches GradientSurface's recessed variant. */
+  background:
+    radial-gradient(120% 100% at 50% 0%, rgba(var(--surface-tint-rgb), 0.16), transparent 70%),
+    linear-gradient(160deg, rgba(0, 0, 0, 0.28), rgba(255, 255, 255, 0.03));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.isFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.fallbackIcon {
+  width: 34%;
+  height: auto;
+}

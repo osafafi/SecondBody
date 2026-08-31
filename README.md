@@ -41,6 +41,8 @@ can test on the device you will actually use.
 | `npm run test:watch`              | Unit tests in watch mode                                   |
 | `npm run lint` / `lint:fix`       | ESLint                                                     |
 | `npm run format` / `format:check` | Prettier                                                   |
+| `npm run media:generate`          | Draw exercise animations with the codex CLI                |
+| `npm run media:validate`          | Check every exercise animation against its contract        |
 
 ## Documentation
 

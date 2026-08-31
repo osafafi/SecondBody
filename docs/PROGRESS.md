@@ -9,14 +9,14 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ## Current state
 
-|                       |                                                                        |
-| --------------------- | ---------------------------------------------------------------------- |
-| **Current milestone** | M7 — progress tracking                                                 |
-| **Status**            | Complete. Awaiting review on `feat/progress-tracking`                  |
-| **Current branch**    | `feat/progress-tracking`, branched off `main`                          |
-| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs are real     |
-| **Backend wired?**    | Yes. Auth, rules, repositories, onboarding, and sessions being written |
-| **Deployed?**         | No — arrives in M9                                                     |
+|                       |                                                                    |
+| --------------------- | ------------------------------------------------------------------ |
+| **Current milestone** | M8 — habits and settings                                           |
+| **Status**            | Complete. Awaiting review on `feat/habits-and-settings`            |
+| **Current branch**    | `feat/habits-and-settings`, branched off `main`                    |
+| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs are real |
+| **Backend wired?**    | Yes. Every collection in the data model now has a caller both ways |
+| **Deployed?**         | No — arrives in M9                                                 |
 
 > **Read session 6 before touching the exercise animations.** The generated SVGs are gone.
 > The media is now sourced from an open dataset, and it is **not this project's to
@@ -24,22 +24,37 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ### What to do next
 
-**M7 is finished.** Review `feat/progress-tracking`, then start **M8 — habits and
-settings** on `feat/habits-and-settings`.
+**M8 is finished, and with it the app is feature-complete for daily use.** Review
+`feat/habits-and-settings`, then start **M9 — deployment** on `feat/pages-deployment`. That
+is the milestone that puts it on his phone, and everything left on the list is waiting
+behind it.
 
-**The one thing to do before anything else is still the same: walk a real session in a
-gym.** It has been the top of this list since M5 and it has not happened yet. Every screen
-in M5, M6 and M7 has been read back panel by panel and every rule has a test, but nobody has
-logged a real set on a real phone with a real Firestore behind it. That is the check that
-matters, and it is Omar's to make — the app needs his Google account to get past the gate.
+**The one thing to do before anything else has not changed since M5: walk a real session in
+a gym.** Every screen in M5, M6, M7 and M8 has been read back panel by panel and every rule
+has a test, but nobody has logged a real set on a real phone with a real Firestore behind
+it. It is Omar's to do — the app needs his Google account to get past the gate — and it gets
+easier the moment M9 lands, which is an argument for doing M9 next rather than for waiting.
 
-M7 closed the three loose ends it inherited. All of these now have callers:
-`readRecentBodyMetricEntries` and `addBodyMetricEntry` (the log control on Progress),
-`personalRecordsRepository` in both directions (written at the end of a session, read by the
-records panel), and `sessionVolume` (the week columns).
+**There are no `ComingSoonPanel`s left, and the component is gone.** M8 was the milestone it
+was supposed to die in, so it was deleted rather than left as dead code with a doc comment
+promising it would be. Adding a placeholder back for M10 is one small file in git history.
 
-**One `ComingSoonPanel` is left, on Today, saying M8** — habits and the quick weight log. It
-should be gone by the end of M8. A `ComingSoonPanel` surviving past that is a bug.
+**Three things M8 finished that earlier milestones started:**
+
+- **`settings/current` is finally written.** It has been read since M4 by the session
+  player, Today and Progress, and until now every value in it was whatever
+  `DEFAULT_USER_SETTINGS` said.
+- **The palette follows the account**, not just the browser. M1 left a note saying M4 would
+  do this; it landed here. localStorage is now explicitly the cache and Firestore the source
+  of truth — see `useStoredColorPaletteSync`.
+- **`dailyHabitsRepository` has callers in both directions.** It was written in M4 and had
+  been read by nothing since.
+
+**Two stored preferences are deliberately still not editable**, and this is worth knowing
+before someone "finishes the settings screen": `defaultRestSeconds` is read by nothing
+(rest comes from the programme's own `restSecondsBetweenSets`) and `weightUnit` is rendered
+by nothing (every weight in the app is kilograms). Putting switches on them would be
+shipping two controls that change nothing. They are noted in the settings README.
 
 **A new milestone was agreed with Omar during M7: M10, the training journal.** It is the
 capture-and-export half of a larger idea — being able to write things down in the app during
@@ -69,7 +84,7 @@ One branch and one pull request each. Do not mix milestones.
 | M5  | `feat/active-session`          | Session player state machine, set logging, rest timer, wake lock                              | **Done**    |
 | M6  | `feat/dashboard-and-schedule`  | Today screen, calendar, 48-hour recovery awareness                                            | **Done**    |
 | M7  | `feat/progress-tracking`       | Weight trend, volume charts, personal records                                                 | **Done**    |
-| M8  | `feat/habits-and-settings`     | Daily habit checklist, settings screen, profile editing                                       | Not started |
+| M8  | `feat/habits-and-settings`     | Daily habit checklist, quick weigh-in, settings screen, profile editing                       | **Done**    |
 | M9  | `feat/pages-deployment`        | Deploy workflow, web manifest, icons, production Firebase config                              | Not started |
 | M10 | `feat/training-journal`        | Free-text journal, the coaching export bundle, and the `coach-review` skill                   | Not started |
 
@@ -918,6 +933,107 @@ first way to actually log a weight.
   widening this milestone's diff. Worth one line of cleanup in M8.
 - The bundle is 1,090 kB before gzip, up from 1,068. Still no dependency added — the charts
   are hand-drawn SVG and flexbox rather than a charting library, which was the point.
+
+---
+
+### Session 13 - 2026-08-31 - M8 habits and settings
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/habits-and-settings`, branched off `main`
+
+The last two unbuilt surfaces: the daily checklist on Today, and a settings screen that can
+actually change something. Both had their data layer waiting for them since M4 — this is the
+milestone that gave `dailyHabits` and `settings/current` a caller.
+
+**Done**
+
+- **`src/domain/habitCompliance.ts`** — what was met, the run of good days, and how the last
+  stretch went. Three decisions in it are load-bearing:
+  - **A day is judged against the target that was in force on that day.** `HabitDay` carries
+    its own step target rather than the summariser applying today's. The target climbs from
+    5,000 to 9,000 across the twelve weeks, so judging history against the current one would
+    turn a run of good days into a run of failures every time the ramp stepped up.
+  - **Today counts when it is good and is skipped when it is not.** Only a bad _yesterday_
+    breaks a streak. At nine in the morning nothing has been ticked and the day has not gone
+    wrong — it has not happened.
+  - **`buildRecentHabitDays` returns calendar days, not recorded days**, filling the gaps
+    with blanks. Dropping the untouched days would report a bad fortnight with three good
+    days in it as "3 of the last 3 days", which is an app being on your side rather than
+    telling you the truth. It stops at the programme start date, so day three does not
+    report a week that mostly predates the app.
+- **`src/domain/profileEditing.ts`** — which of the eight profile fields may be changed after
+  onboarding, and what a valid change is. Five can; the three that cannot each have a reason
+  written next to them, the important one being that `startingWeightKilograms` is the
+  baseline every past weigh-in is measured from.
+- **`onboardingValidation.ts` grew three exported predicates** and lost nothing.
+  `isPlausibleHeightCentimetres`, `isPlausibleBodyWeightKilograms` and
+  `findTrainingDayProblems` are now shared with profile editing rather than restated there. A
+  height the onboarding form accepts and the settings form rejects is the sort of
+  disagreement nobody finds until it happens to them.
+- **The habit checklist on Today** — three ticks and two numbers, the week's step target, the
+  streak, the last seven days, one of Harout's habit lines, and a single "Why these five"
+  disclosure carrying the `whyItMatters` copy that had been sitting unread in content since
+  M2. Ticks save optimistically and roll back on failure; typed numbers get a confirm button,
+  because an 8 on the way to 8,200 must never be recorded as eight steps.
+- **The quick weigh-in on Today** — folded shut to one line until it is asked for, and folded
+  shut again once a reading lands. Deliberately not the same component as
+  `LogBodyWeightPanel` on Progress: that one sits under the trend it moves and explains how
+  to weigh yourself consistently, this one is a two-tap job on the way past the bathroom.
+- **The settings screen, finished.** Coach verbosity, the rest timer sound and the wake lock
+  are now editable and all three change behaviour immediately. Profile editing writes through
+  `applyProfileEdits`. The palette is stored against the account.
+- **`useStoredColorPaletteSync`** in `src/hooks/`, called from `AppShell`. localStorage is now
+  explicitly the cache — the only one of the two that can be read synchronously during the
+  first render — and `settings/current` is the source of truth. M1 left a note asking for
+  this and said M4 would do it.
+- **Three components promoted to `src/components/`**: `ChoiceChipGrid` and `NumberField` out
+  of `features/onboarding/` (Settings asks three of the same questions, and features may not
+  import from each other), plus a new `ToggleSwitch`. `src/content/vocabulary/` was added for
+  the same reason: pain-area and day-of-week labels were about to exist twice.
+- **`ComingSoonPanel` deleted.** M8 was the milestone it was supposed to die in.
+- **The `formatLocalIsoDate` duplicate in `useActiveSessionStore` is gone**, replaced by
+  `calendarDates.formatIsoDate`. Session 12 left this as a one-line cleanup for M8.
+- **966 tests, up from 893.** 73 new, of which 45 are domain. `npm run verify` green.
+
+**Decisions made and why**
+
+| Decision                                                  | Reason                                                                                                                                                                                |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The checklist lives on Today, not on a fifth tab          | It is answered in passing, in the evening, on the way past. A habit that needs navigating to is a habit that gets skipped. The bottom navigation is still four items                  |
+| A "good day" is three of five, not five of five           | A streak that breaks the first time somebody sleeps badly is a streak nobody keeps for a fortnight. Most days is enough — TRAINING_PROGRAM section 9                                  |
+| An untouched day reads as untouched, never as "0 of 5"    | The three ticks default to `false` in storage, so a day nobody opened is indistinguishable from a day where nothing went right. `hasAnythingRecorded` is what separates them          |
+| No praise lines were added for habit streaks              | `allCoachLines.test.ts` allows praise in exactly two categories, and habits are not one. A daily surface that congratulates you daily stops meaning anything. The streak is a fact    |
+| `useTodayTracking` is separate from `useTrainingOverview` | The Schedule screen shows neither habits nor the scale. Folding them into the shared hook would make every screen pay for two more reads on cold start                                |
+| Ticks are optimistic; typed numbers are not               | A checkbox that waits for a round trip gets pressed twice. A number field that saved on every keystroke would record an 8 on the way to 8,200                                         |
+| `defaultRestSeconds` and `weightUnit` get no controls     | Nothing reads the first and nothing renders the second. A switch that changes nothing is worse than no switch. Both are noted in the settings README rather than silently skipped     |
+| Starting weight is not editable                           | It is the baseline the whole weight trend is measured from. Editing it would silently rewrite what every past weigh-in meant. A new starting point is a new programme                 |
+| The two weight-log panels are not one shared component    | They answer different questions on different screens. Sharing would mean one of them carrying the other's chrome, and the rule against cross-feature imports is not the reason        |
+| Panels remount rather than copying props into state       | The numeric habit rows and the weigh-in panel both reset from the outside. Keying them is honest; an effect that watches a prop and calls `setState` ends up one render behind        |
+| 30 days of habit history is read on launch                | Enough for the seven-day figure with room to spare. It also bounds the streak, which is a documented ceiling rather than a silent one. Thirty small documents is inside the cost note |
+
+**Notes for the next session**
+
+- **Still nobody has walked a real session.** Unchanged since M5. M8 is the milestone where
+  it would find the most, because the checklist is the one surface touched every single day
+  and it has only ever been exercised against fixtures.
+- **The panels were eyeballed through the usual throwaway preview** — `src/ScratchM8Preview.tsx`
+  plus a one-line swap in `main.tsx`, rendering both checklist states, both weigh-in states
+  and both settings panels with fixture data at 375 px. Both were reverted before committing.
+  Nothing needed fixing this time; the one thing that looked wrong — the numeric rows
+  appearing wider than the tick rows — measured identical, and is the met-row tint reading as
+  extra width. Everything past the sign-in gate still needs Omar's Google account.
+- **`buildRecentHabitDays` takes a callback** to resolve each day's step target. That keeps
+  the ramp in `habitTargets.ts` and keeps the function about _which days_ — but it is the
+  only function in `src/domain/` that takes one apart from `resolveSessionPlan`, so it is
+  worth knowing it is deliberate rather than accidental.
+- **A second device editing the profile mid-edit will not update the open form.** The
+  profile is watched, so the new values arrive in context, but the form holds a draft and
+  keeps it. Blowing away half-typed edits because another device wrote something would be
+  worse. Worth remembering before anyone calls it a bug.
+- **The streak cannot exceed 30 days** because that is the window read. It is commented where
+  it happens. If he ever gets there it is a pleasant problem and one number to change.
+- The bundle is 1,116 kB before gzip, up from 1,090. No dependency was added; that is two
+  screens' worth of new components and copy.
 
 ---
 

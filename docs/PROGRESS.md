@@ -9,21 +9,29 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ## Current state
 
-|                       |                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------- |
-| **Current milestone** | M1 — design system                                                              |
-| **Status**            | Complete, awaiting review                                                       |
-| **Current branch**    | `feat/design-system`                                                            |
-| **App runs?**         | Yes — `npm run dev`. Four screens, working navigation, working palette switcher |
-| **Backend wired?**    | No — arrives in M4                                                              |
-| **Deployed?**         | No — arrives in M9                                                              |
+|                       |                                                              |
+| --------------------- | ------------------------------------------------------------ |
+| **Current milestone** | M2 — training content                                        |
+| **Status**            | Complete, awaiting review                                    |
+| **Current branch**    | `feat/training-content`                                      |
+| **App runs?**         | Yes — `npm run dev`. Same four screens as M1. M2 added no UI |
+| **Backend wired?**    | No — arrives in M4                                           |
+| **Deployed?**         | No — arrives in M9                                           |
 
 ### What to do next
 
-Start **M2 — training content** on branch `feat/training-content`. Read
-[TRAINING_PROGRAM.md](TRAINING_PROGRAM.md) end to end first — M2 is the direct translation of
-that document into `src/content/` and `src/domain/`, and the progression rules in section 7
-are the part that has to be exactly right.
+Start **M3 — exercise media pipeline** on branch `feat/exercise-media-pipeline`. Read
+[EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md) first.
+
+Everything M3 needs from M2 is in place: **33 exercises, each with a `mediaBrief`** giving the
+start position, end position and equipment to draw. The generator reads those from
+`src/content/exercises/` — `requireExerciseById(id).mediaBrief` — and the filenames are the
+exercise ids, which the content tests already prove are camelCase.
+
+The 23 movements the Phase 1 sessions and the warm-up use are the ones worth generating
+first; the five Phase 2 and 3 additions (`landminePress`, `gobletSquat`,
+`barbellRomanianDeadlift`, `dumbbellSplitSquat`, `rowingMachineEasy`) and the five
+mobility-only drills can follow.
 
 ---
 
@@ -35,7 +43,7 @@ One branch and one pull request each. Do not mix milestones.
 | --- | ------------------------------ | --------------------------------------------------------------------------------------------- | ----------- |
 | M0  | `feat/repo-foundation`         | Git, Vite + TS scaffold, lint, format, tests, all docs, CI                                    | **Done**    |
 | M1  | `feat/design-system`           | Tokens, palettes, `GradientSurface` and primitives, app shell, bottom nav, palette switcher   | **Done**    |
-| M2  | `feat/training-content`        | Exercise database, 12-week programme, mobility routines, coach voice, `domain/` logic + tests | Not started |
+| M2  | `feat/training-content`        | Exercise database, 12-week programme, mobility routines, coach voice, `domain/` logic + tests | **Done**    |
 | M3  | `feat/exercise-media-pipeline` | Media spec, exemplar SVG, codex generator, validator, Phase 1 animations                      | Not started |
 | M4  | `feat/firebase-data-layer`     | Firebase init, Google Sign-In, typed repositories, security rules, onboarding                 | Not started |
 | M5  | `feat/active-session`          | Session player state machine, set logging, rest timer, wake lock                              | Not started |
@@ -139,6 +147,72 @@ One branch and one pull request each. Do not mix milestones.
   mobile browser; do not add fallbacks for browsers this app will never run in.
 - Clicking through the in-app browser pane timed out repeatedly during verification, but
   driving the page with `javascript_tool` worked fine. Not an app problem.
+
+---
+
+### Session 3 - 2026-08-31 - M2 training content
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/training-content`
+
+**Done**
+
+- **Shared vocabulary** in `src/types/`. Movement patterns, muscle groups, equipment, loading
+  styles, pain areas, effort ratings — declared once as `as const` arrays so a typo in an
+  exercise definition is a type error rather than an unmatched string, and so the integrity
+  tests have runtime lists to check against.
+- **33 exercises** across six grouped files plus a flat registry. Each one carries form cues,
+  the specific ways it goes wrong, why it is in _this_ programme, the pain areas it helps and
+  the ones to watch, substitutes, and a `mediaBrief` for M3. Every one of the 33 is referenced
+  by the programme, the warm-up or the mobility routine — there is no dead content.
+- **The twelve week programme**, written out week by week rather than derived. All three
+  phases restate their sessions in full, so what will be trained in week 9 is readable in one
+  place instead of assembled from a chain of overrides.
+- **The warm-up** with a morning and a standard dose per movement, and the **Desk Undo**
+  mobility routine, both referencing the same exercise database as the gym work.
+- **58 coach lines** in four files, tagged by moment, verbosity and whether they are praise.
+- **Twelve domain modules, 418 tests, all green.** Double progression, the two safety
+  reductions, load rounding, session planning, scheduling, layoff recovery, volume, Epley,
+  habit targets, coach line selection.
+- Amended [TRAINING_PROGRAM.md](TRAINING_PROGRAM.md) sections 3, 7 and 8 with the decisions
+  below, so the document and the code do not drift.
+
+**Decisions made and why**
+
+| Decision                                                    | Reason                                                                                                                                                                                                     |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The session tables' rep counts are the **top of a range**   | Double progression needs somewhere to climb. "2 x 12" is two sets of 10-12, and the weight moves once both sets reach 12. A fixed 12 gives the rule nothing to fire on                                     |
+| Sharp pain outranks a brutal set                            | Both can be true of one session. Taking the larger reduction is the only safe reading of a rail whose whole job is safety                                                                                  |
+| Reductions round **down** to a selectable weight            | 40 kg less 20% is 32 kg, and the nearest stack setting is 32.5 — heavier than the reduction asked for. Being wrong on the light side is free; being wrong on the heavy side is the thing we are preventing |
+| Prescribed dumbbell weights are **per dumbbell**            | It is the number written on the thing he picks up. Volume calculations multiply by two; the screen does not                                                                                                |
+| Carries progress on feel, not on reps                       | A carry has a distance, so there is no top of the range to reach. It goes up only when every set felt easy                                                                                                 |
+| Warm-up doses are written out, not computed                 | The right afternoon dose for ankle rocks is a judgement about ankle rocks, not a percentage. Both numbers are in content where they can be argued with                                                     |
+| Every warm-up movement is always performed                  | Dropping the shoulder work because it is the afternoon would be a strange way to treat a shoulder. Only the dose varies                                                                                    |
+| Phases restate their sessions rather than patching          | Nine session templates is more text than three plus overrides, but week 9 is then readable in one place. Reviewability beats brevity here                                                                  |
+| The landmine press is a slot with `requiresPainFreeAreas`   | The programme says "if the shoulders have gone quiet". Making that a data condition means it is enforced by the planner and tested, rather than remembered                                                 |
+| `domain/` takes a `resolveLoadingStyleForExercise` function | Session planning needs one fact from content. Passing it in keeps the "domain depends on nothing" rule literally true instead of nearly true                                                               |
+| Coach line selection takes a rotation index                 | `domain/` has no randomness. The caller passes a counter, so the same input always produces the same line and the voice still rotates                                                                      |
+| Praise is a filter, not a ranking                           | `mayUsePraise: false` removes praise lines entirely and `selectCoachLine` returns null rather than substituting something generic. Silence is part of the voice                                            |
+| Phase 2 swaps the two presses rather than adding one        | "Incline dumbbell press replaces some machine pressing" — the free weight goes where he is freshest, the machine stays for the tired slot                                                                  |
+
+**Notes for the next session**
+
+- **The exercise ids that change at a phase boundary reset their history.** Four do, in
+  week 9. This is handled — no history means the app prescribes a calibration and asks him to
+  find the weight — but it is worth knowing before someone reads it as a bug.
+- **`src/components/icons/` still does not exist**, though DESIGN_SYSTEM.md section 7 says the
+  concept-to-icon mapping lives there. M2 introduced the concepts (muscle groups, movement
+  patterns, equipment, effort ratings, habits) but has no UI to render them. Build it in the
+  first milestone that draws them, rather than guessing now.
+- **`DailyHabitRecord` in DATA_MODEL.md has five fields, and section 9 of the training
+  document lists four habits.** The fifth is the mobility routine from section 10. The content
+  in `src/content/habits/` covers all five and says so; the two documents are not actually in
+  conflict, but the mismatch reads like one.
+- The domain tests for `programPhases` and `sessionPlanning` import the real programme rather
+  than a fixture. That is a test importing content, which is allowed; the `src/domain/` source
+  files themselves still import nothing but types.
+- Nothing in M2 renders, so there was nothing to verify in a browser. The first screen that
+  consumes any of this is the active session player in M5.
 
 ---
 

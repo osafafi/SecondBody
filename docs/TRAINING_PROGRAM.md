@@ -101,6 +101,16 @@ just got out of bed is measurably stiffer.
 | Bodyweight hip hinge       | 10 reps      | Rehearses the hinge before it gets loaded              |
 | Ramp set on first exercise | 1 x 10 light | Movement-specific preparation                          |
 
+**How "adaptive" works.** The volumes above are the morning dose. Later in the day every
+movement is still performed — dropping the shoulder work because it is the afternoon would be
+a strange way to treat a shoulder — but at a lighter dose: the bike drops to 2 minutes and
+each drill loses two or three reps. That brings the routine from roughly ten minutes to
+roughly six. Both doses are written out per movement in `src/content/programs/`, rather than
+one being computed from the other, because the right afternoon dose is a judgement about a
+specific drill and not a percentage.
+
+The ramp set is half the first exercise's working weight.
+
 ---
 
 ## 4. Session A - Legs & Pull
@@ -177,6 +187,21 @@ The only rule, applied per exercise:
   jump explicitly rather than waiting.
 - Anything else -> hold.
 
+### The rep numbers in the session tables are the top of a range
+
+"2 x 12" means two sets of **10 to 12**, not two sets of exactly 12. Double progression needs
+somewhere to climb: the weight only moves once every set reaches the top of the range, so
+without a range there is nothing to progress through. The ranges used are 10-12, 8-10, 12-15
+and 6-8, each ending on the number printed in sections 4 to 6.
+
+### Three conventions the code needs and the tables do not state
+
+| Convention                            | What it means                                                                                                                                                                                                       |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Dumbbell weights are per dumbbell** | "2 x 8 kg" is the weight written on each dumbbell. The increment of +2 kg is the next dumbbell up. Volume calculations count both                                                                                   |
+| **Carries progress on feel**          | A carry has a distance, not a rep range, so there is no top of the range to reach. It goes up only when every set felt _easy_. A carry that felt _just right_ is already doing its job on grip and posture          |
+| **Reductions round down**             | 40 kg less 20% is 32 kg, and the nearest selectable weight is 32.5 — heavier than the reduction asked for. Reductions round down to 30. Increases round to the nearest selectable weight and then add the increment |
+
 ### Week 1 is a calibration week
 
 There are no prescribed weights in week 1 beyond the conservative starting points above.
@@ -203,6 +228,14 @@ goblet squat gets heavier, the RDL progresses properly, incline dumbbell press r
 some machine pressing. If the shoulders have gone quiet, a landmine press is introduced as
 the first overhead-ish movement.
 
+Concretely, three changes and no others:
+
+| Change                                                                                         | Why                                                                                                                        |
+| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| The two presses swap places: incline dumbbell press becomes B1, chest press machine becomes C4 | The free-weight press goes where he is freshest. The machine stays for the tired slot, which is what machines are good for |
+| Half-kneeling landmine press enters as B5, **only while the shoulders are clear**              | The first overhead-ish movement. It is the first thing to drop if a session runs long                                      |
+| Session A does not change at all                                                               | The goblet squat getting heavier is progression doing its job, not a different exercise                                    |
+
 **Week 8 is a deload:** drop to 2 sets and reduce every load by 20%. It will feel like a
 waste of a week. It is not — it is where accumulated fatigue clears and the joints catch
 up. Do not skip it.
@@ -211,6 +244,21 @@ up. Do not skip it.
 
 RPE 7-8. The rowing machine is introduced now that the hinge is reliable. More free weights.
 An optional fourth day becomes available for anyone who wants it — and only then.
+
+Concretely, four movements grow up:
+
+| Change                                       | Why                                                                                   |
+| -------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Goblet squat to box -> goblet squat          | Eight weeks of touching the box accurately means the box has done its job             |
+| Dumbbell RDL -> barbell RDL, out of the rack | The pattern is reliable. Still never from the floor                                   |
+| Split squat -> dumbbell split squat          | The "+2 reps, then add load" rule in section 7 finally reaching the "add load" half   |
+| Session B's bike finisher -> rowing machine  | B is the day the hinge is trained, so the pattern is fresh when the rower asks for it |
+
+Four exercise ids change, which means four movements with no history. That is handled rather
+than worked around: an exercise with no history is prescribed as a calibration, so the app
+asks him to find the weight instead of inventing one.
+
+The optional fourth day is not built. It becomes reasonable here; it is not scheduled.
 
 ---
 

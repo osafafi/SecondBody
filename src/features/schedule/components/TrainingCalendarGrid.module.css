@@ -1,0 +1,147 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.weekdayRow,
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-2);
+}
+
+.weekdayInitial {
+  text-align: center;
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.weeks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+/* --- One day -------------------------------------------------------------- */
+
+.day {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  aspect-ratio: 1;
+  border-radius: var(--radius-medium);
+  border: 1px solid transparent;
+
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.dayText {
+  line-height: 1;
+}
+
+/*
+ * Every cell carries a spoken label, because a grid of coloured squares
+ * announces nothing on its own.
+ */
+.screenReaderOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- The four kinds of day ------------------------------------------------ */
+/*
+ * Told apart by fill and border as well as by colour. This is a screen whose
+ * whole content is the difference between these states, and colour alone would
+ * leave it unreadable to anyone who cannot separate the palette's green from its
+ * amber.
+ */
+
+.kindRest {
+  color: var(--text-muted);
+  background: rgba(var(--surface-tint-rgb), 0.06);
+}
+
+.kindCompleted {
+  color: var(--text-primary);
+  background: linear-gradient(140deg, var(--success-gradient-start), var(--success-gradient-end));
+  border-color: transparent;
+}
+
+.kindUnfinished {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--warning-gradient-start) 30%, transparent);
+  border-color: var(--warning-gradient-start);
+}
+
+.kindPlanned {
+  color: var(--text-secondary);
+  background: rgba(var(--surface-tint-rgb), 0.14);
+  border-color: var(--brand-gradient-start);
+}
+
+.kindMissed {
+  color: var(--text-secondary);
+
+  /*
+   * A wash as well as a dashed edge. At legend size a 1px dashed border in a
+   * muted red is invisible, and a legend entry nobody can see is worse than no
+   * legend at all.
+   */
+  background: color-mix(in srgb, var(--danger-gradient-start) 12%, transparent);
+  border-style: dashed;
+  border-color: var(--danger-gradient-start);
+}
+
+/* Today is marked by a ring outside the cell, so it composes with all four. */
+.isToday::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: calc(var(--radius-medium) + 3px);
+  border: 2px solid var(--brand-gradient-start);
+  pointer-events: none;
+}
+
+/* --- Legend --------------------------------------------------------------- */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid rgba(var(--surface-tint-rgb), 0.22);
+  list-style: none;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.legendSwatch {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-small);
+
+  /* Thicker than a day cell's, so a dashed edge is legible at this size. */
+  border: 2px solid transparent;
+}

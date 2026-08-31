@@ -145,7 +145,18 @@ export type SessionPlanRequest = {
   layoffLoadMultiplier: number;
 };
 
-function isSlotAvailable(
+/**
+ * Whether a slot appears in the session at all.
+ *
+ * Exported because the Today screen lists the movements a session contains
+ * without prescribing anything, and a dashboard that named an exercise the
+ * session then leaves out would be its own small bug. One rule, one
+ * implementation, two callers.
+ *
+ * The blacklist beats everything: an exercise a physio ruled out does not
+ * appear whatever the programme, the phase or the pain conditions say.
+ */
+export function isExerciseSlotAvailable(
   slot: ExerciseSlot,
   activePainAreas: PainArea[],
   excludedExerciseIds: string[],
@@ -367,7 +378,9 @@ export function resolveSessionPlan(request: SessionPlanRequest): PlannedSession 
   const combinedLoadMultiplier = week.loadMultiplier * request.layoffLoadMultiplier;
 
   const exercises = sessionTemplate.exerciseSlots
-    .filter((slot) => isSlotAvailable(slot, request.activePainAreas, request.excludedExerciseIds))
+    .filter((slot) =>
+      isExerciseSlotAvailable(slot, request.activePainAreas, request.excludedExerciseIds),
+    )
     .slice()
     .sort((firstSlot, secondSlot) => firstSlot.orderIndex - secondSlot.orderIndex)
     .map((slot) => planExercise(slot, request, combinedLoadMultiplier, week.workingSetCount));

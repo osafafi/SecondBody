@@ -13,7 +13,7 @@ describe('convertPaletteFieldNameToCssCustomPropertyName', () => {
     ['brandGradientStart', '--brand-gradient-start'],
     ['surfaceTintRgb', '--surface-tint-rgb'],
     ['textPrimary', '--text-primary'],
-    ['muscleHighlightSecondary', '--muscle-highlight-secondary'],
+    ['warningGradientStart', '--warning-gradient-start'],
     ['backgroundDeep', '--background-deep'],
   ])('converts %s to %s', (fieldName, expectedPropertyName) => {
     expect(convertPaletteFieldNameToCssCustomPropertyName(fieldName)).toBe(expectedPropertyName);
@@ -27,13 +27,17 @@ describe('applyColorPaletteToDocument', () => {
     targetElement = document.createElement('div');
   });
 
+  // One field from each group in the contract, rather than all twenty-odd: the
+  // "defines every field on every palette" test below is what proves nothing is
+  // missing, and this proves the values arrive intact and correctly named.
   it('writes every colour field as a CSS custom property', () => {
     applyColorPaletteToDocument(purpleBluePalette, targetElement);
 
     expect(targetElement.style.getPropertyValue('--brand-gradient-start')).toBe('#7C5CFF');
     expect(targetElement.style.getPropertyValue('--background-deep')).toBe('#0B0A14');
     expect(targetElement.style.getPropertyValue('--surface-tint-rgb')).toBe('124, 92, 255');
-    expect(targetElement.style.getPropertyValue('--muscle-highlight-primary')).toBe('#A855F7');
+    expect(targetElement.style.getPropertyValue('--text-secondary')).toBe('#A9A3C7');
+    expect(targetElement.style.getPropertyValue('--danger-gradient-end')).toBe('#E11D48');
   });
 
   it('does not write the metadata fields as custom properties', () => {

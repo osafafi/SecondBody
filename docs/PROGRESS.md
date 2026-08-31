@@ -13,7 +13,7 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 | --------------------- | ------------------------------------------------------------------------------- |
 | **Current milestone** | M3 — exercise media pipeline                                                    |
 | **Status**            | Complete, awaiting review on `feat/exercise-media-pipeline`                     |
-| **Current branch**    | `feat/exercise-media-pipeline`                                                  |
+| **Current branch**    | `feat/palette-contract-cleanup`, stacked on `feat/exercise-media-pipeline`      |
 | **App runs?**         | Yes — `npm run dev`. Same four screens, plus a dev-only `#/exercise-media` tool |
 | **Backend wired?**    | No — arrives in M4                                                              |
 | **Deployed?**         | No — arrives in M9                                                              |
@@ -24,7 +24,8 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ### What to do next
 
-Push `feat/exercise-media-pipeline` and open its pull request, then start **M4 — Firebase data
+Push `feat/exercise-media-pipeline` and open its pull request. Then `feat/palette-contract-cleanup`,
+which is stacked on it and has to go second. Then start **M4 — Firebase data
 layer** on branch `feat/firebase-data-layer`. Read [SETUP_FIREBASE.md](SETUP_FIREBASE.md) and
 [DATA_MODEL.md](DATA_MODEL.md) first.
 
@@ -411,18 +412,18 @@ available" fallback for anything that could not be matched, which he would resol
 
 **Decisions made and why**
 
-| Decision                                                         | Reason                                                                                                                                                                                                                       |
-| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A curated table in `src/content/`, not a matching script         | A script would have to be re-run and re-trusted. The judgement of "is this drawing this movement" is made once, by eye, and committed where a pull request can argue with it. It is content, and content is reviewed         |
-| A wrong animation is worse than no animation                     | "No preview yet" is visible, honest and fixable. A confidently wrong drawing teaches the wrong movement in a gym and nobody finds out. Nine exercises were refused on that basis rather than given the nearest quad stretch  |
-| Close matches carry a written sentence, enforced by the verifier | The note is the only thing that makes the compromise reviewable. A close match without one is just an unexplained approximation                                                                                              |
-| `gobletSquat` and `gobletSquatToBox` share one file              | The dataset has a goblet squat and a squat-to-a-bench, and neither has both properties. The goblet hold is the cue that matters more, so the bench is what is given up. Recorded in the table rather than hidden             |
-| The images are inverted in CSS                                   | The source files are dark line art on white. Untouched, each is a 180 px white square: a glare in a dim gym and the one bright rectangle in a dark app. `invert(1) hue-rotate(180deg)` blackens the ground and keeps the red |
-| `<img>`, not the inlined shadow root session 5 built             | That existed so the SVGs could inherit the palette. A GIF is raster and inherits nothing however it is embedded, so inlining costs lazy loading, off-thread decoding and the browser cache for nothing in return             |
-| The committed table decides whether a file exists, not a 404     | Whether an animation exists is committed knowledge, and a test proves the table matches the disk. A phone on gym wifi should not wait out a failed request to learn something that was known at build time                   |
-| The `muscle*` palette fields stay, unused                        | Seven fields across three palettes, written for the SVGs. Nothing reads them now. Removing them is a design-system change, and hand-drawn media would want them back. Documented as unused in DESIGN_SYSTEM.md instead       |
-| `mediaBrief` stays on `ExerciseDefinition`                       | It stopped being a generator input and became a matching input: it is what the candidate thumbnails were checked against. Three sentences describing the movement, next to the form cues, earns its place either way         |
-| The clone is gitignored rather than a submodule                  | A submodule makes every future checkout pay 296 MB for 27 files. Copy them out, commit them, and print the clone command when the tool cannot find the clone                                                                 |
+| Decision                                                              | Reason                                                                                                                                                                                                                       |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A curated table in `src/content/`, not a matching script              | A script would have to be re-run and re-trusted. The judgement of "is this drawing this movement" is made once, by eye, and committed where a pull request can argue with it. It is content, and content is reviewed         |
+| A wrong animation is worse than no animation                          | "No preview yet" is visible, honest and fixable. A confidently wrong drawing teaches the wrong movement in a gym and nobody finds out. Nine exercises were refused on that basis rather than given the nearest quad stretch  |
+| Close matches carry a written sentence, enforced by the verifier      | The note is the only thing that makes the compromise reviewable. A close match without one is just an unexplained approximation                                                                                              |
+| `gobletSquat` and `gobletSquatToBox` share one file                   | The dataset has a goblet squat and a squat-to-a-bench, and neither has both properties. The goblet hold is the cue that matters more, so the bench is what is given up. Recorded in the table rather than hidden             |
+| The images are inverted in CSS                                        | The source files are dark line art on white. Untouched, each is a 180 px white square: a glare in a dim gym and the one bright rectangle in a dark app. `invert(1) hue-rotate(180deg)` blackens the ground and keeps the red |
+| `<img>`, not the inlined shadow root session 5 built                  | That existed so the SVGs could inherit the palette. A GIF is raster and inherits nothing however it is embedded, so inlining costs lazy loading, off-thread decoding and the browser cache for nothing in return             |
+| The committed table decides whether a file exists, not a 404          | Whether an animation exists is committed knowledge, and a test proves the table matches the disk. A phone on gym wifi should not wait out a failed request to learn something that was known at build time                   |
+| The `muscle*` palette fields stay, unused — **reversed in session 7** | Seven fields across three palettes, written for the SVGs. Nothing reads them now. Removing them is a design-system change, and hand-drawn media would want them back. Documented as unused in DESIGN_SYSTEM.md instead       |
+| `mediaBrief` stays on `ExerciseDefinition`                            | It stopped being a generator input and became a matching input: it is what the candidate thumbnails were checked against. Three sentences describing the movement, next to the form cues, earns its place either way         |
+| The clone is gitignored rather than a submodule                       | A submodule makes every future checkout pay 296 MB for 27 files. Copy them out, commit them, and print the clone command when the tool cannot find the clone                                                                 |
 
 **Notes for the next session**
 
@@ -447,6 +448,53 @@ available" fallback for anything that could not be matched, which he would resol
 - **Screenshots below the fold come back blank** in the browser pane on the review screen.
   Sessions 2 and 5 both noted the pane lagging; this is worse than lag. Removing the earlier
   `<section>` elements with `javascript_tool` and screenshotting at scroll zero is what worked.
+
+### Session 7 - 2026-08-31 - The muscle palette fields come out
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/palette-contract-cleanup`, branched off `feat/exercise-media-pipeline`
+
+Session 6 replaced the generated exercise SVGs with dataset GIFs and left the seven `muscle*`
+colour fields in the palette contract, documented as deliberately unused. **That call is
+reversed here.** They are gone.
+
+**Done**
+
+- Removed `muscleBodyFill`, `muscleBodyStroke`, `muscleHighlightPrimary`,
+  `muscleHighlightSecondary`, `muscleEquipmentFill`, `muscleEquipmentStroke` and
+  `muscleMotionTrail` from `ColorPaletteDefinition` and from all three palettes. Twenty-four
+  lines.
+- `colorPaletteTypes.ts` keeps a short note where they were, because "why can I not recolour
+  the animations" is a reasonable question to arrive at that file with.
+- `applyColorPaletteToDocument.test.ts` **replaced** its two muscle references rather than
+  deleting them. One was a kebab-case conversion case and the other a spot-check that values
+  arrive intact; both were testing the mechanism, not the muscle colours. They are now
+  `warningGradientStart` and `--danger-gradient-end`, plus `--text-secondary` so the
+  spot-check covers one field per group in the contract.
+- `docs/DESIGN_SYSTEM.md` updated: the fields are out of the quoted contract, and the section
+  explaining why the animations do not follow the palette says they were removed rather than
+  kept.
+
+**Why, given session 6 decided the opposite**
+
+| Session 6 said                            | Why that was wrong                                                                                                                                                                                                                                                                 |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Removing them is a design-system change" | So is leaving seven dead fields in the document that defines the design system. `colorPaletteTypes.ts` opens by saying every field produces a custom property that components read. That was false for a third of its colour fields                                                |
+| "It costs three lines per palette"        | It costs seven **design decisions** per palette, made with nothing to check them against. There is no way to know whether `muscleEquipmentStroke: '#7C574A'` is right, because nothing draws it — and the "every palette defines every field" test makes inventing them compulsory |
+| "Hand-drawn media would want them back"   | It would want its own values. These were tuned against artwork that no longer exists, so new artwork would re-pick them anyway. What was actually being preserved was seven names, and re-adding seven names is additive and takes a minute                                        |
+
+**Notes for the next session**
+
+- **This is stacked on `feat/exercise-media-pipeline` and is deliberately its own branch.**
+  The fields are only dead because of that branch, so it has to merge first — but the removal
+  is a judgement call rather than a defect, so it is kept separable in case Omar wants M3
+  without it.
+- **Nothing else in the app changed.** No component read these, no CSS referenced them, and
+  the four screens render identically. 449 tests, unchanged in number: the two muscle
+  assertions were substituted rather than dropped.
+- If SVG or hand-drawn media ever returns, add the fields it needs back to
+  `ColorPaletteDefinition` and give each palette a value chosen against the actual artwork.
+  The contract's shape does not need redesigning for that; it is an additive change.
 
 ---
 

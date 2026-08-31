@@ -32,12 +32,4 @@ export const amberCrimsonPalette: ColorPaletteDefinition = {
   warningGradientEnd: '#EAB308',
   dangerGradientStart: '#F472B6',
   dangerGradientEnd: '#BE185D',
-
-  muscleBodyFill: '#2A1815',
-  muscleBodyStroke: '#6B4A3D',
-  muscleHighlightPrimary: '#FB923C',
-  muscleHighlightSecondary: '#E11D48',
-  muscleEquipmentFill: '#331D19',
-  muscleEquipmentStroke: '#7C574A',
-  muscleMotionTrail: '#F59E0B',
 };

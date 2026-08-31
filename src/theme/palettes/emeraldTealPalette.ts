@@ -32,12 +32,4 @@ export const emeraldTealPalette: ColorPaletteDefinition = {
   warningGradientEnd: '#F59E0B',
   dangerGradientStart: '#FB7185',
   dangerGradientEnd: '#E11D48',
-
-  muscleBodyFill: '#0F2A30',
-  muscleBodyStroke: '#3D6B6B',
-  muscleHighlightPrimary: '#2DD4BF',
-  muscleHighlightSecondary: '#0EA5E9',
-  muscleEquipmentFill: '#123037',
-  muscleEquipmentStroke: '#4A7C7C',
-  muscleMotionTrail: '#10B981',
 };

@@ -1,32 +1,53 @@
-import { CalendarHeart, Dumbbell, ListChecks } from 'lucide-react';
+import { CalendarHeart, Dumbbell } from 'lucide-react';
 
 import { useAuthentication } from '@/app/useAuthentication';
 import { useUserProfile } from '@/app/useUserProfile';
-import { ComingSoonPanel } from '@/components/ComingSoonPanel/ComingSoonPanel';
 import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
 import { IconBadge } from '@/components/IconBadge/IconBadge';
 import { ScreenHeader } from '@/components/ScreenHeader/ScreenHeader';
+import { findCoachLinesByCategory } from '@/content/coachVoice/allCoachLines';
+import { nightlySleepTargetHours } from '@/content/habits/dailyHabitDefinitions';
 import {
   findMobilityRoutineById,
   dailyMobilityRoutineId,
 } from '@/content/mobility/allMobilityRoutines';
+import { formatIsoDate } from '@/domain/calendarDates';
+import { selectCoachLine } from '@/domain/coachLineSelection';
 import {
   canStartSessionFromTodayScreen,
   determineDailyTrainingStatus,
 } from '@/domain/dailyTrainingStatus';
+import {
+  countCurrentHabitStreak,
+  summariseDailyHabits,
+  summariseRecentHabitCompliance,
+} from '@/domain/habitCompliance';
 import { isFirstSessionOfPhase } from '@/domain/programProgressSummary';
 import { buildTrainingCalendar, countMissedTrainingDays } from '@/domain/trainingCalendar';
 import { useTrainingOverview, type TrainingOverview } from '@/hooks/useTrainingOverview';
+import type { CoachVerbosityLevel } from '@/types/coachVoiceTypes';
 import type { UserProfile } from '@/types/userAccountTypes';
 
 import { DailyCoachNote } from './components/DailyCoachNote';
+import { DailyHabitChecklistPanel } from './components/DailyHabitChecklistPanel';
+import { QuickWeightLogPanel } from './components/QuickWeightLogPanel';
 import { RestDayMobilityNote } from './components/RestDayMobilityNote';
 import { TodaySessionPanel } from './components/TodaySessionPanel';
 import { selectDailyCoachLine } from './dashboardCoachLines';
 import { resolveDueSessionOutline } from './dueSessionOutline';
 import styles from './TodayScreen.module.css';
 import { formatFullDate } from './todayWording';
+import { useTodayTracking } from './useTodayTracking';
+
+/**
+ * The window the "x of the last y days" line is measured over.
+ *
+ * A week, because that is the unit a training week is planned in and because a
+ * month of history makes a bad Tuesday invisible — which sounds kind and is
+ * actually just less useful.
+ */
+const DAYS_IN_THE_COMPLIANCE_WINDOW = 7;
 
 /**
  * The screen the app opens on: what is on today, and the way into it.
@@ -251,11 +272,12 @@ function TodayBriefing({
         <RestDayMobilityNote mobilityRoutine={dailyMobilityRoutine} />
       ) : null}
 
-      <ComingSoonPanel
-        headline="Habits and the scale"
-        description="The four daily ticks and a quick weight log arrive with the habits screen."
-        milestone="M8"
-        icon={<ListChecks size={24} strokeWidth={1.75} />}
+      <TodayTrackingSection
+        now={now}
+        programmeStartedOn={assignment.startedOn}
+        totalWeekCount={programTemplate.totalWeekCount}
+        fallbackWeightKilograms={userProfile.startingWeightKilograms}
+        configuredVerbosity={userSettings.coachVerbosity}
       />
 
       <p className={styles.scheduleHint}>
@@ -263,5 +285,135 @@ function TodayBriefing({
         The Schedule tab has the calendar and where the twelve weeks have got to.
       </p>
     </div>
+  );
+}
+
+/**
+ * The two things Today writes: the daily checklist, and the scale.
+ *
+ * Its own component so that its reads have their own loading state. The session
+ * panel above is the reason the app was opened and must not wait on a checklist
+ * — and this is also what keeps the note at the top of `useTrainingOverview`
+ * true, that Today writes nothing except when it is actually asked to.
+ *
+ * Nothing here is decided locally: `habitCompliance.ts` says what was met, what
+ * the streak is and how the last stretch went, and this arranges the answers.
+ */
+function TodayTrackingSection({
+  now,
+  programmeStartedOn,
+  totalWeekCount,
+  fallbackWeightKilograms,
+  configuredVerbosity,
+}: {
+  now: Date;
+  programmeStartedOn: string;
+  totalWeekCount: number;
+
+  /** What the stepper opens on before the scale has ever been used. */
+  fallbackWeightKilograms: number;
+
+  configuredVerbosity: CoachVerbosityLevel;
+}) {
+  const { signedInUser } = useAuthentication();
+  const todayIsoDate = formatIsoDate(now);
+
+  const {
+    trackingStatus,
+    todayTracking,
+    trackingErrorMessage,
+    isSavingTracking,
+    saveErrorMessage,
+    completedWeighInCount,
+    reloadTodayTracking,
+    recordHabitAnswer,
+    recordBodyWeight,
+  } = useTodayTracking({
+    userId: signedInUser?.userId ?? null,
+    todayIsoDate,
+    programmeStartedOn,
+    totalWeekCount,
+  });
+
+  if (trackingStatus === 'loading') {
+    return (
+      <GradientSurface variant="outlined" radius="xlarge" className={styles.pendingPanel}>
+        <p className={styles.pendingLabel} role="status">
+          Reading today&rsquo;s habits
+        </p>
+      </GradientSurface>
+    );
+  }
+
+  if (trackingStatus === 'failed' || !todayTracking) {
+    return (
+      <GradientSurface variant="outlined" radius="xlarge" className={styles.errorPanel}>
+        <h2 className={styles.errorTitle}>Could not read your habits</h2>
+
+        {trackingErrorMessage ? (
+          <p className={styles.errorMessage} role="alert">
+            {trackingErrorMessage}
+          </p>
+        ) : null}
+
+        <GradientButton tone="primary" isFullWidth onClick={reloadTodayTracking}>
+          Try again
+        </GradientButton>
+      </GradientSurface>
+    );
+  }
+
+  const { todayHabitRecord, recentHabitDays, dailyStepTarget, latestBodyMetricEntry } =
+    todayTracking;
+
+  const todaySummary = summariseDailyHabits({
+    record: todayHabitRecord,
+    dailyStepTarget,
+    nightlySleepTargetHours,
+  });
+
+  /*
+   * The coach's habit line rotates on the day of the month rather than on
+   * anything to do with performance. It is a remark, not a verdict — tying it
+   * to how the week went would turn five short lines into five judgements.
+   */
+  const habitCoachLine = selectCoachLine({
+    candidateLines: findCoachLinesByCategory('habitEncouragement'),
+    configuredVerbosity,
+    rotationIndex: now.getDate(),
+    mayUsePraise: false,
+  });
+
+  return (
+    <>
+      <DailyHabitChecklistPanel
+        todayHabitRecord={todayHabitRecord}
+        todaySummary={todaySummary}
+        dailyStepTarget={dailyStepTarget}
+        streakLength={countCurrentHabitStreak(recentHabitDays, todayIsoDate)}
+        recentCompliance={summariseRecentHabitCompliance(
+          recentHabitDays.slice(0, DAYS_IN_THE_COMPLIANCE_WINDOW),
+        )}
+        coachLine={habitCoachLine}
+        isSaving={isSavingTracking}
+        saveErrorMessage={saveErrorMessage}
+        onHabitAnswered={recordHabitAnswer}
+      />
+
+      <QuickWeightLogPanel
+        /*
+         * Keyed on the number of weigh-ins that have landed, so a successful
+         * save folds the panel shut by remounting it. Remounting is the honest
+         * way to reset a form from the outside; an effect that watches a prop
+         * and calls `setState` is the way that ends up one render behind.
+         */
+        key={`weigh-in-${String(completedWeighInCount)}`}
+        startingWeightKilograms={latestBodyMetricEntry?.weightKilograms ?? fallbackWeightKilograms}
+        hasWeighedInToday={latestBodyMetricEntry?.recordedOn === todayIsoDate}
+        isSaving={isSavingTracking}
+        saveErrorMessage={saveErrorMessage}
+        onWeightLogged={recordBodyWeight}
+      />
+    </>
   );
 }

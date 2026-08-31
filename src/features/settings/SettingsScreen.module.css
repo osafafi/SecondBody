@@ -23,6 +23,44 @@
 }
 
 /*
+ * Reading and failing to read the preferences document. Same shapes as the
+ * Today screen uses, because a panel that is waiting should look the same
+ * wherever in the app it is waiting.
+ */
+.pendingPanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96px;
+  padding: var(--space-5) var(--space-4);
+}
+
+.pendingLabel {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.errorPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+}
+
+.errorTitle {
+  font-size: var(--text-heading-size);
+  font-weight: var(--text-heading-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.errorMessage {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+/*
  * The media attribution. Quiet, but present on every build — it is a condition
  * of using the animations, not a nicety. See
  * src/content/exerciseMedia/exerciseMediaAttribution.ts.

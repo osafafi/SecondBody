@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ColorPaletteProvider } from '@/theme/ColorPaletteProvider';
 import { availableColorPalettes } from '@/theme/palettes/availableColorPalettes';
@@ -8,10 +8,10 @@ import { purpleBluePalette } from '@/theme/palettes/purpleBluePalette';
 
 import { ColorPalettePicker } from './ColorPalettePicker';
 
-function renderPickerInsideProvider() {
+function renderPickerInsideProvider(onPaletteSelected: (paletteId: string) => void = () => {}) {
   return render(
     <ColorPaletteProvider>
-      <ColorPalettePicker />
+      <ColorPalettePicker onPaletteSelected={onPaletteSelected} />
     </ColorPaletteProvider>,
   );
 }
@@ -80,6 +80,22 @@ describe('ColorPalettePicker', () => {
     expect(
       screen.getByRole('button', { name: new RegExp(targetPalette.displayName) }),
     ).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  /*
+   * The palette is stored twice: in localStorage by the theme provider, and
+   * against the account by whoever is listening here. This is the half that
+   * makes it follow him to another device.
+   */
+  it('reports the choice so the screen can store it against the account', async () => {
+    const user = userEvent.setup();
+    const targetPalette = findFirstNonDefaultPalette();
+    const handlePaletteSelected = vi.fn();
+
+    renderPickerInsideProvider(handlePaletteSelected);
+    await user.click(screen.getByRole('button', { name: new RegExp(targetPalette.displayName) }));
+
+    expect(handlePaletteSelected).toHaveBeenCalledWith(targetPalette.paletteId);
   });
 
   it('falls back to the default when the stored palette id is no longer recognised', () => {

@@ -36,8 +36,9 @@ a signed-in user at `src/features/onboarding/` until a profile exists.
 
 The welcome line is fixed at `standard` verbosity with a rotation index of `0`. Both are
 placeholders with the same cause: verbosity is a user setting, settings live in Firestore,
-and on this screen there is nobody to load them for. When M8 adds a settings repository,
-this screen can read the real value.
+and on this screen there is nobody to load them for. That is still true after M8 — the
+settings screen can change the value, but nobody is signed in yet when this screen renders,
+so there is no document to read it from. It stays at `standard`.
 
 Coach copy is never inlined into the JSX here. The lines live in
 `src/content/coachVoice/authenticationCoachLines.ts` like every other thing Harout says -

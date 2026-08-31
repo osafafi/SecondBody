@@ -1,27 +1,54 @@
-import { Info, LogIn, Palette, Settings2, UserRound } from 'lucide-react';
+import { Info, LogIn, MessageSquare, Palette, Settings2, UserRound } from 'lucide-react';
 
-import { ComingSoonPanel } from '@/components/ComingSoonPanel/ComingSoonPanel';
+import { useAuthentication } from '@/app/useAuthentication';
+import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
 import { IconBadge } from '@/components/IconBadge/IconBadge';
 import { ScreenHeader } from '@/components/ScreenHeader/ScreenHeader';
 import { exerciseMediaAttribution } from '@/content/exerciseMedia/exerciseMediaAttribution';
 
+import { CoachingPreferencesPanel } from './components/CoachingPreferencesPanel';
 import { ColorPalettePicker } from './components/ColorPalettePicker';
+import { ProfileDetailsPanel } from './components/ProfileDetailsPanel';
 import { SignedInAccountPanel } from './components/SignedInAccountPanel';
 import styles from './SettingsScreen.module.css';
+import { useEditableProfile } from './useEditableProfile';
+import { useEditableUserSettings } from './useEditableUserSettings';
 
 /**
  * Settings.
  *
- * The colour palette picker and the account panel are fully working. Profile
- * editing, targets and coach verbosity arrive in M8 — the backend they need
- * landed in M4, but the screens to edit them did not.
+ * M8 finished what M4 started. The preferences document has existed since the
+ * data layer landed and every screen has been reading it; until now nothing
+ * could write it, so every value in it was the default. All four sections here
+ * are wired to something that actually changes behaviour.
  *
  * The credits section is not decoration and is not optional: the exercise
  * animations are used under terms that require this notice to travel with them.
  * See `src/content/exerciseMedia/exerciseMediaAttribution.ts`.
  */
 export function SettingsScreen() {
+  const { signedInUser } = useAuthentication();
+
+  const {
+    settingsStatus,
+    userSettings,
+    settingsErrorMessage,
+    isSavingSettings,
+    saveErrorMessage: settingsSaveErrorMessage,
+    reloadUserSettings,
+    changeUserSettings,
+  } = useEditableUserSettings(signedInUser?.userId ?? null);
+
+  const {
+    userProfile,
+    isSavingProfile,
+    saveErrorMessage: profileSaveErrorMessage,
+    hasJustSavedProfile,
+    saveProfileEdits,
+    forgetSaveResult,
+  } = useEditableProfile();
+
   return (
     <>
       <ScreenHeader
@@ -36,9 +63,59 @@ export function SettingsScreen() {
           Appearance
         </h2>
 
-        <p className={styles.sectionDescription}>Changes apply everywhere immediately.</p>
+        <p className={styles.sectionDescription}>
+          Changes apply everywhere immediately, and follow you to another device.
+        </p>
 
-        <ColorPalettePicker />
+        <ColorPalettePicker
+          onPaletteSelected={(selectedPaletteId) => {
+            changeUserSettings({ selectedPaletteId });
+          }}
+        />
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionHeading}>
+          <MessageSquare size={14} strokeWidth={2} aria-hidden />
+          Coaching and sessions
+        </h2>
+
+        <p className={styles.sectionDescription}>
+          How much Harout says, and what the session screen does with your phone.
+        </p>
+
+        {settingsStatus === 'loading' ? (
+          <GradientSurface variant="outlined" radius="xlarge" className={styles.pendingPanel}>
+            <p className={styles.pendingLabel} role="status">
+              Reading your preferences
+            </p>
+          </GradientSurface>
+        ) : null}
+
+        {settingsStatus === 'failed' || (settingsStatus === 'ready' && !userSettings) ? (
+          <GradientSurface variant="outlined" radius="xlarge" className={styles.errorPanel}>
+            <h3 className={styles.errorTitle}>Could not read your preferences</h3>
+
+            {settingsErrorMessage ? (
+              <p className={styles.errorMessage} role="alert">
+                {settingsErrorMessage}
+              </p>
+            ) : null}
+
+            <GradientButton tone="primary" isFullWidth onClick={reloadUserSettings}>
+              Try again
+            </GradientButton>
+          </GradientSurface>
+        ) : null}
+
+        {userSettings ? (
+          <CoachingPreferencesPanel
+            userSettings={userSettings}
+            isSaving={isSavingSettings}
+            saveErrorMessage={settingsSaveErrorMessage}
+            onSettingsChanged={changeUserSettings}
+          />
+        ) : null}
       </section>
 
       <section className={styles.section}>
@@ -47,12 +124,26 @@ export function SettingsScreen() {
           Profile
         </h2>
 
-        <ComingSoonPanel
-          headline="Your details"
-          description="Height, weight targets, training days, pain areas and how chatty you want the coach to be."
-          milestone="M8"
-          icon={<UserRound size={24} strokeWidth={1.75} />}
-        />
+        <p className={styles.sectionDescription}>
+          The answers the programme is built on. Changing your training days or what hurts takes
+          effect on the next session you start.
+        </p>
+
+        {/*
+         * The profile comes from context and is watched for the life of the app,
+         * so there is no loading state to render here — the onboarding gate this
+         * screen sits behind cannot be passed without one.
+         */}
+        {userProfile ? (
+          <ProfileDetailsPanel
+            userProfile={userProfile}
+            isSaving={isSavingProfile}
+            saveErrorMessage={profileSaveErrorMessage}
+            hasJustSaved={hasJustSavedProfile}
+            onProfileSaved={saveProfileEdits}
+            onEditStarted={forgetSaveResult}
+          />
+        ) : null}
       </section>
 
       <section className={styles.section}>

@@ -1,33 +1,38 @@
-import styles from './OnboardingChoiceGrid.module.css';
+import styles from './ChoiceChipGrid.module.css';
 
-export type OnboardingChoiceOption = {
+export type ChoiceChipOption = {
   optionId: string;
   label: string;
 };
 
-export type OnboardingChoiceGridProps = {
+export type ChoiceChipGridProps = {
   /** Names the group for screen readers, via the fieldset's legend. */
   legend: string;
 
-  options: OnboardingChoiceOption[];
+  options: ChoiceChipOption[];
   selectedOptionIds: string[];
   onOptionToggled: (optionId: string) => void;
 };
 
 /**
- * A grid of multi-select chips, used for pain areas, equipment and training days.
+ * A grid of multi-select chips: pain areas, gym equipment, training days.
  *
  * Real checkboxes inside a fieldset rather than styled buttons: the browser then
  * handles keyboard operation and announces "checked", and a group of related
  * checkboxes is exactly what this is. The input itself is visually hidden and
  * the label is what gets drawn.
+ *
+ * This lived in `features/onboarding/` until M8, when Settings needed the same
+ * control to edit the same three answers. Two features cannot import from each
+ * other, and a copy of it would be a second place for the focus ring to be
+ * wrong, so it moved here.
  */
-export function OnboardingChoiceGrid({
+export function ChoiceChipGrid({
   legend,
   options,
   selectedOptionIds,
   onOptionToggled,
-}: OnboardingChoiceGridProps) {
+}: ChoiceChipGridProps) {
   return (
     <fieldset className={styles.fieldset}>
       <legend className={styles.legend}>{legend}</legend>

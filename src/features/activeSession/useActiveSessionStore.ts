@@ -13,6 +13,7 @@ import {
   type ActiveSessionEvent,
   type ActiveSessionState,
 } from '@/domain/activeSessionMachine';
+import { formatIsoDate } from '@/domain/calendarDates';
 import {
   buildExercisePerformanceHistories,
   countCompletedSessions,
@@ -189,15 +190,6 @@ function resolveSetLogDraft(
   return plannedExercise ? createSetLogDraft(plannedExercise, nextState.currentSetNumber) : null;
 }
 
-/** ISO `YYYY-MM-DD` in the local calendar, which is the day he trained on. */
-function formatLocalIsoDate(instant: Date): string {
-  const year = instant.getFullYear();
-  const month = String(instant.getMonth() + 1).padStart(2, '0');
-  const day = String(instant.getDate()).padStart(2, '0');
-
-  return `${String(year)}-${month}-${day}`;
-}
-
 export const useActiveSessionStore = create<ActiveSessionStore>()((set, get) => ({
   preparationStatus: 'idle',
   preparationErrorMessage: null,
@@ -265,7 +257,7 @@ export const useActiveSessionStore = create<ActiveSessionStore>()((set, get) => 
       if (!programAssignment) {
         const startingAssignment = createStartingProgramAssignment(
           resolveDefaultProgramTemplate(),
-          formatLocalIsoDate(now),
+          formatIsoDate(now),
         );
         const assignmentId = await createProgramAssignment(userId, startingAssignment);
 
@@ -461,7 +453,7 @@ export const useActiveSessionStore = create<ActiveSessionStore>()((set, get) => 
         resolveDefaultProgramTemplate(),
       completedSessionLetter: plannedSession.sessionLetter,
       completedWeekNumber: plannedSession.weekNumber,
-      completedOn: formatLocalIsoDate(finishedAt),
+      completedOn: formatIsoDate(finishedAt),
     });
 
     set({ programAssignment: { ...advancedAssignment, documentId: assignmentId } });
@@ -547,7 +539,7 @@ function recordPersonalRecordsFromFinishedSession(
         performedExercises: machineState.loggedExercises,
         existingRecords,
         exerciseIdsEligibleForRecords,
-        achievedOn: formatLocalIsoDate(sessionFinishedAt ?? new Date()),
+        achievedOn: formatIsoDate(sessionFinishedAt ?? new Date()),
         achievedInSessionId: workoutSessionId,
       });
 

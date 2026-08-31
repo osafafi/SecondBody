@@ -3,10 +3,16 @@ import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 
 import { useAuthentication } from '@/app/useAuthentication';
 import { useUserProfile } from '@/app/useUserProfile';
+import { ChoiceChipGrid } from '@/components/ChoiceChipGrid/ChoiceChipGrid';
 import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
+import { NumberField } from '@/components/NumberField/NumberField';
 import { findCoachLinesByCategory } from '@/content/coachVoice/allCoachLines';
 import { gymEquipment } from '@/content/equipment/gymEquipment';
+import {
+  dayOfWeekChoiceOptions,
+  painAreaChoiceOptions,
+} from '@/content/vocabulary/trainingVocabularyLabels';
 import { selectCoachLine } from '@/domain/coachLineSelection';
 import {
   findOnboardingStepProblems,
@@ -15,10 +21,8 @@ import {
   type OnboardingStepId,
 } from '@/domain/onboardingValidation';
 import { DEFAULT_TRAINING_DAYS_OF_WEEK } from '@/types/userAccountTypes';
-import { PAIN_AREAS, type EquipmentId, type PainArea } from '@/types/trainingVocabulary';
+import type { EquipmentId, PainArea } from '@/types/trainingVocabulary';
 
-import { OnboardingChoiceGrid } from './components/OnboardingChoiceGrid';
-import { OnboardingNumberField } from './components/OnboardingNumberField';
 import styles from './OnboardingFlow.module.css';
 
 /** Titles and sub-headings, one per step in `ONBOARDING_STEP_IDS` order. */
@@ -32,18 +36,6 @@ const STEP_HEADINGS: Record<OnboardingStepId, { title: string; question: string 
   equipment: { title: 'Your gym', question: 'Untick anything your gym does not actually have.' },
   schedule: { title: 'When you train', question: 'Which days you plan to be in the gym.' },
 };
-
-const PAIN_AREA_LABELS: Record<PainArea, string> = {
-  neck: 'Neck and traps',
-  lowerBack: 'Lower back',
-  shoulders: 'Shoulders',
-  knees: 'Knees',
-  hips: 'Hips',
-  ankles: 'Ankles',
-};
-
-/** Index is the value stored in `trainingDaysOfWeek`, where 0 is Sunday. */
-const DAY_OF_WEEK_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 /**
  * The five questions asked once, the first time somebody signs in.
@@ -181,7 +173,7 @@ export function OnboardingFlow() {
                 />
               </label>
 
-              <OnboardingNumberField
+              <NumberField
                 label="Year you were born"
                 value={draft.birthYear}
                 onValueChanged={(birthYear) => {
@@ -189,7 +181,7 @@ export function OnboardingFlow() {
                 }}
               />
 
-              <OnboardingNumberField
+              <NumberField
                 label="Height"
                 unitLabel="cm"
                 value={draft.heightCentimetres}
@@ -202,7 +194,7 @@ export function OnboardingFlow() {
 
           {currentStepId === 'startingPoint' ? (
             <>
-              <OnboardingNumberField
+              <NumberField
                 label="Weight today"
                 unitLabel="kg"
                 value={draft.startingWeightKilograms}
@@ -211,7 +203,7 @@ export function OnboardingFlow() {
                 }}
               />
 
-              <OnboardingNumberField
+              <NumberField
                 label="Weight you are aiming for"
                 unitLabel="kg"
                 value={draft.targetWeightKilograms}
@@ -223,12 +215,9 @@ export function OnboardingFlow() {
           ) : null}
 
           {currentStepId === 'painAreas' ? (
-            <OnboardingChoiceGrid
+            <ChoiceChipGrid
               legend="Anywhere that currently hurts"
-              options={PAIN_AREAS.map((painArea) => ({
-                optionId: painArea,
-                label: PAIN_AREA_LABELS[painArea],
-              }))}
+              options={painAreaChoiceOptions}
               selectedOptionIds={draft.painAreas}
               onOptionToggled={(painArea) => {
                 updateDraft({ painAreas: toggleMember(draft.painAreas, painArea as PainArea) });
@@ -237,7 +226,7 @@ export function OnboardingFlow() {
           ) : null}
 
           {currentStepId === 'equipment' ? (
-            <OnboardingChoiceGrid
+            <ChoiceChipGrid
               legend="What your gym has"
               options={gymEquipment.map((equipment) => ({
                 optionId: equipment.equipmentId,
@@ -256,12 +245,9 @@ export function OnboardingFlow() {
           ) : null}
 
           {currentStepId === 'schedule' ? (
-            <OnboardingChoiceGrid
+            <ChoiceChipGrid
               legend="Training days"
-              options={DAY_OF_WEEK_LABELS.map((dayLabel, dayIndex) => ({
-                optionId: String(dayIndex),
-                label: dayLabel,
-              }))}
+              options={dayOfWeekChoiceOptions}
               selectedOptionIds={draft.trainingDaysOfWeek.map(String)}
               onOptionToggled={(dayValue) => {
                 updateDraft({

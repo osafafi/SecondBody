@@ -1,0 +1,65 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.heading {
+  font-size: var(--text-heading-size);
+  font-weight: var(--text-heading-weight);
+  color: var(--text-primary);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-medium);
+
+  background: linear-gradient(
+    140deg,
+    rgba(var(--surface-tint-rgb), 0.3),
+    rgba(var(--surface-tint-rgb), 0.1)
+  );
+  border: 1px solid rgba(var(--surface-tint-rgb), 0.35);
+
+  font-size: var(--text-label-size);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.rowText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sessionName {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.rowDate {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}

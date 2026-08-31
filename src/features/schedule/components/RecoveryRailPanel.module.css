@@ -1,0 +1,71 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.headingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.headingText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heading {
+  font-size: var(--text-heading-size);
+  font-weight: var(--text-heading-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.explanation {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+/* --- The three dates ------------------------------------------------------- */
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.fact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+
+  padding-top: var(--space-2);
+  border-top: 1px solid rgba(var(--surface-tint-rgb), 0.22);
+}
+
+.factLabel {
+  flex-shrink: 0;
+  font-size: var(--text-label-size);
+  color: var(--text-muted);
+}
+
+.factValue {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  text-align: right;
+  color: var(--text-primary);
+}

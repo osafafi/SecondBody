@@ -11,10 +11,10 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 |                       |                                                                        |
 | --------------------- | ---------------------------------------------------------------------- |
-| **Current milestone** | M5 — the active session                                                |
-| **Status**            | Complete. Awaiting review on `feat/active-session`                     |
-| **Current branch**    | `feat/active-session`, branched off `main`                             |
-| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then Today → Start the session  |
+| **Current milestone** | M6 — the dashboard and the schedule                                    |
+| **Status**            | Complete. Awaiting review on `feat/dashboard-and-schedule`             |
+| **Current branch**    | `feat/dashboard-and-schedule`, branched off `main`                     |
+| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then Today knows what is due    |
 | **Backend wired?**    | Yes. Auth, rules, repositories, onboarding, and sessions being written |
 | **Deployed?**         | No — arrives in M9                                                     |
 
@@ -24,32 +24,32 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ### What to do next
 
-**M5 is finished.** Review `feat/active-session`, then start **M6 — the dashboard and the
-schedule** on `feat/dashboard-and-schedule`. Read
-[TRAINING_PROGRAM.md](TRAINING_PROGRAM.md) sections 9 and 12 first.
+**M6 is finished.** Review `feat/dashboard-and-schedule`, then start **M7 — progress
+tracking** on `feat/progress-tracking`.
 
-**The one thing to do before anything else: walk a real session in a gym.** Every screen in
-M5 has been read back panel by panel and every rule has a test, but nobody has yet logged a
-real set on a real phone with a real Firestore behind it. That is the check that matters, and
-it is Omar's to make — the app needs his Google account to get past the gate.
+**The one thing to do before anything else is still the same: walk a real session in a
+gym.** It has been the top of this list since M5 and it has not happened yet. Every screen
+in M5 and M6 has been read back panel by panel and every rule has a test, but nobody has
+logged a real set on a real phone with a real Firestore behind it. That is the check that
+matters, and it is Omar's to make — the app needs his Google account to get past the gate.
 
-M6 inherits a working session player and needs no setup of its own. What is already there for
-it:
+M7 inherits everything it needs. What is already there for it:
 
-- `resolveSessionStartPosition` and `advanceProgramAssignmentAfterSession` in
-  `src/domain/programAssignmentProgress.ts`. Today's screen needs the first of those to say
-  which session is due.
-- `determineSessionStartEligibility` and `findNextTrainingDate` in `sessionScheduling.ts`,
-  both from M2 and both still with no caller. The 48-hour rail is what they are for.
-- `buildExercisePerformanceHistories`, `findLastCompletedSessionAt` and
-  `countCompletedSessions` in `exercisePerformanceHistory.ts`, which read stored sessions back.
-- `readRecentWorkoutSessions`, which is what a calendar of completed sessions reads.
-- `dailyHabitsRepository` and `bodyMetricsRepository`, written in M4 and still with no caller.
+- `readRecentBodyMetricEntries` and `addBodyMetricEntry`, written in M4 and **still with no
+  caller.** The weight trend is what they are for.
+- `personalRecordsRepository`, likewise unread. `estimatedOneRepMax.ts` (Epley) is the
+  domain function behind it.
+- `sessionVolume.ts` from M2, which counts dumbbell pairs and per-side reps properly. The
+  volume chart is its first caller.
+- `projectExpectedWeightRangeKilograms` in `bodyWeightExpectations.ts`, which says where the
+  weight should reasonably be after N weeks. A trend chart wants that band drawn on it.
+- `useTrainingOverview` in `src/hooks/`, new in M6. It already reads the assignment, the
+  recent sessions and the settings, and both M6 screens share it. M7 should use it rather
+  than reading sessions again.
 
-**The Today screen carries a placeholder that M6 replaces.** M5 needed a way into the session
-player, so `TodayScreen` has a card with a link to `#/session` and nothing else real on it. It
-does not know which session is due, whether today is a training day, or how long it has been.
-Replacing it is the first job of M6, not an addition to it.
+**Two `ComingSoonPanel`s are left, both saying M8.** One on Today (habits and the scale) and
+the Progress screen's own. They should both be gone by the end of M8 — a `ComingSoonPanel`
+surviving past that is a bug.
 
 **Every Firebase setup step is done and verified.** The project exists (`second-body-osi`,
 me-central1), Google Sign-In is on, Firestore is created, the rules are deployed and the
@@ -70,7 +70,7 @@ One branch and one pull request each. Do not mix milestones.
 | M3  | `feat/exercise-media-pipeline` | Media spec, dataset match table, copy tool, verifier, 27 animations + 9 fallbacks             | **Done**    |
 | M4  | `feat/firebase-data-layer`     | Firebase init, Google Sign-In, typed repositories, security rules, onboarding                 | **Done**    |
 | M5  | `feat/active-session`          | Session player state machine, set logging, rest timer, wake lock                              | **Done**    |
-| M6  | `feat/dashboard-and-schedule`  | Today screen, calendar, 48-hour recovery awareness                                            | Not started |
+| M6  | `feat/dashboard-and-schedule`  | Today screen, calendar, 48-hour recovery awareness                                            | **Done**    |
 | M7  | `feat/progress-tracking`       | Weight trend, volume charts, personal records                                                 | Not started |
 | M8  | `feat/habits-and-settings`     | Daily habit checklist, settings screen, profile editing                                       | Not started |
 | M9  | `feat/pages-deployment`        | Deploy workflow, web manifest, icons, production Firebase config                              | Not started |
@@ -728,6 +728,88 @@ first one that reads the training content, the progression rules and Firestore a
   Nothing asks why an exercise was skipped yet.
 - The bundle is now 1,038 kB before gzip, up from 940. The dynamic import of Firebase in M9
   matters slightly more than it did.
+
+### Session 11 - 2026-08-31 - M6 the dashboard and the schedule
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/dashboard-and-schedule`, branched off `main`
+
+The two screens that tell him what to do when he is not already doing it. M5 built the
+session player and left a placeholder on Today that linked to it without knowing whether a
+session was due; this replaces that, and fills in the Schedule tab beside it.
+
+**Done**
+
+- **`src/domain/calendarDates.ts`** — calendar days as distinct from instants. Every function
+  moves whole days rather than adding 24 hours, which is not the same operation on the two
+  nights a year the clocks change. It also fixes `findNextTrainingDate`, an M2 function whose
+  24-hour arithmetic could return today from just after midnight on the night the clocks go
+  back. M6 is its first caller, so the bug had never had a chance to happen.
+- **`src/domain/dailyTrainingStatus.ts`** — the six stances the Today screen takes, and the
+  distinction the whole screen rests on: the 48 hours are a **rail**, the training days are a
+  **plan**. Only the first can stop a session starting.
+- **`src/domain/trainingCalendar.ts`** — the grid, including the letter projection. The A, B,
+  C cycle moves on completion rather than on a weekday, so a missed Wednesday means Friday
+  trains what Wednesday would have.
+- **`src/domain/programProgressSummary.ts`** — week N of 12, phase, and a completion fraction
+  measured in sessions rather than weeks.
+- **`src/domain/dailyCoachMoment.ts`** — which of six situations is the one worth a word
+  today, ranked, or none.
+- **`src/hooks/useTrainingOverview.ts`** — the reads both screens share, so they cannot
+  disagree about what week it is. It writes nothing, deliberately.
+- **The Today screen**: a stance-driven session panel that lists the movements the session
+  contains, the coach's line for the day when there is one, a rest-day note naming Desk Undo,
+  and an M8 placeholder for habits and the scale.
+- **The Schedule screen**: programme progress with the three phases, a five-week calendar
+  grid, the next three sessions, and the 48-hour rail stated in full.
+- **`isExerciseSlotAvailable` exported from `sessionPlanning.ts`**, so the movements Today
+  lists are the movements the session holds — one rule, one implementation, and a test that
+  compares the two lists against the real programme.
+- **811 tests, up from 777**, of which 34 are new. `npm run verify` green, production build
+  clean.
+
+**Decisions made and why**
+
+| Decision                                                       | Reason                                                                                                                                                                                                                                                           |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The training days never block a session; only the 48 hours do  | Monday/Wednesday/Friday is a plan. A Wednesday missed for a late meeting is trained on Thursday, and the `sessionMissed` line written in M2 says exactly that. A rest day offers "train it today instead" rather than nothing                                    |
+| Today shows movements and never weights                        | Every number is prescribed when the session opens, against history read at that moment. A weight on the dashboard would be a second opinion, and two opinions about what goes on the bar is one too many                                                         |
+| Six stances rather than one card with a different verb         | "You trained today", "clear in 11 hours" and "nothing scheduled" are three different things to read and three different things to offer. A union means adding a seventh makes the compiler ask for its words rather than rendering an empty card                 |
+| `trainedToday` is checked before `recovering`                  | Both are true on a Monday evening after a Monday afternoon session. "You have already done this today" is a far better thing to read than "36 hours to go"                                                                                                       |
+| Display counts calendar days; the layoff rule counts 24 hours  | Trained at 19:00 last night and read at 18:30 tonight is _yesterday_. Counting elapsed periods called it "today" next to a countdown saying 25 hours — caught on screen, not in a test. The layoff rule keeps elapsed time: a body does not know what day it is  |
+| A missed day never gets a projected letter                     | We know a session did not happen. We do not know which one it would have been, because the cycle had not moved on, and a guess would be contradicted by the next day along                                                                                       |
+| Nothing before the programme started can be missed             | Otherwise a new account opens the Schedule screen to a wall of failures it had no way to avoid                                                                                                                                                                   |
+| The hook creates no assignment and writes no layoff restart    | Both would otherwise happen because somebody opened the app. Starting the programme is the session player's job, at the moment a session actually starts — a dashboard that created one would date the programme from the day he first looked at it              |
+| The session panel is `elevated`, not `accent`                  | `accent` is a solid brand gradient, reserved by DESIGN_SYSTEM.md for "primary buttons, the active set". Secondary text on it is fine for three words and not fine for six movement names. Caught on screen; the emphasis now comes from the badge and the button |
+| Calendar days are told apart by shape as well as colour        | The whole content of that screen is the difference between done, planned and missed. Colour alone would leave it unreadable to anyone who cannot separate the palette's green from its amber                                                                     |
+| One `new Date()` per screen, passed down                       | "Tomorrow", "in 11 hours" and "today" all have to agree. Three components each reading the clock is how one of them ends up a day out at one minute to midnight. `useCurrentTime` stays for the rest timer, where the seconds are the point                      |
+| The recovery panel appears even when nothing is blocked        | "You are clear" is as much a fact as "eleven hours to go", and a panel that only appeared when something was blocked would make the rail feel like a punishment                                                                                                  |
+| `useTrainingOverview` tags its state with the user it read for | The same trick `UserProfileProvider` uses, for the same reason, and it also removes the synchronous `setState` in an effect that `react-hooks/set-state-in-effect` rejects                                                                                       |
+| The full rest-day offer was left on the roadmap                | "Rest-day suggestions" is parked there with the step target it belongs beside. The note naming Desk Undo is the half that stops a rest day being an empty screen, and it costs nothing to replace                                                                |
+
+**Notes for the next session**
+
+- **Still nobody has walked a real session.** Unchanged since M5, and still the check that
+  matters most.
+- **Both screens were verified through a throwaway preview page**, the trick session 10
+  recorded: `m6-preview.html` plus `src/m6PreviewEntry.tsx` rendered every panel across all
+  six stances with fixture props, and both were deleted before committing. Two real problems
+  came out of it that no test would have found — the contrast one and the "today"/"yesterday"
+  one, both in the decisions table above.
+- **The palette switcher was checked against the new panels.** Switching to `amberCrimson`
+  recolours the calendar, the progress bar and every badge. No hard-coded colour was added.
+- `readInProgressWorkoutSession` has a second caller's worth of work done without it:
+  `useTrainingOverview` derives `hasSessionInProgress` from the sessions it already read,
+  because the screens only need to know _whether_ there is one. If a screen ever needs to
+  know _which_, use the repository rather than widening this.
+- The Schedule screen names upcoming sessions from the phase the **current** week is in. A
+  projection that ran past a phase boundary would name the session it will be called then
+  rather than now. The names only change at a boundary, so the error is small, rare and
+  self-correcting — but it is an error, and it is commented where it happens.
+- The calendar reads the last 40 sessions, the same window the session player uses. Five
+  weeks of grid needs far less; the number is a bound, not a page size.
+- The bundle is 1,068 kB before gzip, up from 1,038. The dynamic import of Firebase in M9
+  keeps getting slightly more worthwhile.
 
 ---
 

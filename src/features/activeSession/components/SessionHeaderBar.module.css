@@ -1,0 +1,94 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: calc(var(--safe-area-top) + var(--space-4)) var(--space-4) var(--space-3);
+  background: linear-gradient(
+    180deg,
+    rgba(var(--surface-tint-rgb), 0.18),
+    rgba(var(--surface-tint-rgb), 0)
+  );
+}
+
+.topRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--text-heading-size);
+  font-weight: var(--text-heading-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.position {
+  font-size: var(--text-caption-size);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.trailingGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.elapsed {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.leaveButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Smaller than the 44px minimum on purpose: this is the one control on the
+     screen that must be hard to hit by accident with a wrist mid-set. It stays
+     easy to hit deliberately, in the corner, away from everything else. */
+  width: 36px;
+  height: 36px;
+
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  background: rgba(var(--surface-tint-rgb), 0.14);
+}
+
+.leaveButton:active {
+  color: var(--text-primary);
+}
+
+.leaveButton:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 3px;
+}
+
+.progressTrack {
+  position: relative;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: rgba(var(--surface-tint-rgb), 0.2);
+  overflow: hidden;
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  transition: width var(--motion-medium) var(--motion-easing);
+}

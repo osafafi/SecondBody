@@ -1,5 +1,6 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 
+import { ActiveSessionScreen } from '@/features/activeSession/ActiveSessionScreen';
 import { TodayScreen } from '@/features/dashboard/TodayScreen';
 import { ExerciseMediaReviewScreen } from '@/features/exerciseMediaReview/ExerciseMediaReviewScreen';
 import { ProgressScreen } from '@/features/progress/ProgressScreen';
@@ -46,6 +47,14 @@ export function App() {
                     <Route path={APP_ROUTE_PATHS.progress} element={<ProgressScreen />} />
                     <Route path={APP_ROUTE_PATHS.settings} element={<SettingsScreen />} />
                   </Route>
+
+                  {/*
+                   * The session player sits INSIDE both gates — it writes sets to
+                   * Firestore — and OUTSIDE the shell, so it takes over the whole
+                   * display with no bottom navigation to hit by accident mid-set.
+                   * M1 left a note here asking for exactly this; M5 delivers it.
+                   */}
+                  <Route path={APP_ROUTE_PATHS.activeSession} element={<ActiveSessionScreen />} />
                 </Route>
               </Route>
 
@@ -69,12 +78,6 @@ export function App() {
                   element={<ExerciseMediaReviewScreen />}
                 />
               ) : null}
-
-              {/*
-               * The active session screen will be registered OUTSIDE the shell in M5,
-               * so it takes over the whole display with nothing to tap by accident
-               * mid-set. It goes INSIDE both gates — it writes sets to Firestore.
-               */}
 
               {/* Anything unrecognised goes home rather than showing a blank screen. */}
               <Route path="*" element={<Navigate to={APP_ROUTE_PATHS.today} replace />} />

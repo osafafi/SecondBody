@@ -92,6 +92,17 @@ describe('the phases a session moves through', () => {
     expect(state.restTargetSeconds).toBe(90);
   });
 
+  it('extends the rest without restarting it', () => {
+    const state = replay(buildTwoExerciseSession(), [
+      ...WARMUP_THEN_FIRST_SET,
+      { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+      { kind: 'restExtended', extraSeconds: 30 },
+    ]);
+
+    expect(state.restTargetSeconds).toBe(120);
+    expect(state.restStartedAt).toEqual(NINE_IN_THE_MORNING);
+  });
+
   it('returns to the set itself when the rest was between two sets', () => {
     const state = replay(buildTwoExerciseSession(), [
       ...WARMUP_THEN_FIRST_SET,
@@ -275,6 +286,53 @@ describe('skipping an exercise', () => {
     );
 
     expect(afterSkip).toBe(restingState);
+  });
+});
+
+describe('ending a session early', () => {
+  it('goes to the review from the middle of an exercise', () => {
+    const state = replay(buildTwoExerciseSession(), [
+      ...WARMUP_THEN_FIRST_SET,
+      { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+      { kind: 'restFinished', occurredAt: NINE_OH_TWO },
+      { kind: 'sessionEndedEarly' },
+    ]);
+
+    expect(state.phase).toBe('sessionReview');
+  });
+
+  it('keeps everything already logged', () => {
+    const state = replay(buildTwoExerciseSession(), [
+      ...WARMUP_THEN_FIRST_SET,
+      { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+      { kind: 'sessionEndedEarly' },
+    ]);
+
+    expect(state.loggedExercises[0]?.performedSets).toHaveLength(1);
+  });
+
+  it('leaves the exercises never reached out of the log rather than marking them skipped', () => {
+    const state = replay(buildTwoExerciseSession(), [
+      { kind: 'warmupFinished' },
+      { kind: 'sessionEndedEarly' },
+    ]);
+
+    expect(state.loggedExercises).toEqual([]);
+  });
+
+  it('does nothing once the session is already finished', () => {
+    const completed = replay(
+      buildPlannedSession({ exercises: [buildPlannedExercise({ workingSetCount: 1 })] }),
+      [
+        ...WARMUP_THEN_FIRST_SET,
+        { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+        { kind: 'sessionFinished' },
+      ],
+    );
+
+    expect(
+      applyActiveSessionEvent(completed, { kind: 'sessionEndedEarly' }, buildPlannedSession()),
+    ).toBe(completed);
   });
 });
 

@@ -1,0 +1,164 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.setLabel {
+  font-size: var(--text-caption-size);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.title {
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  color: var(--text-primary);
+}
+
+.numbers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-4);
+}
+
+.suggestion {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+}
+
+.effortGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border: none;
+}
+
+.effortLegend {
+  padding: 0;
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.effortOptions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.effortOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+
+  min-height: 96px;
+  padding: var(--space-3) var(--space-2);
+  text-align: center;
+
+  border-radius: var(--radius-large);
+  color: var(--text-secondary);
+  background: linear-gradient(
+    150deg,
+    rgba(var(--surface-tint-rgb), 0.14),
+    rgba(var(--surface-tint-rgb), 0.04)
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    color var(--motion-fast) var(--motion-easing),
+    transform var(--motion-fast) var(--motion-easing);
+}
+
+.effortOption:active {
+  transform: scale(0.97);
+}
+
+.effortOption:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 3px;
+}
+
+.isSelected {
+  color: var(--text-primary);
+  background: linear-gradient(135deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  box-shadow: 0 8px 22px -12px rgba(var(--surface-tint-rgb), 0.9);
+}
+
+.effortLabel {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+}
+
+.effortDescription {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  opacity: 0.85;
+}
+
+.painToggle {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-4);
+  text-align: left;
+
+  border-radius: var(--radius-large);
+  color: var(--text-secondary);
+  background: linear-gradient(
+    150deg,
+    rgba(var(--surface-tint-rgb), 0.12),
+    rgba(var(--surface-tint-rgb), 0.03)
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.painToggle:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 3px;
+}
+
+.isPainful {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--danger-gradient-start) 28%, transparent);
+  box-shadow: inset 0 0 0 1px var(--danger-gradient-start);
+}
+
+.painText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.painLabel {
+  font-size: var(--text-body-size);
+  font-weight: 600;
+}
+
+.painDescription {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+}
+
+.isPainful .painDescription {
+  color: var(--text-secondary);
+}

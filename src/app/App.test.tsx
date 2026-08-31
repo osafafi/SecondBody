@@ -64,6 +64,25 @@ vi.mock('@/services/repositories/userSettingsRepository', () => ({
   writeCompleteUserSettings: () => Promise.resolve(),
 }));
 
+/*
+ * The session player's store imports these at module load, and importing them
+ * for real would initialise Firebase and open an IndexedDB cache in jsdom —
+ * which is exactly what the mocks above exist to prevent. The session player
+ * has its own tests; these are about the gates and the routing.
+ */
+vi.mock('@/services/repositories/programAssignmentRepository', () => ({
+  readActiveProgramAssignment: () => Promise.resolve(null),
+  createProgramAssignment: () => Promise.resolve('assignment-1'),
+  updateProgramAssignment: () => Promise.resolve(),
+}));
+
+vi.mock('@/services/repositories/workoutSessionRepository', () => ({
+  createWorkoutSession: () => Promise.resolve('session-1'),
+  saveWorkoutSession: () => Promise.resolve(),
+  readInProgressWorkoutSession: () => Promise.resolve(null),
+  readRecentWorkoutSessions: () => Promise.resolve([]),
+}));
+
 const { App } = await import('./App');
 
 function buildOnboardedProfile(): UserProfile {
@@ -109,6 +128,12 @@ describe('App', () => {
     }
 
     expect(navigation).toBeInTheDocument();
+  });
+
+  it('offers a way into the session player', async () => {
+    render(<App />);
+
+    expect(await screen.findByRole('link', { name: /start the session/i })).toBeInTheDocument();
   });
 
   it('navigates to Settings when the Settings tab is tapped', async () => {

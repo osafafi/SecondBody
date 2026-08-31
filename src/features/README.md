@@ -29,7 +29,7 @@ This is what keeps a new feature from becoming a refactor. See
 | ------------------ | ------------------------------------------------------------------------- | --------- |
 | `onboarding/`      | First-run profile setup: height, weight, goals, pain areas, gym equipment | M4        |
 | `dashboard/`       | The Today screen — what is on, streak, habit ticks, quick weight log      | M6        |
-| `activeSession/`   | The live workout player. The heart of the app                             | M5        |
+| `activeSession/`   | The live workout player. The heart of the app. **Built**                  | M5        |
 | `schedule/`        | Calendar of planned vs completed sessions, phase progress                 | M6        |
 | `progress/`        | Weight trend, training volume, personal records                           | M7        |
 | `exerciseLibrary/` | Browse every exercise with its animation and coaching notes               | M5        |

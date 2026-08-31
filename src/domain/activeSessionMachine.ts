@@ -103,11 +103,21 @@ export type ActiveSessionEvent =
   /** What actually happened on the set. */
   | { kind: 'setLogged'; performedSet: PerformedSet; occurredAt: Date }
 
+  /** Not ready yet. Adds to the rest that was prescribed. */
+  | { kind: 'restExtended'; extraSeconds: number }
+
   /** The rest timer ran out, or was skipped. Both mean the same thing here. */
   | { kind: 'restFinished'; occurredAt: Date }
 
   /** The machine was busy, it hurt, or there was no time. The reason is optional. */
   | { kind: 'exerciseSkipped'; skipReason: string | null }
+
+  /**
+   * Out of time, cutting it short. Everything done so far still counts and the
+   * session still finishes properly — four exercises out of six is a session,
+   * not a failure, and it should be recorded as one.
+   */
+  | { kind: 'sessionEndedEarly' }
   | { kind: 'overallFeelingChosen'; overallFeeling: OverallSessionFeeling }
   | { kind: 'sessionNotesEdited'; sessionNotes: string }
 
@@ -355,6 +365,19 @@ export function applyActiveSessionEvent(
       return applyLoggedSet(state, plannedSession, event.performedSet, event.occurredAt);
     }
 
+    case 'restExtended': {
+      if (state.phase !== 'resting') {
+        return state;
+      }
+
+      /*
+       * The target moves rather than the start, so the elapsed time on screen
+       * keeps counting from when the rest actually began. Resetting the start
+       * would make a 30 second extension look like a fresh 90.
+       */
+      return { ...state, restTargetSeconds: state.restTargetSeconds + event.extraSeconds };
+    }
+
     case 'restFinished': {
       if (state.phase !== 'resting') {
         return state;
@@ -385,6 +408,26 @@ export function applyActiveSessionEvent(
       }
 
       return applySkippedExercise(state, plannedSession, event.skipReason);
+    }
+
+    case 'sessionEndedEarly': {
+      if (state.phase === 'sessionReview' || state.phase === 'completed') {
+        return state;
+      }
+
+      /*
+       * The exercises never reached are simply absent from the log, which reads
+       * as "not got to" rather than as "skipped". Skipping is a decision about
+       * one movement; this is running out of time.
+       */
+      return {
+        ...state,
+        phase: 'sessionReview',
+        currentExerciseIndex: plannedSession.exercises.length,
+        restStartedAt: null,
+        restTargetSeconds: 0,
+        restSecondsBeforeCurrentSet: null,
+      };
     }
 
     case 'overallFeelingChosen': {

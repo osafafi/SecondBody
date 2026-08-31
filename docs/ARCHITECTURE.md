@@ -113,18 +113,24 @@ The **active workout session** is the only genuinely complex piece of state in t
 it gets its own Zustand store modelled as an explicit state machine:
 
 ```
-idle -> warmup -> exerciseBrief -> setActive -> setLogging -> resting
-                        ^                                        |
-                        +----------------------------------------+
-                                    (next set / next exercise)
-                                             |
-                                             v
-                                     cooldown -> summary
+warmingUp -> exerciseBrief -> setInProgress -> loggingSet
+                   ^                                |
+                   |                                v
+                   +----------- resting <-----------+
+                                   |
+                                   v  (no exercises left)
+                           sessionReview -> completed
 ```
 
 Modelling it as a machine rather than a pile of booleans is what stops the "am I resting or
 am I mid-set?" class of bug, which would be very annoying with a phone in your hand and a
 bar on your back.
+
+The machine itself is `src/domain/activeSessionMachine.ts` — pure, with no clock and no
+network — and the Zustand store in `src/features/activeSession/` is the impure shell around
+it. **M5 renamed three of the states** this diagram originally carried: `setActive` and
+`setLogging` read as adjectives rather than as states, and `cooldown` described a stretch
+that the step is not — it asks how the session felt.
 
 ## 7. Routing
 

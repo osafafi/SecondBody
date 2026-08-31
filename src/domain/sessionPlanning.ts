@@ -125,6 +125,13 @@ export type SessionPlanRequest = {
   activePainAreas: PainArea[];
 
   /**
+   * Exercises the profile rules out outright, such as something a physio said
+   * not to do. A hard blacklist: it beats the programme, the phase and the
+   * pain conditions, and the slot simply does not appear.
+   */
+  excludedExerciseIds: string[];
+
+  /**
    * How an exercise is loaded, resolved from `src/content/exercises/` by the
    * caller. Passed in rather than imported, because `src/domain/` depends on
    * nothing.
@@ -138,7 +145,15 @@ export type SessionPlanRequest = {
   layoffLoadMultiplier: number;
 };
 
-function isSlotAvailable(slot: ExerciseSlot, activePainAreas: PainArea[]): boolean {
+function isSlotAvailable(
+  slot: ExerciseSlot,
+  activePainAreas: PainArea[],
+  excludedExerciseIds: string[],
+): boolean {
+  if (excludedExerciseIds.includes(slot.exerciseId)) {
+    return false;
+  }
+
   return !slot.requiresPainFreeAreas.some((requiredClearArea) =>
     activePainAreas.includes(requiredClearArea),
   );
@@ -352,7 +367,7 @@ export function resolveSessionPlan(request: SessionPlanRequest): PlannedSession 
   const combinedLoadMultiplier = week.loadMultiplier * request.layoffLoadMultiplier;
 
   const exercises = sessionTemplate.exerciseSlots
-    .filter((slot) => isSlotAvailable(slot, request.activePainAreas))
+    .filter((slot) => isSlotAvailable(slot, request.activePainAreas, request.excludedExerciseIds))
     .slice()
     .sort((firstSlot, secondSlot) => firstSlot.orderIndex - secondSlot.orderIndex)
     .map((slot) => planExercise(slot, request, combinedLoadMultiplier, week.workingSetCount));

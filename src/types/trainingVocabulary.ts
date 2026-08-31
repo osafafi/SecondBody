@@ -95,28 +95,39 @@ export type PainArea = (typeof PAIN_AREAS)[number];
 /**
  * Every piece of equipment the programme is allowed to ask for.
  *
- * `UserProfile.availableEquipmentIds` is a subset of this list, which is how a
- * gym that lacks a hip thrust machine can be handled without editing content.
+ * This is the inventory of Omar's building gym, plus what he owns at home. It
+ * is deliberately not a catalogue of everything a commercial gym might have —
+ * an exercise may only ask for something on this list, so content that cannot
+ * actually be performed fails to type-check. `UserProfile.availableEquipmentIds`
+ * is a subset of it, for the day he trains somewhere else.
  */
 export const EQUIPMENT_IDS = [
   'bodyweightOnly',
-  'legPressMachine',
+
+  // The resistance machines in the building gym, in the order they sit on the floor.
+  'legExtensionMachine',
   'seatedLegCurlMachine',
+  'hipAdductorMachine',
+  'hipAbductorMachine',
+  'shoulderPressMachine',
   'chestPressMachine',
   'latPulldownMachine',
   'seatedCableRowMachine',
-  'chestSupportedRowMachine',
-  'hipThrustMachine',
   'cableStation',
+
+  // The free weight area: a dumbbell rack, bars, and several benches.
   'dumbbells',
   'barbell',
   'flatBench',
   'adjustableBench',
-  'plyometricBox',
-  'landmineAttachment',
+
+  // Cardio.
   'treadmill',
   'stationaryBike',
   'rowingMachine',
+  'ellipticalTrainer',
+
+  // Owned at home, or needing nothing at all.
   'exerciseMat',
   'resistanceBand',
   'foamRoller',

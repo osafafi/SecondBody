@@ -18,7 +18,8 @@ content/
   programs/     The twelve week programme: phases, weeks, and three sessions per phase.
   mobility/     The at-home "Desk Undo" routine.
   habits/       The daily checklist and its targets.
-  equipment/    Equipment ids turned into words.
+  equipment/    Equipment ids turned into words. This is the real inventory of
+                Omar's building gym, not a catalogue of what a gym might have.
   coachVoice/   Everything Harout says.
 ```
 
@@ -47,8 +48,25 @@ standing in front of a machine.
 
 They also pin the decisions in [docs/TRAINING_PROGRAM.md](../../docs/TRAINING_PROGRAM.md):
 week 8 is the deload, week 1 is calibration, the core work never flexes the spine, the rowing
-machine does not appear before Phase 3. Change one of those in content without changing it in
-the document and a test tells you.
+machine and the overhead press do not appear before Phase 2 or 3. Change one of those in
+content without changing it in the document and a test tells you.
+
+`allExercises.test.ts` also proves every exercise only asks for equipment that is in
+`equipment/gymEquipment.ts`, which is the list of what is actually in the building. That is
+what stops a session prescribing a machine that is not there.
+
+### Not everything here is prescribed
+
+Most exercises are in the twelve week programme. Three are not, and that is deliberate:
+
+| Exercise                  | Why it is defined anyway                                                                      |
+| ------------------------- | --------------------------------------------------------------------------------------------- |
+| `seatedHipAdduction`      | The adductor machine exists in the gym. It is a substitute for the days a lunge is a bad idea |
+| `ellipticalEasy`          | The elliptical exists in the gym. It is the swap when the treadmill is taken                  |
+| `barbellRomanianDeadlift` | Written and ready for the day there is a rack to lift a bar out of at hip height. See Phase 3 |
+
+Each one is reachable through some prescribed exercise's `substituteExerciseIds`, so none of
+it is dead content.
 
 ## Adding to it
 

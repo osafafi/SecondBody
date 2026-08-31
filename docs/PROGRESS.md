@@ -9,29 +9,30 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ## Current state
 
-|                       |                                                              |
-| --------------------- | ------------------------------------------------------------ |
-| **Current milestone** | M2 — training content                                        |
-| **Status**            | Complete, awaiting review                                    |
-| **Current branch**    | `feat/training-content`                                      |
-| **App runs?**         | Yes — `npm run dev`. Same four screens as M1. M2 added no UI |
-| **Backend wired?**    | No — arrives in M4                                           |
-| **Deployed?**         | No — arrives in M9                                           |
+|                       |                                                                       |
+| --------------------- | --------------------------------------------------------------------- |
+| **Current milestone** | M2 — training content (merged), plus a content correction on `main`   |
+| **Status**            | Complete                                                              |
+| **Current branch**    | `main`                                                                |
+| **App runs?**         | Yes — `npm run dev`. Same four screens as M1. Neither change added UI |
+| **Backend wired?**    | No — arrives in M4                                                    |
+| **Deployed?**         | No — arrives in M9                                                    |
 
 ### What to do next
 
 Start **M3 — exercise media pipeline** on branch `feat/exercise-media-pipeline`. Read
 [EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md) first.
 
-Everything M3 needs from M2 is in place: **33 exercises, each with a `mediaBrief`** giving the
+Everything M3 needs from M2 is in place: **36 exercises, each with a `mediaBrief`** giving the
 start position, end position and equipment to draw. The generator reads those from
 `src/content/exercises/` — `requireExerciseById(id).mediaBrief` — and the filenames are the
 exercise ids, which the content tests already prove are camelCase.
 
-The 23 movements the Phase 1 sessions and the warm-up use are the ones worth generating
-first; the five Phase 2 and 3 additions (`landminePress`, `gobletSquat`,
-`barbellRomanianDeadlift`, `dumbbellSplitSquat`, `rowingMachineEasy`) and the five
-mobility-only drills can follow.
+The 24 movements the Phase 1 sessions and the warm-up use are the ones worth generating
+first. Then the three Phase 2 and 3 additions (`shoulderPressMachine`, `gobletSquat`,
+`dumbbellSplitSquat`, plus `rowingMachineEasy`), then the mobility-only drills, and last the
+three that are defined but not prescribed (`seatedHipAdduction`, `ellipticalEasy`,
+`barbellRomanianDeadlift`).
 
 ---
 
@@ -189,7 +190,7 @@ One branch and one pull request each. Do not mix milestones.
 | Warm-up doses are written out, not computed                 | The right afternoon dose for ankle rocks is a judgement about ankle rocks, not a percentage. Both numbers are in content where they can be argued with                                                     |
 | Every warm-up movement is always performed                  | Dropping the shoulder work because it is the afternoon would be a strange way to treat a shoulder. Only the dose varies                                                                                    |
 | Phases restate their sessions rather than patching          | Nine session templates is more text than three plus overrides, but week 9 is then readable in one place. Reviewability beats brevity here                                                                  |
-| The landmine press is a slot with `requiresPainFreeAreas`   | The programme says "if the shoulders have gone quiet". Making that a data condition means it is enforced by the planner and tested, rather than remembered                                                 |
+| The overhead press is a slot with `requiresPainFreeAreas`   | The programme says "if the shoulders have gone quiet". Making that a data condition means it is enforced by the planner and tested, rather than remembered                                                 |
 | `domain/` takes a `resolveLoadingStyleForExercise` function | Session planning needs one fact from content. Passing it in keeps the "domain depends on nothing" rule literally true instead of nearly true                                                               |
 | Coach line selection takes a rotation index                 | `domain/` has no randomness. The caller passes a counter, so the same input always produces the same line and the voice still rotates                                                                      |
 | Praise is a filter, not a ranking                           | `mayUsePraise: false` removes praise lines entirely and `selectCoachLine` returns null rather than substituting something generic. Silence is part of the voice                                            |
@@ -214,6 +215,73 @@ One branch and one pull request each. Do not mix milestones.
 - Nothing in M2 renders, so there was nothing to verify in a browser. The first screen that
   consumes any of this is the active session player in M5.
 
+### Session 4 - 2026-08-31 - Real gym equipment
+
+**Agent:** Claude (Opus 5)
+**Branch:** `main` — Omar asked for this one directly on main rather than a milestone branch
+
+Omar walked his building gym and listed what is actually in it. M2's equipment list had been
+written from the interview and assumed a commercial gym; four machines it depended on are not
+there. The content now matches the room.
+
+**What the gym has**
+
+Leg extension, leg curl, adductor, abductor, shoulder press, chest press, lat pulldown, low
+row, cable crossover. Treadmill, bike, rower, elliptical. A free weight area with dumbbells,
+bars and several benches.
+
+**Done**
+
+- **`EQUIPMENT_IDS` is now the real inventory**, not a catalogue. Removed `legPressMachine`,
+  `hipThrustMachine`, `chestSupportedRowMachine`, `landmineAttachment` and `plyometricBox`;
+  added `legExtensionMachine`, `hipAdductorMachine`, `hipAbductorMachine`,
+  `shoulderPressMachine` and `ellipticalTrainer`. Because an exercise's
+  `requiredEquipmentIds` is typed against this union, content that cannot be performed in
+  that room is now a type error.
+- **Four exercises replaced.** `legPress` -> `legExtension`, `hipThrust` ->
+  `dumbbellHipThrust` (bench and one dumbbell), `chestSupportedRow` ->
+  `chestSupportedDumbbellRow` (incline bench and dumbbells), `landminePress` ->
+  `shoulderPressMachine`. Each replacement keeps the property that got the original picked:
+  back supported, no lumbar load, a machine holding the path for a first overhead press.
+- **Three exercises added:** `seatedHipAbduction` (prescribed, Session C),
+  `seatedHipAdduction` and `ellipticalEasy` (defined, reachable as substitutes).
+- **`gobletSquatToBox` squats to a flat bench** rather than a plyo box, which is what is
+  actually there. Same movement, same id, so no history is lost.
+- **Session A was reordered.** With no leg press, the goblet squat is the biggest leg
+  movement and goes first; the leg extension takes slot 4 and does the direct quad work the
+  leg press was there for.
+- **Session C is now seven slots** in every phase, with the abductor machine straight after
+  the split squat.
+- 36 exercises, 427 tests, all green. `npm run verify` passes.
+
+**Decisions made and why**
+
+| Decision                                                       | Reason                                                                                                                                                                                                 |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| The barbell RDL comes out of Phase 3                           | It has to be lifted out of a rack at hip height, and no rack was on the list. Starting it off the floor is precisely what section 2 excludes. The dumbbell RDL keeps the slot and gets heavier instead |
+| ...but stays defined, as the dumbbell RDL's first substitute   | If there is a rack, putting it back is a one-line change to the Phase 3 template rather than writing an exercise from scratch                                                                          |
+| The machine shoulder press keeps `requiresPainFreeAreas`       | It is a truer overhead press than the landmine was, so the shoulder gate matters more, not less. The domain rule and its tests carry over unchanged — only the id moved                                |
+| The adductor machine is defined but not prescribed             | Session C is already at the seven-slot ceiling and the adductors are trained on every squat and split squat anyway. It is listed as a substitute for the days a lunge is a bad idea                    |
+| The elliptical is defined but not prescribed                   | Same reason. It is the swap when the treadmill is taken, which is what `substituteExerciseIds` is for                                                                                                  |
+| The dumbbell hip thrust is `singleDumbbell`, starting at 12 kg | One dumbbell across the hips, held with both hands. That is the number written on the thing he picks up, which is the convention M2 already set for dumbbells                                          |
+| Equipment ids kept their names where the kit did               | `seatedCableRowMachine` still backs the "Low row" in his gym, and `cableStation` still backs the crossover. Renaming ids for a label change would churn content for nothing                            |
+
+**Notes for the next session**
+
+- **Two things are worth confirming with Omar, and neither blocks anything.** Whether the leg
+  curl is seated or lying (the cues in `seatedLegCurl` assume seated), and whether there is a
+  rack or squat stand anywhere in the free weight area (which would put the barbell RDL back
+  into Phase 3).
+- **Starting weights for the new machines are guesses**, as every starting weight in this
+  programme is: 30 kg leg extension, 25 kg abduction, 15 kg shoulder press. Week 1 is a
+  calibration week precisely so these get corrected by reality.
+- **`src/domain/` was not touched.** Every change was content and the tests that read it. The
+  conditional-slot rule, double progression and the two safety reductions all work exactly as
+  they did — only the exercise ids they operate on changed.
+- The domain tests that used `legPress` as their worked example now use `legExtension` at
+  30 kg. The deload assertion still exercises the round-down rule: 30 kg less twenty percent
+  is 24, and the nearest selectable weight at or below that is 22.5.
+
 ---
 
 ## Locked decisions
@@ -221,25 +289,26 @@ One branch and one pull request each. Do not mix milestones.
 Settled with Omar during the M0 interview. Do not silently revisit these — if one needs to
 change, raise it with him.
 
-| Area           | Decision                                                                                |
-| -------------- | --------------------------------------------------------------------------------------- |
-| Frequency      | 3 days per week, Monday / Wednesday / Friday, 45-60 minutes                             |
-| Time of day    | Varies. Warm-up length adapts to session start time                                     |
-| Medical        | Physio-cleared, no structural findings, no movement restrictions                        |
-| Pain areas     | Neck and upper traps, lower back, shoulders, knees / hips / ankles                      |
-| Experience     | Effectively a beginner. Full form cues on every set                                     |
-| Cardio         | Incline treadmill walking and stationary bike. Rowing machine deferred to Phase 3       |
-| Nutrition      | Four daily habit checkboxes. No calorie or macro logging                                |
-| Home equipment | Mat, resistance bands, foam roller                                                      |
-| Goal           | Body recomposition to ~82-84 kg with more muscle. **Not** weight loss alone             |
-| Visuals        | Animated SVG generated by codex, recoloured by the active palette                       |
-| Repository     | `second-body`, public. No personal data committed, ever                                 |
-| Git workflow   | Claude commits locally on feature branches. **Omar pushes and opens all pull requests** |
-| Backend        | New Firebase project, Google Sign-In, Firestore locked to one uid                       |
-| Offline        | Not supported. Firestore's local cache covers brief dropouts only                       |
-| Extras         | Home-screen install manifest, screen wake lock during sessions                          |
-| Tracking       | Bathroom scale. Waist and other measurement fields exist but are optional               |
-| Theme          | Dark only. Mobile only. Purple-blue palette by default                                  |
+| Area           | Decision                                                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Frequency      | 3 days per week, Monday / Wednesday / Friday, 45-60 minutes                                                                                      |
+| Time of day    | Varies. Warm-up length adapts to session start time                                                                                              |
+| Medical        | Physio-cleared, no structural findings, no movement restrictions                                                                                 |
+| Pain areas     | Neck and upper traps, lower back, shoulders, knees / hips / ankles                                                                               |
+| Experience     | Effectively a beginner. Full form cues on every set                                                                                              |
+| Cardio         | Incline treadmill walking and stationary bike. Rowing machine deferred to Phase 3                                                                |
+| Nutrition      | Four daily habit checkboxes. No calorie or macro logging                                                                                         |
+| Home equipment | Mat, resistance bands, foam roller                                                                                                               |
+| Gym equipment  | Counted in person, session 4. It is `src/content/equipment/gymEquipment.ts`. No leg press, no hip thrust machine, no landmine, no confirmed rack |
+| Goal           | Body recomposition to ~82-84 kg with more muscle. **Not** weight loss alone                                                                      |
+| Visuals        | Animated SVG generated by codex, recoloured by the active palette                                                                                |
+| Repository     | `second-body`, public. No personal data committed, ever                                                                                          |
+| Git workflow   | Claude commits locally on feature branches. **Omar pushes and opens all pull requests**                                                          |
+| Backend        | New Firebase project, Google Sign-In, Firestore locked to one uid                                                                                |
+| Offline        | Not supported. Firestore's local cache covers brief dropouts only                                                                                |
+| Extras         | Home-screen install manifest, screen wake lock during sessions                                                                                   |
+| Tracking       | Bathroom scale. Waist and other measurement fields exist but are optional                                                                        |
+| Theme          | Dark only. Mobile only. Purple-blue palette by default                                                                                           |
 
 ## Standing notes about Omar
 

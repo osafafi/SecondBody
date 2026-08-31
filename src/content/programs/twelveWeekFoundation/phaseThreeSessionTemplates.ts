@@ -3,19 +3,24 @@ import type { SessionTemplate } from '@/types/programTypes';
 /**
  * Phase 3, weeks 9-12: "Train properly".
  *
- * Four changes, each of them a movement being allowed to grow up:
+ * Three changes, each of them a movement being allowed to grow up:
  *
- * 1. The goblet squat loses the box. You have been touching it accurately for
+ * 1. The goblet squat loses the bench. You have been touching it accurately for
  *    eight weeks, so you no longer need it to tell you where the bottom is.
- * 2. The Romanian deadlift moves to a barbell. Out of the rack, never off the
- *    floor.
- * 3. The split squat gets dumbbells, which is the "+2 reps, then add load" rule
+ * 2. The split squat gets dumbbells, which is the "+2 reps, then add load" rule
  *    from docs/TRAINING_PROGRAM.md section 7 finally reaching the "add load" half.
- * 4. The rowing machine replaces the bike as Session B's finisher. It waited
+ * 3. The rowing machine replaces the bike as Session B's finisher. It waited
  *    until now because it repeatedly loads a rounded lower back under fatigue,
  *    and Session B is the day the hinge is trained, so the pattern is fresh.
  *
- * Four exercise ids change, which means four exercises with no history. That is
+ * **The hinge stays on dumbbells.** The written programme moved it to a barbell
+ * here, out of a rack at hip height — and the building gym has bars but no rack
+ * anyone has confirmed. Lifting a loaded bar off the floor to start an RDL is
+ * exactly the movement Phase 1 excluded, so the dumbbell RDL keeps the slot and
+ * keeps getting heavier. `barbellRomanianDeadlift` is still defined in
+ * `src/content/exercises/` for the day there is somewhere to rack a bar.
+ *
+ * Two exercise ids change, which means two exercises with no history. That is
  * intentional and it is handled: an exercise with no history is prescribed as a
  * calibration, so the app asks you to find the weight rather than inventing one.
  * The starting weights below are the conservative floor for that conversation.
@@ -28,15 +33,16 @@ export const phaseThreeSessionTemplates: SessionTemplate[] = [
     exerciseSlots: [
       {
         orderIndex: 1,
-        exerciseId: 'legPress',
+        exerciseId: 'gobletSquat',
         prescription: {
           kind: 'weightAndReps',
-          repRange: { minimumReps: 10, maximumReps: 12 },
+          repRange: { minimumReps: 8, maximumReps: 10 },
           isPerSide: false,
-          startingWeightKilograms: 40,
+          startingWeightKilograms: 12,
         },
         restSecondsBetweenSets: 90,
-        slotNote: null,
+        slotNote:
+          'No bench this time. Start where you finished with the bench version, and go at least as deep as you were touching.',
         requiresPainFreeAreas: [],
       },
       {
@@ -67,16 +73,15 @@ export const phaseThreeSessionTemplates: SessionTemplate[] = [
       },
       {
         orderIndex: 4,
-        exerciseId: 'gobletSquat',
+        exerciseId: 'legExtension',
         prescription: {
           kind: 'weightAndReps',
-          repRange: { minimumReps: 8, maximumReps: 10 },
+          repRange: { minimumReps: 10, maximumReps: 12 },
           isPerSide: false,
-          startingWeightKilograms: 12,
+          startingWeightKilograms: 30,
         },
         restSecondsBetweenSets: 75,
-        slotNote:
-          'No box this time. Start where you finished with the box version, and go at least as deep as you were touching.',
+        slotNote: null,
         requiresPainFreeAreas: [],
       },
       {
@@ -110,7 +115,7 @@ export const phaseThreeSessionTemplates: SessionTemplate[] = [
   {
     sessionLetter: 'B',
     displayName: 'Push & Hinge',
-    summary: 'The barbell arrives for the hinge, and the rower finally gets let in.',
+    summary: 'The hinge carries real weight now, and the rower finally gets let in.',
     exerciseSlots: [
       {
         orderIndex: 1,
@@ -140,16 +145,16 @@ export const phaseThreeSessionTemplates: SessionTemplate[] = [
       },
       {
         orderIndex: 3,
-        exerciseId: 'barbellRomanianDeadlift',
+        exerciseId: 'dumbbellRomanianDeadlift',
         prescription: {
           kind: 'weightAndReps',
           repRange: { minimumReps: 8, maximumReps: 10 },
           isPerSide: false,
-          startingWeightKilograms: 20,
+          startingWeightKilograms: 8,
         },
         restSecondsBetweenSets: 90,
         slotNote:
-          'Twenty kilos is the empty bar, and that is where this starts regardless of what the dumbbells were doing. A bar moves differently. Take it out of the rack.',
+          'Twelve weeks on the same movement, and by now it should be the heaviest dumbbells you own the pattern for. Still dumbbells: there is nowhere in the gym to rack a bar at hip height, and this never starts from the floor.',
         requiresPainFreeAreas: [],
       },
       {
@@ -167,15 +172,15 @@ export const phaseThreeSessionTemplates: SessionTemplate[] = [
       },
       {
         orderIndex: 5,
-        exerciseId: 'landminePress',
+        exerciseId: 'shoulderPressMachine',
         prescription: {
           kind: 'weightAndReps',
-          repRange: { minimumReps: 6, maximumReps: 8 },
-          isPerSide: true,
-          startingWeightKilograms: 20,
+          repRange: { minimumReps: 8, maximumReps: 10 },
+          isPerSide: false,
+          startingWeightKilograms: 15,
         },
         restSecondsBetweenSets: 75,
-        slotNote: 'The weight is the whole bar. Still only here while the shoulders stay quiet.',
+        slotNote: 'Still only here while the shoulders stay quiet.',
         requiresPainFreeAreas: ['shoulders'],
       },
       {
@@ -213,12 +218,12 @@ export const phaseThreeSessionTemplates: SessionTemplate[] = [
     exerciseSlots: [
       {
         orderIndex: 1,
-        exerciseId: 'hipThrust',
+        exerciseId: 'dumbbellHipThrust',
         prescription: {
           kind: 'weightAndReps',
           repRange: { minimumReps: 10, maximumReps: 12 },
           isPerSide: false,
-          startingWeightKilograms: 20,
+          startingWeightKilograms: 12,
         },
         restSecondsBetweenSets: 90,
         slotNote: null,
@@ -226,12 +231,12 @@ export const phaseThreeSessionTemplates: SessionTemplate[] = [
       },
       {
         orderIndex: 2,
-        exerciseId: 'chestSupportedRow',
+        exerciseId: 'chestSupportedDumbbellRow',
         prescription: {
           kind: 'weightAndReps',
           repRange: { minimumReps: 10, maximumReps: 12 },
           isPerSide: false,
-          startingWeightKilograms: 20,
+          startingWeightKilograms: 8,
         },
         restSecondsBetweenSets: 90,
         slotNote: null,
@@ -253,6 +258,19 @@ export const phaseThreeSessionTemplates: SessionTemplate[] = [
       },
       {
         orderIndex: 4,
+        exerciseId: 'seatedHipAbduction',
+        prescription: {
+          kind: 'weightAndReps',
+          repRange: { minimumReps: 12, maximumReps: 15 },
+          isPerSide: false,
+          startingWeightKilograms: 25,
+        },
+        restSecondsBetweenSets: 60,
+        slotNote: null,
+        requiresPainFreeAreas: [],
+      },
+      {
+        orderIndex: 5,
         exerciseId: 'chestPressMachine',
         prescription: {
           kind: 'weightAndReps',
@@ -265,7 +283,7 @@ export const phaseThreeSessionTemplates: SessionTemplate[] = [
         requiresPainFreeAreas: [],
       },
       {
-        orderIndex: 5,
+        orderIndex: 6,
         exerciseId: 'farmersCarry',
         prescription: {
           kind: 'loadedCarry',
@@ -277,7 +295,7 @@ export const phaseThreeSessionTemplates: SessionTemplate[] = [
         requiresPainFreeAreas: [],
       },
       {
-        orderIndex: 6,
+        orderIndex: 7,
         exerciseId: 'inclineTreadmillWalk',
         prescription: {
           kind: 'steadyStateCardio',

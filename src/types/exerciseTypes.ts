@@ -93,7 +93,7 @@ export type ExerciseDefinition = {
 
   /**
    * Equivalent movements, best first. Nothing consumes this yet; it exists
-   * because "someone is on the leg press" is the most common reason a session
+   * because "someone is on the leg extension" is the most common reason a session
    * goes off-plan, and the answer belongs next to the exercise.
    */
   substituteExerciseIds: string[];

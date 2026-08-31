@@ -145,8 +145,8 @@ describe('findExercisesByMovementCategory', () => {
 
 describe('findExerciseById and requireExerciseById', () => {
   it('finds a real exercise', () => {
-    expect(findExerciseById('legPress')?.displayName).toBe('Leg Press');
-    expect(requireExerciseById('legPress').displayName).toBe('Leg Press');
+    expect(findExerciseById('legExtension')?.displayName).toBe('Leg Extension');
+    expect(requireExerciseById('legExtension').displayName).toBe('Leg Extension');
   });
 
   it('returns null for an unknown id rather than throwing', () => {

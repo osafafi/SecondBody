@@ -119,7 +119,8 @@ export type SessionPlanRequest = {
 
   /**
    * Pain areas currently on the profile. Slots that require one of these to be
-   * clear — the landmine press, and its shoulders — are left out of the plan.
+   * clear — the machine shoulder press, and its shoulders — are left out of the
+   * plan.
    */
   activePainAreas: PainArea[];
 

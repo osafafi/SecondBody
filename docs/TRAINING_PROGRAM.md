@@ -69,6 +69,11 @@ loss quietly in the background.
 | Rowing machine                                               | Repeatedly loads a rounded lower back under fatigue. Enters in Phase 3            |
 | Deadlifts from the floor                                     | Same reason, plus it demands a hinge pattern that is still being taught           |
 
+The building gym has bars but no rack anyone has confirmed. Until there is one, any
+movement that would have to be lifted off the floor to get started is out — which is why
+the hinge stays on dumbbells for all twelve weeks rather than moving to a barbell in
+Phase 3.
+
 ---
 
 ## 3. The weekly structure
@@ -115,20 +120,22 @@ The ramp set is half the first exercise's working weight.
 
 ## 4. Session A - Legs & Pull
 
-| #   | Exercise                       | Sets x Reps     | Phase 1 start      | Rest |
-| --- | ------------------------------ | --------------- | ------------------ | ---- |
-| 1   | Leg Press (machine)            | 2 x 12          | 40 kg              | 90 s |
-| 2   | Seated Cable Row, neutral grip | 2 x 12          | 25 kg              | 90 s |
-| 3   | Seated Leg Curl (machine)      | 2 x 12          | 15 kg              | 75 s |
-| 4   | Goblet Squat to box            | 2 x 10          | 10 kg dumbbell     | 75 s |
-| 5   | Pallof Press (cable)           | 2 x 10 per side | 10 kg              | 60 s |
-| 6   | Incline treadmill walk         | 10 min          | 5% incline, 5 km/h | -    |
+| #   | Exercise                  | Sets x Reps     | Phase 1 start      | Rest |
+| --- | ------------------------- | --------------- | ------------------ | ---- |
+| 1   | Goblet Squat to bench     | 2 x 10          | 10 kg dumbbell     | 90 s |
+| 2   | Low Row, neutral grip     | 2 x 12          | 25 kg              | 90 s |
+| 3   | Seated Leg Curl (machine) | 2 x 12          | 15 kg              | 75 s |
+| 4   | Leg Extension (machine)   | 2 x 12          | 30 kg              | 75 s |
+| 5   | Pallof Press (cable)      | 2 x 10 per side | 10 kg              | 60 s |
+| 6   | Incline treadmill walk    | 10 min          | 5% incline, 5 km/h | -    |
 
-**Why these:** the leg press loads the knees and hips heavily with the back fully supported,
-which is the safest way to start training legs with an unhappy lower back. The seated row is
-the single highest-value exercise in the whole programme for the neck pain — it trains
-exactly what six years of reaching for a mouse switched off. The goblet squat teaches the
-squat pattern with a counterweight that makes good form easier than bad form.
+**Why these:** there is no leg press in the building, so the goblet squat is the biggest
+leg movement of the day and it goes first, where he is freshest — it teaches the squat
+pattern with a counterweight that makes good form easier than bad form, and the bench gives
+a consistent depth to hit. The leg extension then loads the quads directly with the back
+supported, which is what the leg press was there for. The low row is the single
+highest-value exercise in the whole programme for the neck pain — it trains exactly what
+six years of reaching for a mouse switched off.
 
 ## 5. Session B - Push & Hinge
 
@@ -149,20 +156,28 @@ slow, and drilled until it is automatic, because everything in Phase 3 depends o
 
 ## 6. Session C - Glutes & Carry
 
-| #   | Exercise                                 | Sets x Reps    | Phase 1 start      | Rest |
-| --- | ---------------------------------------- | -------------- | ------------------ | ---- |
-| 1   | Hip Thrust (machine, or bench + barbell) | 2 x 12         | 20 kg              | 90 s |
-| 2   | Chest-Supported Row (machine)            | 2 x 12         | 20 kg              | 90 s |
-| 3   | Split Squat (rear foot on floor)         | 2 x 8 per side | bodyweight         | 75 s |
-| 4   | Incline Dumbbell Press (30 degrees)      | 2 x 10         | 2 x 8 kg           | 75 s |
-| 5   | Farmer's Carry                           | 2 x 30 m       | 2 x 12 kg          | 60 s |
-| 6   | Incline treadmill walk                   | 10 min         | 5% incline, 5 km/h | -    |
+| #   | Exercise                            | Sets x Reps    | Phase 1 start      | Rest |
+| --- | ----------------------------------- | -------------- | ------------------ | ---- |
+| 1   | Dumbbell Hip Thrust (off a bench)   | 2 x 12         | 12 kg dumbbell     | 90 s |
+| 2   | Chest-Supported Dumbbell Row        | 2 x 12         | 2 x 8 kg           | 90 s |
+| 3   | Split Squat (rear foot on floor)    | 2 x 8 per side | bodyweight         | 75 s |
+| 4   | Seated Hip Abduction (machine)      | 2 x 15         | 25 kg              | 60 s |
+| 5   | Incline Dumbbell Press (30 degrees) | 2 x 10         | 2 x 8 kg           | 75 s |
+| 6   | Farmer's Carry                      | 2 x 30 m       | 2 x 12 kg          | 60 s |
+| 7   | Incline treadmill walk              | 10 min         | 5% incline, 5 km/h | -    |
 
 **Why these:** the hip thrust is the most direct glute exercise that exists, and weak glutes
 are very often the real cause of a sore lower back — the back ends up doing the hips' job.
-The chest-supported row gives all the mid-back benefit of a row with literally zero load on
-the lumbar spine. The farmer's carry looks trivial and is quietly excellent: grip, core,
-posture and conditioning at once, with essentially no injury risk.
+There is no hip thrust machine in the building, so it is done off a flat bench with a single
+dumbbell across the hips. The chest-supported row moves to an incline bench and dumbbells
+for the same reason, and keeps the property that mattered: all the mid-back benefit of a row
+with literally zero load on the lumbar spine. The abductor machine follows the split squat
+because it trains the exact muscle that stops the front knee falling inwards on it. The
+farmer's carry looks trivial and is quietly excellent: grip, core, posture and conditioning
+at once, with essentially no injury risk.
+
+This is the only seven-slot session. It is still inside the hour because four of the seven
+are seated machines or a carry.
 
 ---
 
@@ -225,16 +240,16 @@ RPE 5-6 throughout. The goal is attendance and technique, not progress.
 
 3 working sets, RPE 6-7. Free-weight variants are introduced where the pattern is solid:
 goblet squat gets heavier, the RDL progresses properly, incline dumbbell press replaces
-some machine pressing. If the shoulders have gone quiet, a landmine press is introduced as
-the first overhead-ish movement.
+some machine pressing. If the shoulders have gone quiet, the machine shoulder press is
+introduced as the first overhead movement.
 
 Concretely, three changes and no others:
 
-| Change                                                                                         | Why                                                                                                                        |
-| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| The two presses swap places: incline dumbbell press becomes B1, chest press machine becomes C4 | The free-weight press goes where he is freshest. The machine stays for the tired slot, which is what machines are good for |
-| Half-kneeling landmine press enters as B5, **only while the shoulders are clear**              | The first overhead-ish movement. It is the first thing to drop if a session runs long                                      |
-| Session A does not change at all                                                               | The goblet squat getting heavier is progression doing its job, not a different exercise                                    |
+| Change                                                                                         | Why                                                                                                                                           |
+| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| The two presses swap places: incline dumbbell press becomes B1, chest press machine becomes C4 | The free-weight press goes where he is freshest. The machine stays for the tired slot, which is what machines are good for                    |
+| Machine shoulder press enters as B5, **only while the shoulders are clear**                    | The first overhead movement. The machine holds the path, which is what a new overhead press needs. First thing to drop if a session runs long |
+| Session A does not change at all                                                               | The goblet squat getting heavier is progression doing its job, not a different exercise                                                       |
 
 **Week 8 is a deload:** drop to 2 sets and reduce every load by 20%. It will feel like a
 waste of a week. It is not — it is where accumulated fatigue clears and the joints catch
@@ -245,16 +260,23 @@ up. Do not skip it.
 RPE 7-8. The rowing machine is introduced now that the hinge is reliable. More free weights.
 An optional fourth day becomes available for anyone who wants it — and only then.
 
-Concretely, four movements grow up:
+Concretely, three movements grow up:
 
-| Change                                       | Why                                                                                   |
-| -------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Goblet squat to box -> goblet squat          | Eight weeks of touching the box accurately means the box has done its job             |
-| Dumbbell RDL -> barbell RDL, out of the rack | The pattern is reliable. Still never from the floor                                   |
-| Split squat -> dumbbell split squat          | The "+2 reps, then add load" rule in section 7 finally reaching the "add load" half   |
-| Session B's bike finisher -> rowing machine  | B is the day the hinge is trained, so the pattern is fresh when the rower asks for it |
+| Change                                      | Why                                                                                   |
+| ------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Goblet squat to bench -> goblet squat       | Eight weeks of touching the bench accurately means the bench has done its job         |
+| Split squat -> dumbbell split squat         | The "+2 reps, then add load" rule in section 7 finally reaching the "add load" half   |
+| Session B's bike finisher -> rowing machine | B is the day the hinge is trained, so the pattern is fresh when the rower asks for it |
 
-Four exercise ids change, which means four movements with no history. That is handled rather
+**The hinge does not move to a barbell.** It was going to: dumbbell RDL to barbell RDL, out
+of the rack, never from the floor. The building gym has bars and no rack anyone has
+confirmed, and starting an RDL by deadlifting the bar off the floor is exactly the movement
+section 2 excludes. So the dumbbell RDL keeps the slot for all twelve weeks and simply gets
+heavier. `barbellRomanianDeadlift` stays defined in `src/content/exercises/` and is listed
+as the dumbbell RDL's first substitute, so the day a rack turns up this is a one-line change
+to the Phase 3 template.
+
+Two exercise ids change, which means two movements with no history. That is handled rather
 than worked around: an exercise with no history is prescribed as a calibration, so the app
 asks him to find the weight instead of inventing one.
 

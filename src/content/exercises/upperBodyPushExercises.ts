@@ -4,9 +4,9 @@ import type { ExerciseDefinition } from '@/types/exerciseTypes';
  * Pressing.
  *
  * Note what is missing: there is no barbell bench press and no overhead press in
- * Phase 1 or 2. Overhead pressing needs scapular control that has to be built
- * first, which is what the face pulls and wall slides are quietly doing. The
- * landmine press is the first overhead-ish movement, and it only appears in
+ * Phase 1. Overhead pressing needs scapular control that has to be built first,
+ * which is what the face pulls and wall slides are quietly doing. The machine
+ * shoulder press is the first overhead movement, and it only appears from
  * Phase 2 if the shoulders have gone quiet. See docs/TRAINING_PROGRAM.md
  * sections 2 and 8.
  */
@@ -83,38 +83,39 @@ export const upperBodyPushExercises: ExerciseDefinition[] = [
   },
 
   {
-    exerciseId: 'landminePress',
-    displayName: 'Half-Kneeling Landmine Press',
-    shortDisplayName: 'Landmine Press',
+    exerciseId: 'shoulderPressMachine',
+    displayName: 'Shoulder Press Machine',
+    shortDisplayName: 'Shoulder Press',
     movementCategory: 'strength',
     movementPattern: 'verticalPush',
-    primaryMuscleGroups: ['frontDeltoids', 'chest'],
-    secondaryMuscleGroups: ['triceps', 'abdominals', 'obliques'],
-    requiredEquipmentIds: ['barbell', 'landmineAttachment'],
-    loadingStyle: 'barbell',
+    primaryMuscleGroups: ['frontDeltoids', 'sideDeltoids'],
+    secondaryMuscleGroups: ['triceps', 'upperTraps'],
+    requiredEquipmentIds: ['shoulderPressMachine'],
+    loadingStyle: 'weightStackMachine',
     formCues: [
-      'Kneel on the same side as the pressing arm, other foot forward and flat.',
-      'Hold the end of the bar at your shoulder, elbow tucked in front of you.',
-      'Squeeze your glute on the kneeling side so your ribs stay down.',
-      'Press up and forward along the angle of the bar, not straight up.',
-      'Follow the bar with your eyes. It should finish above and in front of your head.',
+      'Set the seat so the handles start level with your shoulders, not above them.',
+      'Sit right back and keep your ribs down. Do not let your back arch off the pad.',
+      'Take a neutral grip if the machine offers one. Your shoulders prefer it.',
+      'Press up smoothly and stop just short of locking the elbows.',
+      'Lower under control until your hands are back at shoulder height, and no lower.',
     ],
     commonMistakes: [
-      'Arching the lower back to get the bar higher. If the ribs flare, the set is over.',
-      'Pressing straight up, which loses the whole reason the landmine is friendlier than a barbell.',
+      'Starting with the handles too low, which drags the shoulder through the range that hurts.',
+      'Arching the lower back to finish the press. If the ribs flare, the weight is too heavy.',
+      'Shrugging the shoulders up into your ears at the top.',
     ],
     whyItIsInTheProgramme:
-      'This is your first overhead-ish press, and only if the shoulders have gone quiet. The bar’s angle means the shoulder never has to reach the position that hurts.',
-    painAreasItHelps: ['shoulders'],
-    painAreasToMonitor: ['shoulders', 'lowerBack'],
+      'This is your first real overhead press, and it only appears once the shoulders have gone quiet. The machine holds the path for you, which is exactly what an overhead press needs while the scapular control the face pulls and wall slides have been building is still new.',
+    painAreasItHelps: [],
+    painAreasToMonitor: ['shoulders', 'neck', 'lowerBack'],
     substituteExerciseIds: ['inclineDumbbellPress', 'chestPressMachine'],
     mediaBrief: {
       startPosition:
-        'Half-kneeling in profile with one knee down, holding the raised end of an angled barbell at the shoulder.',
+        'Seated upright in a shoulder press machine with the back against the pad and both hands on the handles at shoulder height, elbows bent and below the hands.',
       endPosition:
-        'Bar end pressed up and forward until the arm is straight above and ahead of the head.',
+        'Arms pressed overhead to nearly straight, torso still upright and flat against the pad.',
       equipmentToDraw:
-        'A barbell angled up from a floor pivot at the lower left, with a plate at the low end.',
+        'A seated shoulder press machine: seat, backrest and two vertical handles on a pressing arm above the shoulders.',
     },
   },
 ];

@@ -59,7 +59,8 @@ export type ExerciseSlot = {
   /**
    * The slot appears only when every listed pain area is currently clear.
    *
-   * This exists for the landmine press, which docs/TRAINING_PROGRAM.md section 8
+   * This exists for the machine shoulder press, which docs/TRAINING_PROGRAM.md
+   * section 8
    * introduces in Phase 2 only "if the shoulders have gone quiet". An empty
    * array — the normal case — means the slot always appears.
    */

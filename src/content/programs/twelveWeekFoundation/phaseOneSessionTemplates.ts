@@ -18,20 +18,20 @@ export const phaseOneSessionTemplates: SessionTemplate[] = [
   {
     sessionLetter: 'A',
     displayName: 'Legs & Pull',
-    summary: 'Legs with your back supported, and the row that undoes your desk.',
+    summary: 'The squat you are here to learn, and the row that undoes your desk.',
     exerciseSlots: [
       {
         orderIndex: 1,
-        exerciseId: 'legPress',
+        exerciseId: 'gobletSquatToBox',
         prescription: {
           kind: 'weightAndReps',
-          repRange: { minimumReps: 10, maximumReps: 12 },
+          repRange: { minimumReps: 8, maximumReps: 10 },
           isPerSide: false,
-          startingWeightKilograms: 40,
+          startingWeightKilograms: 10,
         },
         restSecondsBetweenSets: 90,
         slotNote:
-          'First because it is the biggest thing you will do today, and you are freshest now.',
+          'First because it is the biggest thing you will do today, and you are freshest now. Learning the pattern matters more than the load for a few weeks yet.',
         requiresPainFreeAreas: [],
       },
       {
@@ -62,16 +62,16 @@ export const phaseOneSessionTemplates: SessionTemplate[] = [
       },
       {
         orderIndex: 4,
-        exerciseId: 'gobletSquatToBox',
+        exerciseId: 'legExtension',
         prescription: {
           kind: 'weightAndReps',
-          repRange: { minimumReps: 8, maximumReps: 10 },
+          repRange: { minimumReps: 10, maximumReps: 12 },
           isPerSide: false,
-          startingWeightKilograms: 10,
+          startingWeightKilograms: 30,
         },
         restSecondsBetweenSets: 75,
         slotNote:
-          'After the leg press on purpose. Learning the pattern matters more than the load here.',
+          'Seated, back supported, quads on their own. This is the machine that lets you load the legs properly on a day the squat felt awkward.',
         requiresPainFreeAreas: [],
       },
       {
@@ -196,25 +196,26 @@ export const phaseOneSessionTemplates: SessionTemplate[] = [
     exerciseSlots: [
       {
         orderIndex: 1,
-        exerciseId: 'hipThrust',
+        exerciseId: 'dumbbellHipThrust',
         prescription: {
           kind: 'weightAndReps',
           repRange: { minimumReps: 10, maximumReps: 12 },
           isPerSide: false,
-          startingWeightKilograms: 20,
+          startingWeightKilograms: 12,
         },
         restSecondsBetweenSets: 90,
-        slotNote: null,
+        slotNote:
+          'Bench against a wall, one dumbbell across the hips. The weight looks small written down and will not feel small by the second set.',
         requiresPainFreeAreas: [],
       },
       {
         orderIndex: 2,
-        exerciseId: 'chestSupportedRow',
+        exerciseId: 'chestSupportedDumbbellRow',
         prescription: {
           kind: 'weightAndReps',
           repRange: { minimumReps: 10, maximumReps: 12 },
           isPerSide: false,
-          startingWeightKilograms: 20,
+          startingWeightKilograms: 8,
         },
         restSecondsBetweenSets: 90,
         slotNote:
@@ -235,6 +236,20 @@ export const phaseOneSessionTemplates: SessionTemplate[] = [
       },
       {
         orderIndex: 4,
+        exerciseId: 'seatedHipAbduction',
+        prescription: {
+          kind: 'weightAndReps',
+          repRange: { minimumReps: 12, maximumReps: 15 },
+          isPerSide: false,
+          startingWeightKilograms: 25,
+        },
+        restSecondsBetweenSets: 60,
+        slotNote:
+          'Straight after the split squat, because it trains the exact muscle that stops your front knee falling inwards on it.',
+        requiresPainFreeAreas: [],
+      },
+      {
+        orderIndex: 5,
         exerciseId: 'inclineDumbbellPress',
         prescription: {
           kind: 'weightAndReps',
@@ -247,7 +262,7 @@ export const phaseOneSessionTemplates: SessionTemplate[] = [
         requiresPainFreeAreas: [],
       },
       {
-        orderIndex: 5,
+        orderIndex: 6,
         exerciseId: 'farmersCarry',
         prescription: {
           kind: 'loadedCarry',
@@ -259,7 +274,7 @@ export const phaseOneSessionTemplates: SessionTemplate[] = [
         requiresPainFreeAreas: [],
       },
       {
-        orderIndex: 6,
+        orderIndex: 7,
         exerciseId: 'inclineTreadmillWalk',
         prescription: {
           kind: 'steadyStateCardio',

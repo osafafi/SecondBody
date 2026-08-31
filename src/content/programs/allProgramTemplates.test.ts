@@ -273,11 +273,11 @@ describe('every exercise slot', () => {
     }
   });
 
-  it('only makes the landmine press conditional, and only on the shoulders', () => {
+  it('only makes the shoulder press conditional, and only on the shoulders', () => {
     const conditionalSlots = everySlot.filter((slot) => slot.requiresPainFreeAreas.length > 0);
 
     expect(new Set(conditionalSlots.map((slot) => slot.exerciseId))).toEqual(
-      new Set(['landminePress']),
+      new Set(['shoulderPressMachine']),
     );
 
     for (const slot of conditionalSlots) {
@@ -288,7 +288,8 @@ describe('every exercise slot', () => {
   it('never prescribes a movement Phase 1 deliberately excludes', () => {
     // docs/TRAINING_PROGRAM.md section 2: no overhead pressing, no loaded spinal
     // flexion, no barbell back squat, no rowing machine, no deadlifts from the
-    // floor. The rower and the landmine press are Phase 2 and 3 only.
+    // floor. The rower and the machine shoulder press are Phase 2 and 3 only,
+    // and the barbell RDL is not prescribed at all while there is no rack.
     const phaseOne = twelveWeekFoundationProgram.phases[0];
     const phaseOneExerciseIds = new Set(
       phaseOne?.sessionTemplates.flatMap((sessionTemplate) =>
@@ -297,7 +298,7 @@ describe('every exercise slot', () => {
     );
 
     expect(phaseOneExerciseIds.has('rowingMachineEasy')).toBe(false);
-    expect(phaseOneExerciseIds.has('landminePress')).toBe(false);
+    expect(phaseOneExerciseIds.has('shoulderPressMachine')).toBe(false);
     expect(phaseOneExerciseIds.has('barbellRomanianDeadlift')).toBe(false);
   });
 

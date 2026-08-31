@@ -22,7 +22,7 @@ Small, genuinely useful, and about an hour of work.
 ramp set. Once loads are heavier, proper warm-up sets matter and should be calculated from
 the working weight.
 
-**Exercise substitution.** "Someone is on the leg press" is the single most common reason a
+**Exercise substitution.** "Someone is on the leg extension" is the single most common reason a
 gym session goes off-plan. Let him swap to an equivalent movement that trains the same
 pattern, and record what was actually done.
 

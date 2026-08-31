@@ -34,7 +34,7 @@ export const cardioExercises: ExerciseDefinition[] = [
       'Uphill walking works your glutes and calves properly with no impact on your knees, and it leaves you able to train again on Wednesday.',
     painAreasItHelps: ['hips', 'ankles'],
     painAreasToMonitor: ['knees', 'ankles'],
-    substituteExerciseIds: ['stationaryBikeEasy'],
+    substituteExerciseIds: ['stationaryBikeEasy', 'ellipticalEasy'],
     mediaBrief: {
       startPosition:
         'Walking in profile on an inclined treadmill belt, rear foot pushing off, arms swinging freely away from the handrails.',
@@ -69,7 +69,7 @@ export const cardioExercises: ExerciseDefinition[] = [
       'At the start of a session it raises your tissue temperature, and nothing more. At the end it adds easy work with zero impact on the joints.',
     painAreasItHelps: ['knees'],
     painAreasToMonitor: ['knees'],
-    substituteExerciseIds: ['inclineTreadmillWalk'],
+    substituteExerciseIds: ['inclineTreadmillWalk', 'ellipticalEasy'],
     mediaBrief: {
       startPosition:
         'Seated upright on an upright stationary bike in profile, near leg at the top of the pedal stroke.',
@@ -114,6 +114,41 @@ export const cardioExercises: ExerciseDefinition[] = [
         'At the finish: legs straight, torso leaning slightly back, handle drawn in to the bottom of the ribs.',
       equipmentToDraw:
         'A rowing machine in profile: a slide rail, a seat, a footplate, a chain and a handle.',
+    },
+  },
+
+  {
+    exerciseId: 'ellipticalEasy',
+    displayName: 'Elliptical, Easy',
+    shortDisplayName: 'Elliptical',
+    movementCategory: 'cardio',
+    movementPattern: 'steadyStateCardio',
+    primaryMuscleGroups: ['quadriceps', 'glutes'],
+    secondaryMuscleGroups: ['hamstrings', 'calves'],
+    requiredEquipmentIds: ['ellipticalTrainer'],
+    loadingStyle: 'unloaded',
+    formCues: [
+      'Stand tall and let go of the moving handles. Rest your hands on the fixed bar instead.',
+      'Push through your whole foot and keep your heels down on the pedals.',
+      'Low resistance, steady rhythm. Conversational pace throughout.',
+      'Look ahead, not down at the console. Your neck has enough to deal with.',
+    ],
+    commonMistakes: [
+      'Hanging forward on the handles, which is the desk posture you are here to undo.',
+      'Cranking the resistance up so it feels like it counts. It is not meant to be hard.',
+    ],
+    whyItIsInTheProgramme:
+      'Not in the written sessions, but it is the swap when the treadmill is taken or the knees have had enough of the incline. Same easy work, no impact at all.',
+    painAreasItHelps: ['knees', 'ankles'],
+    painAreasToMonitor: ['knees'],
+    substituteExerciseIds: ['inclineTreadmillWalk', 'stationaryBikeEasy'],
+    mediaBrief: {
+      startPosition:
+        'Standing upright in profile on an elliptical trainer, near foot forward on its pedal and hands resting on the fixed centre bar.',
+      endPosition:
+        'Half a stride later, with the near foot swept back along the elliptical path and the torso still upright.',
+      equipmentToDraw:
+        'An elliptical trainer in profile: frame, console, a fixed centre handle and two long pedal arms.',
     },
   },
 ];

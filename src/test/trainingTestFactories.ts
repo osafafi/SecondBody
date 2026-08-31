@@ -52,8 +52,8 @@ export function buildPerformanceHistory(
   const defaultRepRange: RepRange = { minimumReps: 10, maximumReps: 12 };
 
   return {
-    exerciseId: 'legPress',
-    lastPrescribedWeightKilograms: 40,
+    exerciseId: 'legExtension',
+    lastPrescribedWeightKilograms: 30,
     lastPrescribedRepRange: defaultRepRange,
     lastPerformedSets: buildSetsAtReps(2, 11),
     ...overrides,

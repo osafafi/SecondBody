@@ -5,45 +5,48 @@ import type { ExerciseDefinition } from '@/types/exerciseTypes';
  *
  * Phase 1 is machine-dominant on purpose: a machine enforces the movement path,
  * so a beginner with four aching joints cannot get it badly wrong. The free
- * weight variants at the bottom of this file are earned in Phase 2 and 3, once
- * the pattern is grooved. See docs/TRAINING_PROGRAM.md section 2.
+ * weight variants at the bottom of this file are earned in Phase 3, once the
+ * pattern is grooved. See docs/TRAINING_PROGRAM.md section 2.
+ *
+ * The building gym has no leg press and no hip thrust machine, so the loaded
+ * squat pattern is the goblet squat and the glute work is a dumbbell hip thrust
+ * off a bench. What the gym does have - leg extension, leg curl, adductor and
+ * abductor - is all here.
  */
 export const lowerBodyExercises: ExerciseDefinition[] = [
   {
-    exerciseId: 'legPress',
-    displayName: 'Leg Press',
-    shortDisplayName: 'Leg Press',
+    exerciseId: 'legExtension',
+    displayName: 'Leg Extension',
+    shortDisplayName: 'Leg Extension',
     movementCategory: 'strength',
-    movementPattern: 'squat',
-    primaryMuscleGroups: ['quadriceps', 'glutes'],
-    secondaryMuscleGroups: ['hamstrings', 'adductors'],
-    requiredEquipmentIds: ['legPressMachine'],
+    movementPattern: 'isolation',
+    primaryMuscleGroups: ['quadriceps'],
+    secondaryMuscleGroups: [],
+    requiredEquipmentIds: ['legExtensionMachine'],
     loadingStyle: 'weightStackMachine',
     formCues: [
-      'Sit right back so your whole spine is against the pad, hips included.',
-      'Feet flat on the platform, shoulder width, toes turned out a touch.',
-      'Lower until your knees reach about 90 degrees, slower than feels necessary.',
-      'Push through your whole foot, mid-foot and heel, not the toes.',
-      'Stop just short of locking the knees out at the top.',
+      'Line the machine up so the pivot sits level with your knee joint.',
+      'Sit right back so your thighs stay flat on the seat for the whole set.',
+      'Straighten your legs over about two seconds, without snapping them out.',
+      'Pause for a beat at the top, then lower slower than you lifted.',
     ],
     commonMistakes: [
-      'Letting the lower back round and lift off the pad at the bottom. That is the point to stop at, not push through.',
-      'Bouncing out of the bottom. The rep starts from a dead stop.',
-      'Snapping the knees straight at the top, which dumps the load onto the joint instead of the muscle.',
-      'Feet too low on the platform, which turns it into a knee exercise.',
+      'Kicking the weight up and letting it drop back, which is the one way this movement can annoy a knee.',
+      'Sliding forward off the backrest so the hips help.',
+      'Setting the pivot too low, which drags the load across the front of the knee.',
     ],
     whyItIsInTheProgramme:
-      'It loads the knees and hips heavily with your back fully supported, which is the safest way to start training legs when the lower back is unhappy.',
-    painAreasItHelps: ['knees', 'lowerBack'],
-    painAreasToMonitor: ['knees', 'lowerBack'],
+      'Direct quad work with your back fully supported. Strong quads take load off the knee joint itself, and this is the only machine in the building that trains them on their own.',
+    painAreasItHelps: ['knees'],
+    painAreasToMonitor: ['knees'],
     substituteExerciseIds: ['gobletSquatToBox', 'splitSquat'],
     mediaBrief: {
       startPosition:
-        'Seated in a 45-degree leg press with the back against the pad, knees bent to roughly 90 degrees and feet flat on the platform.',
+        'Seated upright in a leg extension machine with the back against the pad, knees bent over the front of the seat and a roller across the ankles.',
       endPosition:
-        'Legs extended along the sled path but stopping short of a locked knee, hips still fully seated.',
+        'Legs extended forward to almost straight, the ankle roller lifted, thighs still flat on the seat.',
       equipmentToDraw:
-        'An angled leg press sled with a footplate and a seat back, weight stack implied behind the sled.',
+        'A seated leg extension machine: seat back, thigh pad and an ankle roller on a pivoting arm, weight stack implied behind.',
     },
   },
 
@@ -83,39 +86,111 @@ export const lowerBodyExercises: ExerciseDefinition[] = [
   },
 
   {
+    exerciseId: 'seatedHipAbduction',
+    displayName: 'Seated Hip Abduction',
+    shortDisplayName: 'Abductor',
+    movementCategory: 'strength',
+    movementPattern: 'isolation',
+    primaryMuscleGroups: ['glutes'],
+    secondaryMuscleGroups: [],
+    requiredEquipmentIds: ['hipAbductorMachine'],
+    loadingStyle: 'weightStackMachine',
+    formCues: [
+      'Sit tall with the pads against the outside of your knees, not your shins.',
+      'Push your knees apart smoothly and stop where the movement stops being easy.',
+      'Hold the wide position for a full second before you let it back.',
+      'Come back slowly. Do not let the stack clang.',
+      'Lean forward slightly if you want to feel it higher on the side of the hip.',
+    ],
+    commonMistakes: [
+      'Going so heavy that you have to rock the whole torso to move the pads.',
+      'Letting the weight slam the knees back together, which is where a sore hip complains.',
+      'Sitting slouched, which quietly turns it into a lower back exercise.',
+    ],
+    whyItIsInTheProgramme:
+      'The muscles on the side of your hip are what stop the knee falling inwards on a squat and what keep your pelvis level when you walk. Weak ones show up as knee ache and hip ache — and this machine trains them with nothing at all loading your spine.',
+    painAreasItHelps: ['hips', 'knees', 'lowerBack'],
+    painAreasToMonitor: ['hips'],
+    substituteExerciseIds: ['splitSquat', 'dumbbellHipThrust'],
+    mediaBrief: {
+      startPosition:
+        'Seated upright in an abductor machine viewed from the front, knees together with a pad against the outside of each knee.',
+      endPosition:
+        'Knees pushed wide apart against the pads, torso still upright and hips flat on the seat.',
+      equipmentToDraw:
+        'A seated abduction machine from the front: seat, backrest and two pivoting knee pads, weight stack implied.',
+    },
+  },
+
+  {
+    exerciseId: 'seatedHipAdduction',
+    displayName: 'Seated Hip Adduction',
+    shortDisplayName: 'Adductor',
+    movementCategory: 'strength',
+    movementPattern: 'isolation',
+    primaryMuscleGroups: ['adductors'],
+    secondaryMuscleGroups: [],
+    requiredEquipmentIds: ['hipAdductorMachine'],
+    loadingStyle: 'weightStackMachine',
+    formCues: [
+      'Set the starting width so you feel a stretch, not a strain. Narrow at first.',
+      'Sit tall and squeeze your knees together over about two seconds.',
+      'Hold the squeeze for a beat in the middle.',
+      'Let the knees travel back out slowly and under control.',
+    ],
+    commonMistakes: [
+      'Setting the starting position far too wide on the first set. That is the one way to strain a groin on this machine.',
+      'Letting the weight fling the legs apart on the way back.',
+    ],
+    whyItIsInTheProgramme:
+      'Not in the written sessions — it is here for the day the abductor machine is busy, or the knees will not take a lunge. Your adductors work hard on every squat and every split squat, and training them seated loads nothing that currently hurts.',
+    painAreasItHelps: ['hips'],
+    painAreasToMonitor: ['hips'],
+    substituteExerciseIds: ['gobletSquatToBox', 'splitSquat'],
+    mediaBrief: {
+      startPosition:
+        'Seated upright in an adductor machine viewed from the front, knees apart with a pad against the inside of each knee.',
+      endPosition: 'Knees squeezed together in front of the body, torso still upright.',
+      equipmentToDraw:
+        'A seated adduction machine from the front: seat, backrest and two pivoting inner-knee pads, weight stack implied.',
+    },
+  },
+
+  {
     exerciseId: 'gobletSquatToBox',
-    displayName: 'Goblet Squat to Box',
+    displayName: 'Goblet Squat to Bench',
     shortDisplayName: 'Goblet Squat',
     movementCategory: 'strength',
     movementPattern: 'squat',
     primaryMuscleGroups: ['quadriceps', 'glutes'],
     secondaryMuscleGroups: ['adductors', 'abdominals', 'spinalErectors'],
-    requiredEquipmentIds: ['dumbbells', 'plyometricBox'],
+    requiredEquipmentIds: ['dumbbells', 'flatBench'],
     loadingStyle: 'singleDumbbell',
     formCues: [
+      'Set a flat bench behind you and stand just in front of it.',
       'Hold one dumbbell vertically against your chest, elbows tucked in under it.',
       'Feet a little wider than your shoulders, toes turned out slightly.',
-      'Sit back and down until you touch the box, then stand straight back up.',
-      'Touch the box, do not sit down on it.',
+      'Sit back and down until you touch the bench, then stand straight back up.',
+      'Touch the bench, do not sit down on it.',
       'Keep your chest up. The dumbbell is a counterweight, let it help you.',
     ],
     commonMistakes: [
-      'Dropping onto the box and losing tension.',
+      'Dropping onto the bench and losing tension.',
       'Knees caving inwards on the way up. Push them out towards your little toes.',
       'Heels lifting, which is an ankle mobility problem — the wall rocks in the warm-up are the fix.',
     ],
     whyItIsInTheProgramme:
-      'It teaches the squat pattern with a counterweight that makes good form easier than bad form. The box gives you a consistent depth to hit instead of guessing.',
+      'It is the biggest thing you do on Monday, and it teaches the squat pattern with a counterweight that makes good form easier than bad form. The bench gives you a consistent depth to hit instead of guessing at it.',
     painAreasItHelps: ['knees', 'hips', 'ankles'],
     painAreasToMonitor: ['knees', 'lowerBack'],
-    substituteExerciseIds: ['legPress', 'splitSquat'],
+    substituteExerciseIds: ['splitSquat', 'legExtension', 'seatedHipAdduction'],
     mediaBrief: {
       startPosition:
-        'Standing in front of a low box, holding a single dumbbell vertically against the chest with both hands.',
+        'Standing in front of a flat bench, holding a single dumbbell vertically against the chest with both hands.',
       endPosition:
-        'Squatted down until the hips lightly touch the box, torso upright, dumbbell still at the chest.',
+        'Squatted down until the hips lightly touch the bench, torso upright, dumbbell still at the chest.',
       equipmentToDraw:
-        'A low plyometric box behind the figure and one vertical dumbbell at the chest.',
+        'A flat bench behind the figure and one vertical dumbbell held at the chest.',
     },
   },
 
@@ -144,7 +219,7 @@ export const lowerBodyExercises: ExerciseDefinition[] = [
       'One leg at a time exposes the side that is weaker, and it loads the hips hard without needing any load on your spine at all.',
     painAreasItHelps: ['hips', 'knees'],
     painAreasToMonitor: ['knees', 'hips'],
-    substituteExerciseIds: ['gobletSquatToBox', 'legPress'],
+    substituteExerciseIds: ['gobletSquatToBox', 'legExtension', 'seatedHipAdduction'],
     mediaBrief: {
       startPosition:
         'Standing in a long split stance, front foot flat, back heel raised, torso upright and arms at the sides.',
@@ -155,39 +230,41 @@ export const lowerBodyExercises: ExerciseDefinition[] = [
   },
 
   {
-    exerciseId: 'hipThrust',
-    displayName: 'Hip Thrust',
+    exerciseId: 'dumbbellHipThrust',
+    displayName: 'Dumbbell Hip Thrust',
     shortDisplayName: 'Hip Thrust',
     movementCategory: 'strength',
     movementPattern: 'hinge',
     primaryMuscleGroups: ['glutes'],
     secondaryMuscleGroups: ['hamstrings', 'quadriceps', 'abdominals'],
-    requiredEquipmentIds: ['hipThrustMachine'],
-    loadingStyle: 'weightStackMachine',
+    requiredEquipmentIds: ['dumbbells', 'flatBench'],
+    loadingStyle: 'singleDumbbell',
     formCues: [
-      'Sit with your shoulder blades against the pad, feet flat and shoulder width.',
+      'Sit on the floor with your shoulder blades against the long edge of a flat bench.',
+      'Rest one dumbbell across your hip crease and hold it there with both hands.',
+      'Feet flat and shoulder width, close enough in that your shins go vertical at the top.',
       'Tuck your chin and keep your ribs down before you move.',
       'Drive through your heels until your hips are level with your knees.',
       'Squeeze hard at the top for a full second, then lower under control.',
-      'Stop when your hips are level. Do not arch past it.',
     ],
     commonMistakes: [
       'Arching the lower back at the top instead of finishing with the glutes. If you feel it in your back, you went too far.',
       'Pushing through the toes, which turns it into a quad exercise.',
-      'Feet too close in, which does the same thing.',
+      'Letting the bench slide away. Put it against a wall before the first rep.',
+      'Resting the dumbbell on the hip bones rather than the crease. Fold a towel under it if it digs in.',
     ],
     whyItIsInTheProgramme:
-      'It is the most direct glute exercise there is, and weak glutes are very often the real reason a lower back hurts — the back ends up doing the hips’ job.',
+      'It is the most direct glute exercise there is, and weak glutes are very often the real reason a lower back hurts — the back ends up doing the hips’ job. There is no hip thrust machine in the building, so a bench and one dumbbell do it instead.',
     painAreasItHelps: ['lowerBack', 'hips'],
     painAreasToMonitor: ['lowerBack'],
-    substituteExerciseIds: ['dumbbellRomanianDeadlift'],
+    substituteExerciseIds: ['dumbbellRomanianDeadlift', 'seatedHipAbduction'],
     mediaBrief: {
       startPosition:
-        'Seated on the floor with the upper back against a padded bench, knees bent, feet flat, hips low and a padded bar across the hips.',
+        'Seated on the floor in profile with the upper back against the edge of a flat bench, knees bent, feet flat, hips low and a dumbbell across the hip crease.',
       endPosition:
-        'Hips driven up so the torso is horizontal and level with the knees, shins vertical.',
+        'Hips driven up so the torso is horizontal and level with the knees, shins vertical, the dumbbell still held across the hips.',
       equipmentToDraw:
-        'A padded bench behind the shoulders and a padded weight bar across the hips.',
+        'A flat bench behind the shoulders and a single dumbbell lying across the hips, held by both hands.',
     },
   },
 
@@ -214,10 +291,10 @@ export const lowerBodyExercises: ExerciseDefinition[] = [
       'Letting the dumbbells drift away from the legs, which loads the lower back.',
     ],
     whyItIsInTheProgramme:
-      'This is where the hinge gets taught: light, slow, and drilled until it is automatic. Everything heavier later depends on it.',
+      'This is where the hinge gets taught: light, slow, and drilled until it is automatic. It stays on dumbbells for all twelve weeks — that is plenty of load for a first programme, and it never asks you to pick a barbell up off the floor.',
     painAreasItHelps: ['lowerBack', 'hips'],
     painAreasToMonitor: ['lowerBack'],
-    substituteExerciseIds: ['seatedLegCurl', 'hipThrust'],
+    substituteExerciseIds: ['seatedLegCurl', 'barbellRomanianDeadlift', 'dumbbellHipThrust'],
     mediaBrief: {
       startPosition:
         'Standing upright in profile with a dumbbell in each hand hanging at the front of the thighs, knees softly bent.',
@@ -229,7 +306,7 @@ export const lowerBodyExercises: ExerciseDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
-  // Earned later: the free weight progressions introduced in Phase 2 and 3.
+  // Earned later: the free weight progressions introduced in Phase 3.
   // ---------------------------------------------------------------------------
 
   {
@@ -249,20 +326,20 @@ export const lowerBodyExercises: ExerciseDefinition[] = [
       'Stand up without letting the knees drift inwards.',
     ],
     commonMistakes: [
-      'Cutting the depth short now that the box is gone. Go at least as low as you were touching before.',
+      'Cutting the depth short now that the bench is gone. Go at least as low as you were touching before.',
       'Letting the elbows flare out, which pulls the chest down with them.',
     ],
     whyItIsInTheProgramme:
-      'Same movement as the box version, without the box telling you where the bottom is. You have earned that by Phase 3.',
+      'Same movement as the version to a bench, without the bench telling you where the bottom is. You have earned that by Phase 3.',
     painAreasItHelps: ['knees', 'hips', 'ankles'],
     painAreasToMonitor: ['knees', 'lowerBack'],
-    substituteExerciseIds: ['gobletSquatToBox', 'legPress'],
+    substituteExerciseIds: ['gobletSquatToBox', 'splitSquat', 'legExtension'],
     mediaBrief: {
       startPosition:
         'Standing with feet slightly wider than the shoulders, holding a single dumbbell vertically at the chest.',
       endPosition:
         'Squatted to thighs parallel or below, torso upright, dumbbell still held at the chest.',
-      equipmentToDraw: 'One vertical dumbbell held at the chest. No box.',
+      equipmentToDraw: 'One vertical dumbbell held at the chest. No bench.',
     },
   },
 
@@ -300,6 +377,15 @@ export const lowerBodyExercises: ExerciseDefinition[] = [
     },
   },
 
+  // ---------------------------------------------------------------------------
+  // Described but not prescribed.
+  //
+  // The barbell Romanian deadlift has to be lifted out of a rack at hip height,
+  // and the building gym has bars without a rack anyone has confirmed. It stays
+  // here as the dumbbell RDL's first listed substitute, so that finding a rack
+  // is a one-line change to the Phase 3 template rather than a new exercise.
+  // ---------------------------------------------------------------------------
+
   {
     exerciseId: 'barbellRomanianDeadlift',
     displayName: 'Barbell Romanian Deadlift',
@@ -318,13 +404,13 @@ export const lowerBodyExercises: ExerciseDefinition[] = [
     ],
     commonMistakes: [
       'Going heavier than the hinge can hold. The back rounds long before the hamstrings run out.',
-      'Starting from the floor. Take it out of the rack.',
+      'Starting from the floor. If there is nothing to lift it out of at hip height, do the dumbbell version instead. That is not settling, it is the right call.',
     ],
     whyItIsInTheProgramme:
-      'The barbell version of a pattern you have been drilling for eight weeks. It is here because by Phase 3 the hinge is reliable, not because heavier is better.',
+      'It is not, yet. The barbell hinge is written up and ready for the day there is a rack to take a bar out of at hip height. Until then the dumbbell version does the same job and never asks you to lift a bar off the floor.',
     painAreasItHelps: ['lowerBack', 'hips'],
     painAreasToMonitor: ['lowerBack'],
-    substituteExerciseIds: ['dumbbellRomanianDeadlift', 'hipThrust'],
+    substituteExerciseIds: ['dumbbellRomanianDeadlift', 'dumbbellHipThrust'],
     mediaBrief: {
       startPosition:
         'Standing upright in profile holding a barbell across the front of the thighs with an overhand grip, knees softly bent.',

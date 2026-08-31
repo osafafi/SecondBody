@@ -84,31 +84,32 @@ describe('resolveSessionPlan — set counts across the phases', () => {
     const plan = resolveSessionPlan(buildRequest({ weekNumber }));
 
     expect(plan?.workingSetCount).toBe(expectedSetCount);
-    expect(findPlannedExercise(plan, 'legPress')?.workingSetCount).toBe(expectedSetCount);
+    expect(findPlannedExercise(plan, 'legExtension')?.workingSetCount).toBe(expectedSetCount);
   });
 });
 
 describe('resolveSessionPlan — week 1 is calibration', () => {
   it('marks the week and uses the template starting weights', () => {
     const plan = resolveSessionPlan(buildRequest({ weekNumber: 1 }));
-    const legPress = findPlannedExercise(plan, 'legPress');
+    const legExtension = findPlannedExercise(plan, 'legExtension');
 
     expect(plan?.isCalibrationWeek).toBe(true);
-    expect(legPress?.prescription).toMatchObject({
+    expect(legExtension?.prescription).toMatchObject({
       kind: 'weightAndReps',
-      prescribedWeightKilograms: 40,
+      prescribedWeightKilograms: 30,
       loadDecisionReason: 'firstTimeCalibration',
     });
   });
 
   it('treats an exercise with no history as a calibration in any week', () => {
-    // The barbell RDL first appears in Phase 3, so week 9 is its calibration.
-    const plan = resolveSessionPlan(buildRequest({ weekNumber: 9, sessionLetter: 'B' }));
-    const barbellRdl = findPlannedExercise(plan, 'barbellRomanianDeadlift');
+    // The machine shoulder press first appears in Phase 2, so week 5 is its
+    // calibration however long the programme has been running.
+    const plan = resolveSessionPlan(buildRequest({ weekNumber: 5, sessionLetter: 'B' }));
+    const shoulderPress = findPlannedExercise(plan, 'shoulderPressMachine');
 
-    expect(barbellRdl?.prescription).toMatchObject({
+    expect(shoulderPress?.prescription).toMatchObject({
       kind: 'weightAndReps',
-      prescribedWeightKilograms: 20,
+      prescribedWeightKilograms: 15,
       loadDecisionReason: 'firstTimeCalibration',
     });
   });
@@ -116,9 +117,9 @@ describe('resolveSessionPlan — week 1 is calibration', () => {
 
 describe('resolveSessionPlan — progression flows through into the plan', () => {
   const performanceHistoryByExerciseId: Record<string, ExercisePerformanceHistory> = {
-    legPress: buildPerformanceHistory({
-      exerciseId: 'legPress',
-      lastPrescribedWeightKilograms: 40,
+    legExtension: buildPerformanceHistory({
+      exerciseId: 'legExtension',
+      lastPrescribedWeightKilograms: 30,
       lastPrescribedRepRange: { minimumReps: 10, maximumReps: 12 },
       lastPerformedSets: buildSetsAtReps(2, 12),
     }),
@@ -129,8 +130,8 @@ describe('resolveSessionPlan — progression flows through into the plan', () =>
       buildRequest({ weekNumber: 2, performanceHistoryByExerciseId }),
     );
 
-    expect(findPlannedExercise(plan, 'legPress')?.prescription).toMatchObject({
-      prescribedWeightKilograms: 42.5,
+    expect(findPlannedExercise(plan, 'legExtension')?.prescription).toMatchObject({
+      prescribedWeightKilograms: 32.5,
       loadDecisionReason: 'increasedAfterFullRange',
       changeFromPreviousKilograms: 2.5,
     });
@@ -141,9 +142,9 @@ describe('resolveSessionPlan — progression flows through into the plan', () =>
       buildRequest({
         weekNumber: 2,
         performanceHistoryByExerciseId: {
-          legPress: buildPerformanceHistory({
-            exerciseId: 'legPress',
-            lastPrescribedWeightKilograms: 40,
+          legExtension: buildPerformanceHistory({
+            exerciseId: 'legExtension',
+            lastPrescribedWeightKilograms: 30,
             lastPerformedSets: buildSetsAtReps(2, 10).map((performedSet, index) =>
               index === 0 ? { ...performedSet, didCauseSharpPain: true } : performedSet,
             ),
@@ -151,11 +152,11 @@ describe('resolveSessionPlan — progression flows through into the plan', () =>
         },
       }),
     );
-    const legPress = findPlannedExercise(plan, 'legPress');
+    const legExtension = findPlannedExercise(plan, 'legExtension');
 
-    expect(legPress?.isFlaggedForPain).toBe(true);
-    expect(legPress?.prescription).toMatchObject({
-      prescribedWeightKilograms: 30,
+    expect(legExtension?.isFlaggedForPain).toBe(true);
+    expect(legExtension?.prescription).toMatchObject({
+      prescribedWeightKilograms: 22.5,
       loadDecisionReason: 'reducedAfterSharpPain',
     });
   });
@@ -190,9 +191,9 @@ describe('resolveSessionPlan — the deload week', () => {
 
     expect(plan?.isDeloadWeek).toBe(true);
     expect(plan?.workingSetCount).toBe(2);
-    // 40 kg less twenty percent is 32, rounded down to a selectable 30.
-    expect(findPlannedExercise(plan, 'legPress')?.prescription).toMatchObject({
-      prescribedWeightKilograms: 30,
+    // 30 kg less twenty percent is 24, rounded down to a selectable 22.5.
+    expect(findPlannedExercise(plan, 'legExtension')?.prescription).toMatchObject({
+      prescribedWeightKilograms: 22.5,
     });
   });
 
@@ -200,8 +201,8 @@ describe('resolveSessionPlan — the deload week', () => {
     const plan = resolveSessionPlan(buildRequest({ weekNumber: 7 }));
 
     expect(plan?.isDeloadWeek).toBe(false);
-    expect(findPlannedExercise(plan, 'legPress')?.prescription).toMatchObject({
-      prescribedWeightKilograms: 40,
+    expect(findPlannedExercise(plan, 'legExtension')?.prescription).toMatchObject({
+      prescribedWeightKilograms: 30,
     });
   });
 });
@@ -210,17 +211,17 @@ describe('resolveSessionPlan — coming back from a layoff', () => {
   it('applies the eighty percent multiplier on top of the week', () => {
     const plan = resolveSessionPlan(buildRequest({ weekNumber: 2, layoffLoadMultiplier: 0.8 }));
 
-    expect(findPlannedExercise(plan, 'legPress')?.prescription).toMatchObject({
-      prescribedWeightKilograms: 30,
+    expect(findPlannedExercise(plan, 'legExtension')?.prescription).toMatchObject({
+      prescribedWeightKilograms: 22.5,
     });
   });
 });
 
-describe('resolveSessionPlan — the conditional landmine press', () => {
+describe('resolveSessionPlan — the conditional shoulder press', () => {
   it('appears in Phase 2 Session B while the shoulders are clear', () => {
     const plan = resolveSessionPlan(buildRequest({ weekNumber: 6, sessionLetter: 'B' }));
 
-    expect(findPlannedExercise(plan, 'landminePress')).not.toBeNull();
+    expect(findPlannedExercise(plan, 'shoulderPressMachine')).not.toBeNull();
   });
 
   it('disappears entirely once shoulder pain is on the profile', () => {
@@ -228,7 +229,7 @@ describe('resolveSessionPlan — the conditional landmine press', () => {
       buildRequest({ weekNumber: 6, sessionLetter: 'B', activePainAreas: ['shoulders'] }),
     );
 
-    expect(findPlannedExercise(plan, 'landminePress')).toBeNull();
+    expect(findPlannedExercise(plan, 'shoulderPressMachine')).toBeNull();
   });
 
   it('leaves the rest of the session untouched when it is dropped', () => {
@@ -246,7 +247,7 @@ describe('resolveSessionPlan — the conditional landmine press', () => {
       buildRequest({ weekNumber: 6, sessionLetter: 'B', activePainAreas: ['knees'] }),
     );
 
-    expect(findPlannedExercise(plan, 'landminePress')).not.toBeNull();
+    expect(findPlannedExercise(plan, 'shoulderPressMachine')).not.toBeNull();
   });
 });
 
@@ -267,9 +268,10 @@ describe('resolveSessionPlan — the warm-up and the ramp set', () => {
     const plan = resolveSessionPlan(buildRequest({ weekNumber: 1 }));
 
     expect(plan?.rampSet).toEqual({
-      exerciseId: 'legPress',
+      exerciseId: 'gobletSquatToBox',
       reps: 10,
-      weightKilograms: 20,
+      // Half of 10 kg is 5, and the nearest dumbbell at or below that is 4.
+      weightKilograms: 4,
     });
   });
 

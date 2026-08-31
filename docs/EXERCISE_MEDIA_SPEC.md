@@ -78,7 +78,7 @@ Every generated file MUST:
 
 ```
 public/exercise-media/seatedCableRow.svg
-public/exercise-media/legPress.svg
+public/exercise-media/legExtension.svg
 public/exercise-media/dumbbellRomanianDeadlift.svg
 ```
 
@@ -110,7 +110,7 @@ node tools/exercise-media/generateExerciseSvg.mjs --all
 
 ```bash
 node tools/exercise-media/validateExerciseSvg.mjs           # everything
-node tools/exercise-media/validateExerciseSvg.mjs legPress  # one file
+node tools/exercise-media/validateExerciseSvg.mjs legExtension  # one file
 ```
 
 Checks, in order: file exists and parses as XML; `viewBox` is exactly right; no `width` or

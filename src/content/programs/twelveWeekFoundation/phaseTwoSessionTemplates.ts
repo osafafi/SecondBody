@@ -12,9 +12,9 @@ import type { SessionTemplate } from '@/types/programTypes';
  *    place as Session C's secondary press. This is the "incline dumbbell press
  *    replaces some machine pressing" from the phase description: the free weight
  *    version becomes the main press, the machine stays for the tired slot.
- * 2. **The landmine press appears**, and only if the shoulders have gone quiet.
- *    `requiresPainFreeAreas` is what enforces that — if shoulder pain is on the
- *    profile, the slot never renders.
+ * 2. **The machine shoulder press appears**, and only if the shoulders have gone
+ *    quiet. `requiresPainFreeAreas` is what enforces that — if shoulder pain is
+ *    on the profile, the slot never renders.
  * 3. **Session A does not change at all.** The goblet squat getting heavier is
  *    progression doing its job, not a different exercise.
  *
@@ -30,15 +30,15 @@ export const phaseTwoSessionTemplates: SessionTemplate[] = [
     exerciseSlots: [
       {
         orderIndex: 1,
-        exerciseId: 'legPress',
+        exerciseId: 'gobletSquatToBox',
         prescription: {
           kind: 'weightAndReps',
-          repRange: { minimumReps: 10, maximumReps: 12 },
+          repRange: { minimumReps: 8, maximumReps: 10 },
           isPerSide: false,
-          startingWeightKilograms: 40,
+          startingWeightKilograms: 10,
         },
         restSecondsBetweenSets: 90,
-        slotNote: null,
+        slotNote: 'Still to the bench. The bench goes away in Phase 3, not before.',
         requiresPainFreeAreas: [],
       },
       {
@@ -69,15 +69,15 @@ export const phaseTwoSessionTemplates: SessionTemplate[] = [
       },
       {
         orderIndex: 4,
-        exerciseId: 'gobletSquatToBox',
+        exerciseId: 'legExtension',
         prescription: {
           kind: 'weightAndReps',
-          repRange: { minimumReps: 8, maximumReps: 10 },
+          repRange: { minimumReps: 10, maximumReps: 12 },
           isPerSide: false,
-          startingWeightKilograms: 10,
+          startingWeightKilograms: 30,
         },
         restSecondsBetweenSets: 75,
-        slotNote: 'Still to the box. The box goes away in Phase 3, not before.',
+        slotNote: null,
         requiresPainFreeAreas: [],
       },
       {
@@ -168,16 +168,16 @@ export const phaseTwoSessionTemplates: SessionTemplate[] = [
       },
       {
         orderIndex: 5,
-        exerciseId: 'landminePress',
+        exerciseId: 'shoulderPressMachine',
         prescription: {
           kind: 'weightAndReps',
-          repRange: { minimumReps: 6, maximumReps: 8 },
-          isPerSide: true,
-          startingWeightKilograms: 20,
+          repRange: { minimumReps: 8, maximumReps: 10 },
+          isPerSide: false,
+          startingWeightKilograms: 15,
         },
         restSecondsBetweenSets: 75,
         slotNote:
-          'Your first overhead-ish press, and it only shows up because your shoulders have been quiet. The weight is the whole bar, so 20 kg means the empty bar. If a session is running long, this is the one to drop.',
+          'Your first overhead press, and it only shows up because your shoulders have been quiet. Start lighter than you think. If a session is running long, this is the one to drop.',
         requiresPainFreeAreas: ['shoulders'],
       },
       {
@@ -214,12 +214,12 @@ export const phaseTwoSessionTemplates: SessionTemplate[] = [
     exerciseSlots: [
       {
         orderIndex: 1,
-        exerciseId: 'hipThrust',
+        exerciseId: 'dumbbellHipThrust',
         prescription: {
           kind: 'weightAndReps',
           repRange: { minimumReps: 10, maximumReps: 12 },
           isPerSide: false,
-          startingWeightKilograms: 20,
+          startingWeightKilograms: 12,
         },
         restSecondsBetweenSets: 90,
         slotNote: null,
@@ -227,12 +227,12 @@ export const phaseTwoSessionTemplates: SessionTemplate[] = [
       },
       {
         orderIndex: 2,
-        exerciseId: 'chestSupportedRow',
+        exerciseId: 'chestSupportedDumbbellRow',
         prescription: {
           kind: 'weightAndReps',
           repRange: { minimumReps: 10, maximumReps: 12 },
           isPerSide: false,
-          startingWeightKilograms: 20,
+          startingWeightKilograms: 8,
         },
         restSecondsBetweenSets: 90,
         slotNote: null,
@@ -252,6 +252,19 @@ export const phaseTwoSessionTemplates: SessionTemplate[] = [
       },
       {
         orderIndex: 4,
+        exerciseId: 'seatedHipAbduction',
+        prescription: {
+          kind: 'weightAndReps',
+          repRange: { minimumReps: 12, maximumReps: 15 },
+          isPerSide: false,
+          startingWeightKilograms: 25,
+        },
+        restSecondsBetweenSets: 60,
+        slotNote: null,
+        requiresPainFreeAreas: [],
+      },
+      {
+        orderIndex: 5,
         exerciseId: 'chestPressMachine',
         prescription: {
           kind: 'weightAndReps',
@@ -265,7 +278,7 @@ export const phaseTwoSessionTemplates: SessionTemplate[] = [
         requiresPainFreeAreas: [],
       },
       {
-        orderIndex: 5,
+        orderIndex: 6,
         exerciseId: 'farmersCarry',
         prescription: {
           kind: 'loadedCarry',
@@ -277,7 +290,7 @@ export const phaseTwoSessionTemplates: SessionTemplate[] = [
         requiresPainFreeAreas: [],
       },
       {
-        orderIndex: 6,
+        orderIndex: 7,
         exerciseId: 'inclineTreadmillWalk',
         prescription: {
           kind: 'steadyStateCardio',

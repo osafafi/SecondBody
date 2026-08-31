@@ -11,8 +11,8 @@ import type { ExerciseDefinition } from '@/types/exerciseTypes';
 export const upperBodyPullExercises: ExerciseDefinition[] = [
   {
     exerciseId: 'seatedCableRow',
-    displayName: 'Seated Cable Row, Neutral Grip',
-    shortDisplayName: 'Cable Row',
+    displayName: 'Low Row, Neutral Grip',
+    shortDisplayName: 'Low Row',
     movementCategory: 'strength',
     movementPattern: 'horizontalPull',
     primaryMuscleGroups: ['midBack', 'latissimusDorsi'],
@@ -35,7 +35,7 @@ export const upperBodyPullExercises: ExerciseDefinition[] = [
       'This is the single highest-value exercise here for your neck. It trains precisely what sitting at a desk switched off.',
     painAreasItHelps: ['neck', 'shoulders'],
     painAreasToMonitor: ['lowerBack', 'shoulders'],
-    substituteExerciseIds: ['chestSupportedRow', 'latPulldown'],
+    substituteExerciseIds: ['chestSupportedDumbbellRow', 'latPulldown'],
     mediaBrief: {
       startPosition:
         'Seated at a low cable row with the feet braced on the platform, torso upright and arms extended forward holding a neutral-grip handle.',
@@ -72,7 +72,7 @@ export const upperBodyPullExercises: ExerciseDefinition[] = [
       'A neutral grip keeps your shoulders in a friendly position while you build the pulling strength that eventually makes chin-ups possible.',
     painAreasItHelps: ['neck', 'shoulders'],
     painAreasToMonitor: ['shoulders'],
-    substituteExerciseIds: ['seatedCableRow', 'chestSupportedRow'],
+    substituteExerciseIds: ['seatedCableRow', 'chestSupportedDumbbellRow'],
     mediaBrief: {
       startPosition:
         'Seated at a lat pulldown with the thighs under a restraint pad, arms fully extended overhead holding a neutral-grip attachment.',
@@ -84,37 +84,39 @@ export const upperBodyPullExercises: ExerciseDefinition[] = [
   },
 
   {
-    exerciseId: 'chestSupportedRow',
-    displayName: 'Chest-Supported Row',
+    exerciseId: 'chestSupportedDumbbellRow',
+    displayName: 'Chest-Supported Dumbbell Row',
     shortDisplayName: 'Supported Row',
     movementCategory: 'strength',
     movementPattern: 'horizontalPull',
     primaryMuscleGroups: ['midBack', 'latissimusDorsi'],
     secondaryMuscleGroups: ['rearDeltoids', 'biceps', 'forearmsAndGrip'],
-    requiredEquipmentIds: ['chestSupportedRowMachine'],
-    loadingStyle: 'weightStackMachine',
+    requiredEquipmentIds: ['dumbbells', 'adjustableBench'],
+    loadingStyle: 'dumbbellPair',
     formCues: [
-      'Set the seat so the handles line up with the middle of your chest.',
+      'Set an adjustable bench to about 30 degrees and lie face down along it.',
+      'Let your chest take your weight and let the dumbbells hang straight down.',
       'Keep your chest pinned to the pad for every single rep.',
-      'Pull the handles back, leading with the elbows, and pinch the shoulder blades at the end.',
-      'Return slowly and let the shoulder blades travel forward before you pull again.',
+      'Row the dumbbells up, leading with the elbows, and pinch the shoulder blades at the end.',
+      'Lower slowly and let the shoulder blades travel forward before you pull again.',
     ],
     commonMistakes: [
-      'Peeling the chest off the pad to move more weight. That is the one thing this machine exists to prevent.',
+      'Peeling the chest off the pad to move more weight. Staying on the pad is the entire point of this one.',
       'Shrugging at the end of the pull instead of squeezing the blades together.',
+      'Setting the bench too upright, which turns it into a shrug and hides the mid-back.',
     ],
     whyItIsInTheProgramme:
-      'All the mid-back benefit of a row with literally zero load on your lower back. On a day when the back is grumpy, this is the row you can always do.',
+      'All the mid-back benefit of a row with literally zero load on your lower back. On a day when the back is grumpy, this is the row you can always do — and lying on the bench means you cannot cheat it with your hips even if you want to.',
     painAreasItHelps: ['neck', 'shoulders', 'lowerBack'],
     painAreasToMonitor: ['shoulders'],
     substituteExerciseIds: ['seatedCableRow', 'latPulldown'],
     mediaBrief: {
       startPosition:
-        'Seated at a chest-supported row machine, chest against an angled pad, arms extended forward holding two handles.',
+        'Lying face down in profile on a bench inclined to about 30 degrees, a dumbbell hanging straight down from each hand below the bench.',
       endPosition:
-        'Handles drawn back past the ribs with the shoulder blades pinched, chest still on the pad.',
+        'Dumbbells rowed up past the ribs with the elbows high and the shoulder blades pinched, chest still on the pad.',
       equipmentToDraw:
-        'A chest-supported row machine: an angled chest pad, a seat and two horizontal handles on pivoting arms.',
+        'An adjustable bench inclined to roughly 30 degrees with the figure face down on it, and two dumbbells hanging beneath.',
     },
   },
 

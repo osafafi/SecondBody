@@ -1,0 +1,124 @@
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  /* 44px is the smallest target that is reliably hittable with a thumb. This app
+     is used mid-set, with sweaty hands. Do not shrink it. */
+  min-height: 44px;
+  padding: 0 var(--space-5);
+
+  border-radius: var(--radius-medium);
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+  isolation: isolate;
+
+  transition:
+    transform var(--motion-fast) var(--motion-easing),
+    opacity var(--motion-fast) var(--motion-easing);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 3px;
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* --- Tone: primary --------------------------------------------------------- */
+
+.tonePrimary {
+  background: linear-gradient(135deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  box-shadow: 0 8px 24px -8px rgba(var(--surface-tint-rgb), 0.7);
+}
+
+.tonePrimary::before {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.05));
+}
+
+/* --- Tone: secondary ------------------------------------------------------- */
+
+.toneSecondary {
+  background: linear-gradient(
+    150deg,
+    rgba(var(--surface-tint-rgb), 0.16),
+    rgba(var(--surface-tint-rgb), 0.05)
+  );
+  backdrop-filter: blur(14px);
+}
+
+.toneSecondary::before {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04));
+}
+
+/* --- Tone: danger ---------------------------------------------------------- */
+/* For destructive or stop-the-session actions only. */
+
+.toneDanger {
+  background: linear-gradient(135deg, var(--danger-gradient-start), var(--danger-gradient-end));
+  box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.6);
+}
+
+.toneDanger::before {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.05));
+}
+
+/* --- Tone: ghost ----------------------------------------------------------- */
+/* No surface at all. For tertiary actions that should not draw the eye. */
+
+.toneGhost {
+  color: var(--text-secondary);
+}
+
+.toneGhost::before {
+  background: none;
+}
+
+.toneGhost:active:not(:disabled) {
+  color: var(--text-primary);
+}
+
+/* --- Size ------------------------------------------------------------------ */
+
+.sizeLarge {
+  min-height: 56px;
+  padding: 0 var(--space-6);
+  font-size: var(--text-heading-size);
+  border-radius: var(--radius-large);
+}
+
+.isFullWidth {
+  display: flex;
+  width: 100%;
+}

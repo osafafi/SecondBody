@@ -33,3 +33,7 @@ coverage/
 .firebase/
 firebase-debug.log
 firestore-debug.log
+
+# Local Claude Code settings (machine-specific). launch.json IS committed, since
+# it tells any future session how to start the dev server.
+.claude/settings.local.json

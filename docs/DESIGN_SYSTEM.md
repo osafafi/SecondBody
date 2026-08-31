@@ -65,24 +65,56 @@ export type ColorPaletteDefinition = {
 
   // Exercise illustration colours. The generated SVGs consume these, which is how
   // exercise animations recolour themselves when the palette changes.
+  // The exhaustive list an SVG may reference is EXERCISE_MEDIA_SPEC.md section 4 —
+  // keep the two in step.
   muscleBodyFill: string;
   muscleBodyStroke: string;
   muscleHighlightPrimary: string;
   muscleHighlightSecondary: string;
+  muscleEquipmentFill: string;
+  muscleEquipmentStroke: string;
+  muscleMotionTrail: string;
 };
 ```
 
+The live definition is `src/theme/colorPaletteTypes.ts`.
+
 `applyColorPaletteToDocument(palette)` writes each field to `:root` as a CSS custom
 property using a predictable kebab-case name: `brandGradientStart` becomes
-`--brand-gradient-start`.
+`--brand-gradient-start`. It also stamps `data-palette="<paletteId>"` on the root element,
+so CSS and code can branch on the active palette without reading every property back.
 
-**Default palette: `purpleBlue`.**
+**Default palette: `purpleBlue`.** Also shipping: `emeraldTeal`, `amberCrimson`.
 
 ### The bit worth noticing
 
 Because the generated exercise SVGs reference `var(--muscle-highlight-primary)` rather than
 literal colours, **switching palette recolours the exercise animations too**. Do not break
 this by baking colours into an SVG. See [EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md).
+
+### What "no hard-coded colours" actually forbids
+
+The rule is about **palette** colours. Two things are still allowed, because they are
+material properties rather than theme colours, and they look correct in every palette:
+
+- **Neutral white overlays** (`rgba(255, 255, 255, α)`) for specular highlights, such as the
+  gradient hairline borders on surfaces.
+- **Neutral black overlays** (`rgba(0, 0, 0, α)`) for shadows and recessed insets.
+
+Anything with a hue must come from the palette. When you need a translucent wash of a
+semantic colour, derive it rather than writing a new literal:
+
+```css
+/* Correct — follows the palette. */
+background: color-mix(in srgb, var(--success-gradient-start) 26%, transparent);
+
+/* Wrong — frozen to one palette's green. */
+background: rgba(52, 211, 153, 0.26);
+```
+
+There is exactly one documented exception to the whole rule, in
+`ColorPalettePicker.tsx`: the swatches preview palettes that are _not_ currently applied, so
+their colours cannot come from the document's custom properties and are passed inline.
 
 ## 4. Surfaces: how "no flat cards" is enforced
 

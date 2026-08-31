@@ -1,0 +1,34 @@
+.shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+
+  /* Two soft radial washes behind everything, so the background is never a flat
+     block of colour. They sit behind all content and never scroll. */
+  background:
+    radial-gradient(120% 60% at 12% 0%, rgba(var(--surface-tint-rgb), 0.22), transparent 60%),
+    radial-gradient(
+      100% 50% at 92% 8%,
+      color-mix(in srgb, var(--accent-gradient-end) 18%, transparent),
+      transparent 55%
+    ),
+    var(--background-deep);
+  background-attachment: fixed;
+}
+
+.scrollableContent {
+  flex: 1;
+  padding-inline: var(--screen-horizontal-padding);
+  padding-top: var(--safe-area-top);
+
+  /* Leaves room for the floating bottom navigation so the last element on a
+     screen is never trapped underneath it. */
+  padding-bottom: calc(var(--bottom-navigation-height) + var(--safe-area-bottom) + var(--space-6));
+
+  /* The app is mobile-only, but a phone-width column stays readable if it is
+     ever opened on a tablet or a desktop browser during development. */
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
+}

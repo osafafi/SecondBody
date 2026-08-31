@@ -1,0 +1,83 @@
+/*
+ * Design tokens that do NOT change with the colour palette.
+ *
+ * Colours are deliberately absent from this file. They are written onto :root at
+ * runtime by `applyColorPaletteToDocument.ts`, which is what lets the palette be
+ * switched from Settings without a reload.
+ *
+ * See docs/DESIGN_SYSTEM.md for what each token is for.
+ */
+
+:root {
+  /* --- Radii ------------------------------------------------------------- */
+  /* "Subtle rounded" was the brief. Nothing is a pill unless it is genuinely
+     circular. */
+  --radius-small: 10px;
+  --radius-medium: 14px;
+  --radius-large: 20px;
+  --radius-xlarge: 28px;
+  --radius-full: 999px;
+
+  /* --- Spacing ----------------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* --- Type -------------------------------------------------------------- */
+  --text-display-size: 34px;
+  --text-display-weight: 700;
+  --text-title-size: 24px;
+  --text-title-weight: 650;
+  --text-heading-size: 18px;
+  --text-heading-weight: 600;
+  --text-body-size: 15px;
+  --text-body-weight: 450;
+  --text-label-size: 13px;
+  --text-label-weight: 500;
+  --text-caption-size: 11px;
+  --text-caption-weight: 500;
+
+  --line-height-tight: 1.15;
+  --line-height-normal: 1.5;
+
+  /* --- Motion ------------------------------------------------------------ */
+  /* Decisive out, soft landing. */
+  --motion-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-fast: 140ms;
+  --motion-medium: 260ms;
+  --motion-slow: 420ms;
+
+  /* --- Layout ------------------------------------------------------------ */
+  --bottom-navigation-height: 68px;
+  --screen-horizontal-padding: var(--space-4);
+
+  /* Safe areas, so the app does not sit under the iPhone home indicator or
+     inside the notch when installed to the home screen. */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/*
+ * Anyone who has asked their system to reduce motion gets a working app with no
+ * animation. Motion is decoration here; nothing depends on it.
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-medium: 0ms;
+    --motion-slow: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

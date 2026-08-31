@@ -50,8 +50,10 @@ rather than showing an empty screen.
 **Export to CSV.** All sessions and metrics out as a file. Cheap insurance against ever
 feeling locked in, and easy to build.
 
-**More palettes.** The architecture supports it fully — each palette is one file. Obvious
-candidates: emerald-teal, amber-crimson, monochrome.
+**More palettes.** Three ship today (purple-blue, emerald-teal, amber-crimson). Adding
+another is one file in `src/theme/palettes/` plus a line in the registry — it then appears
+in Settings on its own. Obvious next candidates: monochrome, and a high-contrast variant for
+reading the prescribed weight in bright gym lighting.
 
 ## Deliberately not doing
 

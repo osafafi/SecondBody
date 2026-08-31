@@ -1,8 +1,13 @@
 /*
  * Global resets and base document styling.
  *
- * Design tokens, palettes and gradient surfaces live in `src/theme/` and arrive
- * in milestone M1. Keep this file limited to resets and document-level rules.
+ * Colours here read from the CSS custom properties written by
+ * `applyColorPaletteToDocument.ts`. The hard-coded fallbacks are the default
+ * purple-blue values, used only in the instant before the palette is applied
+ * and if JavaScript fails entirely. They are the one place in the codebase a
+ * literal colour is acceptable.
+ *
+ * Design tokens live in `src/theme/tokens.css`.
  */
 
 *,
@@ -30,14 +35,17 @@ body {
     'Segoe UI',
     Roboto,
     sans-serif;
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--line-height-normal);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 
   /* Dark-only application. There is no light theme by design. */
   color-scheme: dark;
-  background-color: #0b0a14;
-  color: #ece9f6;
+  background-color: var(--background-deep, #0b0a14);
+  color: var(--text-primary, #ece9f6);
 
   /* This app is used one-handed, in a gym. Never allow accidental text selection
      or double-tap zoom while tapping through sets. */
@@ -64,13 +72,20 @@ svg {
   max-width: 100%;
 }
 
-.app-placeholder {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  text-align: center;
-  padding: 1.5rem;
+h1,
+h2,
+h3,
+h4 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+/* Numbers that change in place — timers, weights, rep counts — must not jitter. */
+.tabularNumbers {
+  font-variant-numeric: tabular-nums;
 }

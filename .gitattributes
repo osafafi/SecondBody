@@ -1,0 +1,9 @@
+# Normalise line endings so the repository always stores LF, regardless of the
+# platform a contributor is on. Prettier is configured with endOfLine: lf to match.
+* text=auto eol=lf
+
+# Binary assets must never be touched.
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary

@@ -9,14 +9,14 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ## Current state
 
-|                       |                                                                    |
-| --------------------- | ------------------------------------------------------------------ |
-| **Current milestone** | M8 — habits and settings                                           |
-| **Status**            | Complete. Awaiting review on `feat/habits-and-settings`            |
-| **Current branch**    | `feat/habits-and-settings`, branched off `main`                    |
-| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs are real |
-| **Backend wired?**    | Yes. Every collection in the data model now has a caller both ways |
-| **Deployed?**         | No — arrives in M9                                                 |
+|                       |                                                                                                                                      |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Current milestone** | M9 — deployment                                                                                                                      |
+| **Status**            | Complete. Awaiting review on `feat/pages-deployment`                                                                                 |
+| **Current branch**    | `feat/pages-deployment`, branched off `main`                                                                                         |
+| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs are real                                                                   |
+| **Backend wired?**    | Yes. Every collection in the data model now has a caller both ways                                                                   |
+| **Deployed?**         | The workflow is written and green locally. **Not yet run** — it needs Omar to push, enable Pages, and add one secret. See session 14 |
 
 > **Read session 6 before touching the exercise animations.** The generated SVGs are gone.
 > The media is now sourced from an open dataset, and it is **not this project's to
@@ -24,16 +24,22 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ### What to do next
 
-**M8 is finished, and with it the app is feature-complete for daily use.** Review
-`feat/habits-and-settings`, then start **M9 — deployment** on `feat/pages-deployment`. That
-is the milestone that puts it on his phone, and everything left on the list is waiting
-behind it.
+**M9 is written but not yet run, and it cannot be finished by an agent.** Three things are
+Omar's, in this order, and the app is not on a phone until all three are done:
 
-**The one thing to do before anything else has not changed since M5: walk a real session in
-a gym.** Every screen in M5, M6, M7 and M8 has been read back panel by panel and every rule
-has a test, but nobody has logged a real set on a real phone with a real Firestore behind
-it. It is Omar's to do — the app needs his Google account to get past the gate — and it gets
-easier the moment M9 lands, which is an argument for doing M9 next rather than for waiting.
+1. **Push and open the pull request** for `feat/pages-deployment`.
+2. **Settings -> Pages -> Source: GitHub Actions** — DEPLOYMENT.md section 3.
+3. **Add the `FIREBASE_SERVICE_ACCOUNT` secret** — SETUP_FIREBASE.md step 8. This is new in
+   M9 and it is the one genuinely new setup task. The deploy fails without it, deliberately.
+
+**Then walk a real session in a gym.** This has been the top of this list since M5 and it is
+still the top of it. Every screen in M5 through M8 has been read back panel by panel and
+every rule has a test, but nobody has logged a real set on a real phone with a real
+Firestore behind it. M9 was the thing standing in the way; once the Pages URL exists, it is
+just a case of going.
+
+**Then M10 — the training journal**, on `feat/training-journal`. It is the last milestone on
+the list.
 
 **There are no `ComingSoonPanel`s left, and the component is gone.** M8 was the milestone it
 was supposed to die in, so it was deleted rather than left as dead code with a doc comment
@@ -63,10 +69,19 @@ The write-back half (a review that can adjust the programme) is deliberately not
 yet. See the M10 row and the session 12 entry below for the shape of it and for why it sits
 after deployment rather than before.
 
-**Every Firebase setup step is done and verified.** The project exists (`second-body-osi`,
-me-central1), Google Sign-In is on, Firestore is created, the rules are deployed and the
-authorised-domain list is correct. Do not ask Omar for any of it again — read sessions 8 and
-9 first.
+**Every Firebase setup step is done and verified, except the one M9 added.** The project
+exists (`second-body-osi`, me-central1), Google Sign-In is on, Firestore is created, the
+rules are deployed and the authorised-domain list is correct — do not ask Omar for any of
+that again, read sessions 8 and 9 first. **The new one is step 8**, the
+`FIREBASE_SERVICE_ACCOUNT` secret, and it is outstanding.
+
+**The security rules are no longer deployed by hand.** Every push to `main` redeploys them,
+from the same run and the same commit as the app, before the Pages deploy. If you change
+`firestore.rules`, that is the whole procedure — do not run `firebase deploy` locally, the
+next push would overwrite it anyway. The one case that needs care is a rules change that
+_removes_ a permission the live app still uses, which needs two releases;
+[DEPLOYMENT.md section 6](DEPLOYMENT.md#6-why-the-rules-deploy-from-ci-and-in-that-order)
+explains why and in which order.
 
 ---
 
@@ -85,7 +100,7 @@ One branch and one pull request each. Do not mix milestones.
 | M6  | `feat/dashboard-and-schedule`  | Today screen, calendar, 48-hour recovery awareness                                            | **Done**    |
 | M7  | `feat/progress-tracking`       | Weight trend, volume charts, personal records                                                 | **Done**    |
 | M8  | `feat/habits-and-settings`     | Daily habit checklist, quick weigh-in, settings screen, profile editing                       | **Done**    |
-| M9  | `feat/pages-deployment`        | Deploy workflow, web manifest, icons, production Firebase config                              | Not started |
+| M9  | `feat/pages-deployment`        | Deploy workflow, Firestore rules deployed from CI, web manifest, generated icons              | **Done**    |
 | M10 | `feat/training-journal`        | Free-text journal, the coaching export bundle, and the `coach-review` skill                   | Not started |
 
 ### M10, and why it is last
@@ -1074,3 +1089,90 @@ change, raise it with him.
   weight gain around the neck and chest. **Mentioned once. Do not bring it up again.**
 - A tape measure was recommended and declined for now. The fields exist for when he changes
   his mind. Do not nag about this either.
+
+---
+
+### Session 14 - 2026-08-31 - M9 deployment
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/pages-deployment`, branched off `main`
+
+The milestone that puts it on a phone. Three parts: a deploy workflow, an icon and a web
+manifest — plus one change Omar asked for that was not on the original M9 list, and which
+turned out to be the most interesting part of it.
+
+**Done**
+
+- **`.github/workflows/deploy.yml`** — three jobs, `build` -> `deploy-firestore-rules` ->
+  `deploy-pages`, each depending on the one before. Nothing deploys until formatting,
+  type-check, lint, 978 tests, the media verifier, the icon verifier and the build have all
+  passed.
+- **The security rules now deploy from CI, in the same run as the app.** This is the change
+  Omar asked for, and the reason is his: on a previous project the rules were deployed by
+  hand, drifted from what was live, and the mismatch was only found by hitting it. Three
+  decisions make the guarantee hold, all in DEPLOYMENT.md section 6 — rules deploy on
+  **every** push rather than only when the file changed, they deploy **before** Pages, and
+  the workflow is `cancel-in-progress: false` so a superseding push cannot kill a
+  half-finished release.
+- **The app icon, generated from code** — `tools/appIcon/`. A three-quarter progress ring
+  with a chevron climbing out of it: the rest timer and the number going up, which are the
+  two shapes already on the app's screens the most. Seven PNGs covering the three ways
+  platforms crop an icon. There is no image dependency; the tool contains a small
+  supersampling rasteriser and a PNG encoder, for the same reason the rest-timer chime is
+  two synthesised sine waves rather than an audio file.
+- **`npm run icons:generate` and `npm run icons:verify`**, mirroring the existing
+  `media:copy` / `media:verify` pair. The verifier decodes the committed PNGs and compares
+  **pixels**, not file bytes — zlib's exact output is not stable across Node versions, and a
+  byte comparison would fail the build on a Node upgrade while the icons were unchanged.
+- **`public/manifest.webmanifest`** — standalone, portrait, the palette's deep background as
+  both theme and splash colour, and four icon entries covering `any` and `maskable`.
+- **`index.html`** gained the manifest link, three icon links and the unprefixed
+  `mobile-web-app-capable`. Every path is relative, like every other asset path in the build.
+- **12 new tests, 978 in total, up from 966.** All of them cover the icon tooling, including one that renders the maskable
+  variant and measures how far the mark actually reaches, and one that reads
+  `purpleBluePalette.ts` and fails if the icon's colours drift from it.
+- **Verified from a sub-path, not just from root.** The built `dist/` was served from
+  `/second-body/` and every asset, both favicons, the apple-touch icon and all four manifest
+  icons returned 200, with `start_url` and `scope` resolving to the sub-path and no console
+  errors. This is the claim DEPLOYMENT.md section 4 makes, and it is now the claim the
+  manifest depends on too.
+
+**Decisions made and why**
+
+| Decision                                                                | Reason                                                                                                                                                                                                                                                        |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The rules deploy on every push, not only when `firestore.rules` changed | Conditioning on the diff reintroduces exactly the drift this exists to prevent — most obviously when somebody edits the rules in the Firebase console. Redeploying identical rules is a no-op. `main` always wins                                             |
+| Rules before Pages                                                      | A new app version that needs a permission must never meet the old ruleset. Rule changes are almost always additive, and an additive rule a minute early is harmless to the version still live                                                                 |
+| A service account key, against what DATA_MODEL.md used to say           | Omar's call, made with the alternatives in front of him. Workload Identity Federation would have avoided a long-lived credential but costs half an hour of `gcloud` setup. DATA_MODEL section 5 was rewritten rather than left contradicting the workflow     |
+| The key is scoped to Firebase Rules Admin and nothing else              | It publishes rules. It has no reason to read the database, and the narrow role is what makes a leak a failed deploy rather than an incident                                                                                                                   |
+| A missing secret fails the deploy rather than skipping the rules job    | Skipping silently and shipping the app against whatever rules happen to be live is precisely the failure this milestone exists to remove                                                                                                                      |
+| `firebase-tools` is pinned to an exact version in the workflow          | A CLI release must not be able to change what a deploy does. The pin matches the version in SETUP_FIREBASE.md; bump both together                                                                                                                             |
+| The icon is code, not a committed image from a design tool              | It shows up in a pull request as a diff of named numbers rather than "binary file changed", it cannot drift from the palette because a test reads the palette, and it costs no native image dependency                                                        |
+| The manifest has **no** `id`                                            | `id` resolves against the _origin_, not the manifest URL. `"./"` would have claimed `https://<username>.github.io/` — the whole account, shared with every other project hosted there. Omitted, it defaults to `start_url`, which resolves to `/second-body/` |
+| `apple-touch-icon` is the full-bleed variant, not the rounded one       | iOS ignores the manifest's icons entirely, applies its own corner mask, and renders transparency as black. A squircle with transparent corners would have shipped a black-cornered icon                                                                       |
+| No service worker, still                                                | M9 was not the milestone to reopen that. Offline remains descoped — DATA_MODEL section 7 and the ROADMAP row both still stand                                                                                                                                 |
+
+**Left for Omar**
+
+Three things, none of which an agent can do, in order:
+
+1. Push `feat/pages-deployment` and open the pull request.
+2. **Settings -> Pages -> Source: GitHub Actions.** Not "Deploy from a branch".
+3. **Add the `FIREBASE_SERVICE_ACCOUNT` secret** — SETUP_FIREBASE.md step 8, which is new.
+   The `deploy-firestore-rules` job fails with a message naming the step until this is done.
+
+The first deploy is also the first time the workflow has ever run. If something in it is
+wrong, that is where it will show up — the `build` job is the same set of checks CI already
+runs green on pull requests, so the new ground is the two deploy jobs.
+
+**Not done, on purpose**
+
+- **The rules are not unit tested.** Deploying them from CI guarantees that what is live
+  matches the repository; it does not check that what is in the repository is right. The
+  Firebase emulator plus `@firebase/rules-unit-testing` would do that, at the cost of a JDK
+  in CI and a new dev dependency. Worth considering the first time the rules become more
+  than the eight lines they are today.
+- **Nothing was changed about offline, notifications or a native shell.** Omar asked what an
+  Android build would take, decided against it for now, and asked to stick to the plan. The
+  ROADMAP row saying a PWA is enough is therefore left standing rather than quietly
+  rewritten.

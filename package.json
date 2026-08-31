@@ -17,6 +17,8 @@
     "test:watch": "vitest",
     "media:copy": "node tools/exercise-media/copyDatasetGifs.mjs",
     "media:verify": "node tools/exercise-media/verifyExerciseMedia.mjs",
+    "icons:generate": "node tools/appIcon/generateAppIcons.mjs",
+    "icons:verify": "node tools/appIcon/verifyAppIcons.mjs",
     "verify": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {

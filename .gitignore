@@ -39,6 +39,15 @@ coverage/
 firebase-debug.log
 firestore-debug.log
 
+# Service account keys. Nothing here generates one — the only key that exists is a
+# GitHub Actions secret and never touches a working copy — but the filenames the
+# Google console hands out are covered in case one is ever downloaded by accident.
+# See docs/DATA_MODEL.md section 5.
+serviceAccount*.json
+service-account*.json
+*-firebase-adminsdk-*.json
+gcloud-service-key.json
+
 # Local Claude Code settings (machine-specific). launch.json IS committed, since
 # it tells any future session how to start the dev server.
 .claude/settings.local.json

@@ -53,5 +53,11 @@ jobs:
       - name: Verify exercise animations
         run: npm run media:verify
 
+      # Catches artwork that was changed without `npm run icons:generate` being
+      # run, which would otherwise ship an icon the repository does not describe.
+      # The test suite runs the same check — this is the step that names the file.
+      - name: Verify app icons
+        run: npm run icons:verify
+
       - name: Build
         run: npm run build

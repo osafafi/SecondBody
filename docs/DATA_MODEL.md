@@ -240,7 +240,7 @@ any index declaration. One person owns one subtree, and every query the reposito
 single-field so Firestore indexes it automatically. `firebase.json` ships rules and nothing
 else.
 
-## 5. Why the Firebase config is not a secret
+## 5. What is and is not a secret here
 
 The `firebaseConfig` object committed to this repository looks alarming in a public repo.
 It is not a credential.
@@ -258,9 +258,36 @@ controlled entirely by:
 2. **Authorised domains** in Firebase Auth — sign-in only works from the GitHub Pages
    domain and `localhost`. A copy of this config pasted into another site cannot sign in.
 
-What genuinely _would_ be a secret is a service account key (`serviceAccount.json`). One of
-those must never enter this repository. `.gitignore` covers the usual filenames, but the
-real defence is not generating one — this app has no server and does not need one.
+### The one thing that is a secret
+
+A **service account key** is a real credential: it authenticates as the project, and the
+rules in section 4 do not apply to it. One exists, and it is worth being precise about why.
+
+Deploying the security rules needs credentials. Until M9 that happened from a laptop, by
+hand, which is how a project ends up with rules live that do not match the rules in the
+commit that is live. The deploy now runs in CI, so CI needs to authenticate, so a key
+exists.
+
+| Where it lives                                       | Notes                                                                                                                     |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| The `FIREBASE_SERVICE_ACCOUNT` GitHub Actions secret | The only secret this repository has. Write-only in the GitHub UI once saved                                               |
+| On a CI runner, for the length of one job            | Written to the runner's temporary disk from an environment variable, never onto a command line, and deleted afterwards    |
+| **Never in this repository**                         | `.gitignore` covers the filenames the Google console suggests, but the real defence is that nothing generates one locally |
+
+It is scoped to publishing rules — Firebase Rules Admin, and nothing else. It cannot read
+the database, and it cannot read the data (see section 3: there is nothing in Firestore but
+one user's training log, and the key does not grant access to it).
+
+**If it ever leaks, revoke it.** Google Cloud console -> IAM & Admin -> Service Accounts ->
+Keys -> delete, then create a new one and update the GitHub secret. Nothing in the app
+breaks in the meantime; only the deploy stops working, which is the correct failure
+direction.
+
+An earlier version of this document said no service account key should ever exist for this
+project. That was true while rules were deployed by hand, and the trade was made
+deliberately: one narrow credential in one secret store, in exchange for the app and its
+security rules never disagreeing again. See
+[DEPLOYMENT.md section 6](DEPLOYMENT.md#6-why-the-rules-deploy-from-ci-and-in-that-order).
 
 ## 6. Cost
 

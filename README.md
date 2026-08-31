@@ -43,6 +43,8 @@ can test on the device you will actually use.
 | `npm run format` / `format:check` | Prettier                                                   |
 | `npm run media:copy`              | Copy matched exercise animations out of the cloned dataset |
 | `npm run media:verify`            | Check the committed animations against the match table     |
+| `npm run icons:generate`          | Redraw the app icons in `public/icons/` from the artwork   |
+| `npm run icons:verify`            | Check the committed app icons still match the artwork      |
 
 ## Documentation
 
@@ -75,4 +77,4 @@ This repository is public. **No personal data is stored in it.** Body weight, se
 and measurements all live in Firebase, protected by security rules that allow exactly one
 authenticated account to read or write them. The Firebase web config values that do appear
 in this repo are public identifiers, not secrets — see
-[docs/DATA_MODEL.md](docs/DATA_MODEL.md#why-the-firebase-config-is-not-a-secret).
+[docs/DATA_MODEL.md](docs/DATA_MODEL.md#5-what-is-and-is-not-a-secret-here).

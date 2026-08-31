@@ -95,6 +95,10 @@ material properties rather than theme colours, and they look correct in every pa
 - **Neutral white overlays** (`rgba(255, 255, 255, α)`) for specular highlights, such as the
   gradient hairline borders on surfaces.
 - **Neutral black overlays** (`rgba(0, 0, 0, α)`) for shadows and recessed insets.
+- **Third-party brand marks**, which have fixed colours by definition. A logo that
+  recoloured itself with the palette would stop being that logo. There is exactly one in
+  the application — the Google "G" in `src/components/icons/GoogleGlyph.tsx` — and its
+  hexes live inside that component and nowhere else.
 
 Anything with a hue must come from the palette. When you need a translucent wash of a
 semantic colour, derive it rather than writing a new literal:

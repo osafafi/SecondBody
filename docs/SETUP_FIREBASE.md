@@ -76,12 +76,16 @@ explanation. Security comes from the rules in step 5 and the domain restriction 
 
 ## Step 5 — Deploy the security rules
 
-The rules live in `firestore.rules` in this repository. Deploy them:
+The rules live in `firestore.rules` at the repository root, alongside `firebase.json`
+(which points the deploy at that file) and `.firebaserc` (which pins the project id, so
+there is no interactive `firebase use --add` step). All three are committed. Deploy them:
 
 ```bash
-firebase use --add            # select the second-body project, alias it "default"
 firebase deploy --only firestore:rules
 ```
+
+The CLI compiles the rules before uploading, so a syntax error fails the deploy rather than
+shipping a broken ruleset. A successful run ends with `released rules to cloud.firestore`.
 
 Then verify in the console under **Firestore -> Rules** that the published rules match the
 file. Until this succeeds the database is closed, which is the correct failure direction.
@@ -90,14 +94,26 @@ file. Until this succeeds the database is closed, which is the correct failure d
 
 This is the step people skip, and it is the one doing real security work.
 
-**Authentication -> Settings -> Authorised domains.** The list should contain only:
+**Authentication -> Settings -> Authorised domains.** Add your GitHub Pages host:
 
-- `localhost`
 - `<your-github-username>.github.io`
 
-**Delete anything else**, including the default `*.firebaseapp.com` and `*.web.app` entries
-if you are not using Firebase Hosting. With this list locked down, someone who copies the
-config out of the public repo still cannot sign in from their own site.
+The finished list has four entries, and that is correct:
+
+| Domain                         | Why it is there                                                                                                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `localhost`                    | Local development                                                                                                                                                  |
+| `<username>.github.io`         | Where the app is actually served                                                                                                                                   |
+| `<project-id>.firebaseapp.com` | **Do not delete.** This is the `authDomain` in the config, and it hosts the OAuth redirect handler that Google Sign-In bounces through. Deleting it breaks sign-in |
+| `<project-id>.web.app`         | The Firebase Hosting alias. Unused here, and not removable separately                                                                                              |
+
+The console hides the delete icon on the last two on purpose. Neither is a hole: both are
+Google-controlled hosts belonging to **this project**, and serving a page from either one
+requires access to the project itself. Someone who copies the config out of the public repo
+still cannot sign in from their own site, because their domain is not on this list.
+
+Add nothing else. This list is half of the security model — the rules in step 5 are the
+other half.
 
 ## Step 7 — Check it works
 

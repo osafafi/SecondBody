@@ -1,4 +1,4 @@
-import { Info, Palette, Settings2, UserRound } from 'lucide-react';
+import { Info, LogIn, Palette, Settings2, UserRound } from 'lucide-react';
 
 import { ComingSoonPanel } from '@/components/ComingSoonPanel/ComingSoonPanel';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
@@ -7,13 +7,15 @@ import { ScreenHeader } from '@/components/ScreenHeader/ScreenHeader';
 import { exerciseMediaAttribution } from '@/content/exerciseMedia/exerciseMediaAttribution';
 
 import { ColorPalettePicker } from './components/ColorPalettePicker';
+import { SignedInAccountPanel } from './components/SignedInAccountPanel';
 import styles from './SettingsScreen.module.css';
 
 /**
  * Settings.
  *
- * The colour palette picker is fully working. Profile editing, targets and coach
- * verbosity arrive in M8 once there is a backend to store them in.
+ * The colour palette picker and the account panel are fully working. Profile
+ * editing, targets and coach verbosity arrive in M8 — the backend they need
+ * landed in M4, but the screens to edit them did not.
  *
  * The credits section is not decoration and is not optional: the exercise
  * animations are used under terms that require this notice to travel with them.
@@ -51,6 +53,15 @@ export function SettingsScreen() {
           milestone="M8"
           icon={<UserRound size={24} strokeWidth={1.75} />}
         />
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionHeading}>
+          <LogIn size={14} strokeWidth={2} aria-hidden />
+          Account
+        </h2>
+
+        <SignedInAccountPanel />
       </section>
 
       <section className={styles.section}>

@@ -31,12 +31,4 @@ export const purpleBluePalette: ColorPaletteDefinition = {
   warningGradientEnd: '#F59E0B',
   dangerGradientStart: '#FB7185',
   dangerGradientEnd: '#E11D48',
-
-  muscleBodyFill: '#1C1934',
-  muscleBodyStroke: '#4A4470',
-  muscleHighlightPrimary: '#A855F7',
-  muscleHighlightSecondary: '#3D8BFF',
-  muscleEquipmentFill: '#241F42',
-  muscleEquipmentStroke: '#5A5385',
-  muscleMotionTrail: '#7C5CFF',
 };

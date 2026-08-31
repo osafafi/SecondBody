@@ -62,18 +62,6 @@ export type ColorPaletteDefinition = {
   warningGradientEnd: string;
   dangerGradientStart: string;
   dangerGradientEnd: string;
-
-  // Exercise illustration colours. Nothing consumes these at present — they were
-  // written for the generated SVGs that M3 replaced with dataset GIFs, which are
-  // raster and take no colour from the page. They are still defined by every
-  // palette, so hand-drawn media can pick them up again. See EXERCISE_MEDIA_SPEC.md.
-  muscleBodyFill: string;
-  muscleBodyStroke: string;
-  muscleHighlightPrimary: string;
-  muscleHighlightSecondary: string;
-  muscleEquipmentFill: string;
-  muscleEquipmentStroke: string;
-  muscleMotionTrail: string;
 };
 ```
 
@@ -86,15 +74,18 @@ so CSS and code can branch on the active palette without reading every property 
 
 **Default palette: `purpleBlue`.** Also shipping: `emeraldTeal`, `amberCrimson`.
 
-### The bit that used to be worth noticing
+### The one thing the palette does not reach
 
-The exercise animations used to recolour with the palette, because they were SVGs
+The exercise animations. They used to recolour with everything else, because they were SVGs
 referencing `var(--muscle-highlight-primary)`. They are 180×180 GIFs now — legible, and
 fixed. Their frame still follows the palette, and the app inverts them so their white ground
 becomes the panel's black, but the figures themselves do not change colour.
 
-The `muscle*` fields survive in the palette contract for whatever draws itself next. Nothing
-reads them today. See [EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md).
+The seven `muscle*` fields that served them were removed with them. Every field in the
+contract above is read by something; that is the property worth keeping. Media that draws
+itself again brings its own fields back, with values chosen against the artwork that uses
+them rather than inherited from artwork that no longer exists. See
+[EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md).
 
 ### What "no hard-coded colours" actually forbids
 

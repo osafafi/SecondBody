@@ -22,6 +22,9 @@ content/
   habits/       The daily checklist and its targets.
   equipment/    Equipment ids turned into words. This is the real inventory of
                 Omar's building gym, not a catalogue of what a gym might have.
+  vocabulary/   The rest of the shared ids turned into words: pain areas, days of
+                the week. Here rather than in a feature because onboarding asks
+                these questions and Settings asks them again.
   coachVoice/   Everything Harout says.
 ```
 

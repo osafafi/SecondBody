@@ -44,9 +44,16 @@ goal it was never told about.
 **Problems only appear after a first attempt to move on.** Complaining about an empty field
 before it has been reached is a form telling someone off for not having answered yet.
 
-## What is not built yet
+## Editing it afterwards
 
-Editing any of this afterwards (M8). The profile is written once here; the settings screen
-gains the same fields later. `excludedExerciseIds` is written as an empty array and has no
-question - it is for something a physio ruled out, which is a conversation rather than a
-checkbox.
+M8 added that to the settings screen. Five of the eight fields can be changed there — name,
+height, target weight, training days and pain areas — and `src/domain/profileEditing.ts`
+explains why the other three cannot. The plausibility bounds are shared with this form rather
+than restated, so the two cannot disagree about a believable height.
+
+`excludedExerciseIds` is written as an empty array here and has no question - it is for
+something a physio ruled out, which is a conversation rather than a checkbox, and it is not
+editable in Settings either.
+
+The chip grid and the number field this form is built from now live in `src/components/`,
+because Settings asks three of the same questions. They moved in M8.

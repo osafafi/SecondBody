@@ -1,0 +1,143 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+}
+
+.title {
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  color: var(--text-primary);
+}
+
+.estimate {
+  font-size: var(--text-label-size);
+  color: var(--text-secondary);
+}
+
+.coachLine {
+  margin-top: var(--space-2);
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+}
+
+.stepList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+
+  border-radius: var(--radius-large);
+  background: linear-gradient(
+    150deg,
+    rgba(var(--surface-tint-rgb), 0.14),
+    rgba(var(--surface-tint-rgb), 0.04)
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    opacity var(--motion-fast) var(--motion-easing),
+    transform var(--motion-fast) var(--motion-easing);
+}
+
+.step:active {
+  transform: scale(0.99);
+}
+
+.step:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 3px;
+}
+
+.isCompleted {
+  opacity: 0.55;
+}
+
+.stepTick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-small);
+  color: var(--text-primary);
+}
+
+.isCompleted .stepTick {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--success-gradient-start), var(--success-gradient-end));
+}
+
+.stepText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stepName {
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.stepVolume {
+  font-size: var(--text-label-size);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepPurpose {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+}
+
+.rampSet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+}
+
+.rampSetLabel {
+  font-size: var(--text-caption-size);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.rampSetDetail {
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.rampSetNote {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}

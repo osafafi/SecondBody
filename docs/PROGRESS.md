@@ -9,14 +9,14 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ## Current state
 
-|                       |                                                                   |
-| --------------------- | ----------------------------------------------------------------- |
-| **Current milestone** | M4 — Firebase data layer                                          |
-| **Status**            | Complete. Awaiting review on `feat/firebase-data-layer`           |
-| **Current branch**    | `feat/firebase-data-layer`, branched off `main`                   |
-| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then the same four screens |
-| **Backend wired?**    | Yes. Auth, rules, seven typed repositories and onboarding         |
-| **Deployed?**         | No — arrives in M9                                                |
+|                       |                                                                        |
+| --------------------- | ---------------------------------------------------------------------- |
+| **Current milestone** | M5 — the active session                                                |
+| **Status**            | Complete. Awaiting review on `feat/active-session`                     |
+| **Current branch**    | `feat/active-session`, branched off `main`                             |
+| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then Today → Start the session  |
+| **Backend wired?**    | Yes. Auth, rules, repositories, onboarding, and sessions being written |
+| **Deployed?**         | No — arrives in M9                                                     |
 
 > **Read session 6 before touching the exercise animations.** The generated SVGs are gone.
 > The media is now sourced from an open dataset, and it is **not this project's to
@@ -24,29 +24,37 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ### What to do next
 
-**M4 is finished.** Review `feat/firebase-data-layer`, then start **M5 — the active session**
-on `feat/active-session`. Read [TRAINING_PROGRAM.md](TRAINING_PROGRAM.md) sections 5 to 7 and
-the `workoutSessions` shape in [DATA_MODEL.md](DATA_MODEL.md#3-document-shapes) first.
+**M5 is finished.** Review `feat/active-session`, then start **M6 — the dashboard and the
+schedule** on `feat/dashboard-and-schedule`. Read
+[TRAINING_PROGRAM.md](TRAINING_PROGRAM.md) sections 9 and 12 first.
 
-M5 inherits a working backend and needs no setup of its own. What is already there for it:
+**The one thing to do before anything else: walk a real session in a gym.** Every screen in
+M5 has been read back panel by panel and every rule has a test, but nobody has yet logged a
+real set on a real phone with a real Firestore behind it. That is the check that matters, and
+it is Omar's to make — the app needs his Google account to get past the gate.
 
-- `createWorkoutSession` / `saveWorkoutSession` / `readInProgressWorkoutSession` in
-  `src/services/repositories/workoutSessionRepository.ts`. The last of those is what lets the
-  app offer to resume a session the phone interrupted.
-- `useUserProfile()` for pain areas, equipment and excluded exercises — the three things that
-  decide what a session may prescribe.
-- `readActiveProgramAssignment` for where in the twelve weeks he is.
-- `ExerciseAnimation` from M3, still drawn only by the development review screen.
+M6 inherits a working session player and needs no setup of its own. What is already there for
+it:
+
+- `resolveSessionStartPosition` and `advanceProgramAssignmentAfterSession` in
+  `src/domain/programAssignmentProgress.ts`. Today's screen needs the first of those to say
+  which session is due.
+- `determineSessionStartEligibility` and `findNextTrainingDate` in `sessionScheduling.ts`,
+  both from M2 and both still with no caller. The 48-hour rail is what they are for.
+- `buildExercisePerformanceHistories`, `findLastCompletedSessionAt` and
+  `countCompletedSessions` in `exercisePerformanceHistory.ts`, which read stored sessions back.
+- `readRecentWorkoutSessions`, which is what a calendar of completed sessions reads.
+- `dailyHabitsRepository` and `bodyMetricsRepository`, written in M4 and still with no caller.
+
+**The Today screen carries a placeholder that M6 replaces.** M5 needed a way into the session
+player, so `TodayScreen` has a card with a link to `#/session` and nothing else real on it. It
+does not know which session is due, whether today is a training day, or how long it has been.
+Replacing it is the first job of M6, not an addition to it.
 
 **Every Firebase setup step is done and verified.** The project exists (`second-body-osi`,
 me-central1), Google Sign-In is on, Firestore is created, the rules are deployed and the
 authorised-domain list is correct. Do not ask Omar for any of it again — read sessions 8 and
 9 first.
-
-From M3 you inherit `ExerciseAnimation`, ready for the session player in M5. Nothing in the
-shipping app draws it yet — only the development review screen does. Twenty-seven exercises
-have an animation and nine draw a "No preview yet" fallback; the nine are listed, with
-reasons, in `src/content/exerciseMedia/exerciseMediaMatches.ts`.
 
 ---
 
@@ -61,7 +69,7 @@ One branch and one pull request each. Do not mix milestones.
 | M2  | `feat/training-content`        | Exercise database, 12-week programme, mobility routines, coach voice, `domain/` logic + tests | **Done**    |
 | M3  | `feat/exercise-media-pipeline` | Media spec, dataset match table, copy tool, verifier, 27 animations + 9 fallbacks             | **Done**    |
 | M4  | `feat/firebase-data-layer`     | Firebase init, Google Sign-In, typed repositories, security rules, onboarding                 | **Done**    |
-| M5  | `feat/active-session`          | Session player state machine, set logging, rest timer, wake lock                              | Not started |
+| M5  | `feat/active-session`          | Session player state machine, set logging, rest timer, wake lock                              | **Done**    |
 | M6  | `feat/dashboard-and-schedule`  | Today screen, calendar, 48-hour recovery awareness                                            | Not started |
 | M7  | `feat/progress-tracking`       | Weight trend, volume charts, personal records                                                 | Not started |
 | M8  | `feat/habits-and-settings`     | Daily habit checklist, settings screen, profile editing                                       | Not started |
@@ -645,6 +653,83 @@ This is the second half: the seven typed repositories and the onboarding flow.
 - Nothing reads `bodyMetrics`, `dailyHabits`, `personalRecords` or `programAssignments` yet.
   They are written and tested ahead of the screens that use them in M6 to M8, which is why
   they exist with no caller.
+
+### Session 10 - 2026-08-31 - M5 the active session
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/active-session`, branched off `main`
+
+The session player. The screen the previous four milestones were building towards, and the
+first one that reads the training content, the progression rules and Firestore all at once.
+
+**Done**
+
+- **`src/domain/activeSessionMachine.ts`** — the explicit machine
+  [ARCHITECTURE.md](ARCHITECTURE.md#6-state-management) asks for, pure and with 35 tests. It
+  also owns the two behaviours that are easy to get wrong: a set logged with sharp pain ends
+  that exercise for the day rather than offering another set of it, and
+  `resumeActiveSessionState` rebuilds where to pick up from what was stored.
+- **`restTimer.ts`** — rest arithmetic that survives the phone sleeping through the whole
+  rest, and that keeps counting past the target rather than stopping at zero.
+- **`sessionLogging.ts`** — the draft a set starts from, and the document it ends as.
+- **`exercisePerformanceHistory.ts`** — reading stored sessions back into what progression
+  wants. This is the piece that makes double progression actually fire.
+- **`programAssignmentProgress.ts`** — starting a programme, moving the week on after session
+  C, and restarting the phase after ten days away.
+- **The feature**: a Zustand store as the impure shell, and eight panels. Warm-up with the
+  right dose for the time of day; an exercise brief with the animation, the cues and what goes
+  wrong; the weight at twice display size; a set logged in one tap when it went as prescribed;
+  a rest timer with a ring and two synthesised notes; a review; a summary.
+- **`useScreenWakeLock`** — one of the extras in the locked decisions table. It re-acquires
+  the lock every time the page becomes visible, because the browser drops it whenever the page
+  is hidden.
+- **The route**, registered outside `AppShell` and inside both gates, exactly where M1 left a
+  comment asking for it. `TodayScreen` gained a card linking to it.
+- **`excludedExerciseIds` now reaches the planner.** It was written by M4 and read by nothing.
+- **689 tests, all green**, of which 129 are new.
+
+**Decisions made and why**
+
+| Decision                                                     | Reason                                                                                                                                                                                                                                          |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| No Firestore **write** is ever awaited                       | A write made offline does not resolve until the device reconnects. Awaiting one would freeze the screen in a dead spot, which is exactly where this app is used. Reads are awaited: those resolve from the local cache                          |
+| Every save writes the session document whole                 | Which is what makes the above safe — only the most recent write has to land, so one that never went out costs nothing. It is also what M4's repository already did, for the same reason                                                         |
+| Three machine states renamed from the ARCHITECTURE.md sketch | `setActive` and `setLogging` read as adjectives rather than as states, and `cooldown` described a stretch that the step is not — it asks how the session felt. The diagram in that document was updated to match                                |
+| Sharp pain ends the exercise, not just the set               | The coach line written in M2 says "stop that exercise for today", and the app should do what the coach says. The 20% reduction next session is separate and already existed                                                                     |
+| A carry is counted in metres and cardio in minutes           | `PerformedSet` has exactly one count field and four kinds of prescription. Rather than pretend a farmer's carry has reps, `resolveSetCountUnit` names the unit and the control is labelled with it. Nothing compares metres against a rep range |
+| The session is prepared once, when the screen opens          | `userProfile` comes from a Firestore subscription and arrives again when the server corrects the cache. Re-planning on that would throw away everything logged so far, mid-workout                                                              |
+| The rest timer never advances the session by itself          | Ninety seconds is a prescription, not a starting pistol. It counts past the target, shows the overrun, and waits for a tap                                                                                                                      |
+| Only completed sessions count as progression history         | An abandoned session may hold one set of an exercise that was prescribed two, and "every set reached the top of the range" would then be true of a session he walked out of                                                                     |
+| A skipped exercise does not erase the history behind it      | The machine being busy last Wednesday is not a reason to prescribe a calibration weight today, so the search keeps going back                                                                                                                   |
+| The warm-up ticks are not stored anywhere                    | The warm-up is not logged — `WorkoutSession` records working sets. The ticks exist so he can keep his place in a list of eight things, and they vanish with the screen                                                                          |
+| Finishing early ends the session properly                    | Four exercises out of six is a session, not a failure, and the alternative is walking out with nothing recorded                                                                                                                                 |
+| `describeRepositoryError` is new, beside the auth one        | `describeAuthenticationError`'s fallback says "sign-in did not go through", which is the wrong thing to read after a set fails to save. Same codes, different subject                                                                           |
+| The chime is synthesised, not a file                         | Two sine tones. An audio asset would be 30 kB of download and a licence to think about                                                                                                                                                          |
+| Equipment filtering deliberately left out                    | Dropping an exercise because the gym lacks the machine leaves a hole in the session. It wants the substitution feature on the roadmap first, and that is a bigger decision than a filter                                                        |
+
+**Notes for the next session**
+
+- **Nobody has walked a real session yet.** Every panel was rendered and read back against the
+  real programme content, and every rule has a test, but logging a real set on a real phone
+  needs Omar's Google account. That is the check that matters and it is his to make.
+- **The panels were verified through a throwaway preview page**, not through the app, for the
+  same reason: the session screen sits behind the auth gate. A `session-preview.html` plus a
+  `sessionPreviewEntry.tsx` rendered each panel with fixture props; both were deleted before
+  committing. If you need to look at a gated screen again, that is the trick.
+- **Seven things looked wrong once they were on a phone-sized screen** and were fixed in the
+  third commit. Worth reading that commit before adding a panel of your own — the mistakes
+  were all of one kind: a value rendered correctly and labelled carelessly.
+- **The browser pane still times out on clicks**, as it did in sessions 2, 5 and 6. Driving
+  the page with `javascript_tool` worked every time. Not an app problem.
+- `settings.defaultRestSeconds` is still unread. Every exercise slot carries its own
+  `restSecondsBetweenSets`, which is more specific, so the setting has nothing to fall back
+  from. It becomes meaningful if a slot ever omits its own rest.
+- `PerformedSet.skipReason` is stored and read but never written with anything but null.
+  Nothing asks why an exercise was skipped yet.
+- The bundle is now 1,038 kB before gzip, up from 940. The dynamic import of Firebase in M9
+  matters slightly more than it did.
+
+---
 
 ---
 

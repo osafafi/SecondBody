@@ -25,6 +25,7 @@ function buildRequest(overrides: Partial<SessionPlanRequest> = {}): SessionPlanR
     sessionStartHourOfDay: SIX_IN_THE_EVENING,
     performanceHistoryByExerciseId: {},
     activePainAreas: [],
+    excludedExerciseIds: [],
     resolveLoadingStyleForExercise: (exerciseId) =>
       findExerciseById(exerciseId)?.loadingStyle ?? null,
     layoffLoadMultiplier: 1,
@@ -248,6 +249,30 @@ describe('resolveSessionPlan — the conditional shoulder press', () => {
     );
 
     expect(findPlannedExercise(plan, 'shoulderPressMachine')).not.toBeNull();
+  });
+});
+
+describe('resolveSessionPlan — exercises the profile rules out', () => {
+  it('drops a blacklisted exercise from the session', () => {
+    const plan = resolveSessionPlan(buildRequest({ excludedExerciseIds: ['gobletSquatToBox'] }));
+
+    expect(findPlannedExercise(plan, 'gobletSquatToBox')).toBeNull();
+    expect(findPlannedExercise(plan, 'seatedCableRow')).not.toBeNull();
+  });
+
+  it('beats a slot that has no pain condition on it at all', () => {
+    const withoutExclusion = resolveSessionPlan(buildRequest());
+    const withExclusion = resolveSessionPlan(
+      buildRequest({ excludedExerciseIds: ['seatedCableRow'] }),
+    );
+
+    expect(withExclusion?.exercises).toHaveLength((withoutExclusion?.exercises.length ?? 0) - 1);
+  });
+
+  it('moves the ramp set on when the first exercise is the one ruled out', () => {
+    const plan = resolveSessionPlan(buildRequest({ excludedExerciseIds: ['gobletSquatToBox'] }));
+
+    expect(plan?.rampSet?.exerciseId).toBe('seatedCableRow');
   });
 });
 

@@ -5,7 +5,6 @@ import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
 import { IconBadge } from '@/components/IconBadge/IconBadge';
 import { findExerciseById } from '@/content/exercises/allExercises';
-import { formatDurationAsMinutesAndSeconds } from '@/domain/restTimer';
 import type { PlannedRampSet } from '@/domain/sessionPlanning';
 import type { PlannedWarmup } from '@/domain/warmupPlanning';
 import type { WarmupVolume } from '@/types/programTypes';
@@ -19,11 +18,31 @@ export type WarmupPanelProps = {
   onWarmupFinished: () => void;
 };
 
-/** "10 reps per side", "30 seconds" — whichever the drill is counted in. */
+/**
+ * "About 8 minutes".
+ *
+ * Rounded up to a whole minute rather than shown as `7:49`, because this answers
+ * "have I got time for this" and a stopwatch reading next to the session clock
+ * in the header reads like a second timer.
+ */
+function describeEstimatedDuration(estimatedDurationSeconds: number): string {
+  const minutes = Math.max(1, Math.ceil(estimatedDurationSeconds / 60));
+
+  return minutes === 1 ? 'About a minute' : `About ${String(minutes)} minutes`;
+}
+
+/** Two minutes and up reads better as minutes than as a count of seconds. */
+const SECONDS_ABOVE_WHICH_MINUTES_READ_BETTER = 120;
+
+/** "10 reps per side", "30 seconds", "3 minutes" — whichever the drill is counted in. */
 function describeWarmupVolume(volume: WarmupVolume): string {
   const perSideSuffix = volume.isPerSide ? ' per side' : '';
 
   if (volume.durationSeconds !== null) {
+    if (volume.durationSeconds >= SECONDS_ABOVE_WHICH_MINUTES_READ_BETTER) {
+      return `${String(Math.round(volume.durationSeconds / 60))} minutes${perSideSuffix}`;
+    }
+
     return `${String(volume.durationSeconds)} seconds${perSideSuffix}`;
   }
 
@@ -75,7 +94,7 @@ export function WarmupPanel({ warmup, rampSet, coachLine, onWarmupFinished }: Wa
 
         <h2 className={styles.title}>{warmup.displayName}</h2>
         <p className={styles.estimate}>
-          About {formatDurationAsMinutesAndSeconds(warmup.estimatedDurationSeconds)}
+          {describeEstimatedDuration(warmup.estimatedDurationSeconds)}
           {warmup.isMorningVersion ? ' · longer, because you have just got up' : ''}
         </p>
 

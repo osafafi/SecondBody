@@ -14,8 +14,11 @@ export type NumberStepperProps = {
   /** Presses below this do nothing. */
   minimumValue: number;
 
-  /** Shown next to the number: "kg", "reps", "m". */
-  unitLabel: string;
+  /**
+   * Shown next to the number: "kg". Left out when the label above already says
+   * what the number is, so "REPS / 10 reps" does not read like a stutter.
+   */
+  unitLabel?: string | undefined;
 
   /**
    * A small line under the control, such as what was prescribed.
@@ -71,14 +74,14 @@ export function NumberStepper({
             changeBy(-step);
           }}
           disabled={value <= minimumValue}
-          aria-label={`Less ${label.toLowerCase()}`}
+          aria-label={`Decrease ${label.toLowerCase()}`}
         >
           <Minus size={22} strokeWidth={2.25} aria-hidden />
         </button>
 
         <output className={styles.readout} aria-labelledby={`${label}-stepper-label`}>
           <span className={styles.value}>{value}</span>
-          <span className={styles.unit}>{unitLabel}</span>
+          {unitLabel ? <span className={styles.unit}>{unitLabel}</span> : null}
         </output>
 
         <button
@@ -87,7 +90,7 @@ export function NumberStepper({
           onClick={() => {
             changeBy(step);
           }}
-          aria-label={`More ${label.toLowerCase()}`}
+          aria-label={`Increase ${label.toLowerCase()}`}
         >
           <Plus size={22} strokeWidth={2.25} aria-hidden />
         </button>

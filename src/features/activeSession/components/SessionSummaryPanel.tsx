@@ -67,7 +67,7 @@ export function SessionSummaryPanel({
           <span className={styles.statValue}>
             {formatDurationAsMinutesAndSeconds(summary.durationSeconds)}
           </span>
-          <span className={styles.statLabel}>minutes</span>
+          <span className={styles.statLabel}>time</span>
         </GradientSurface>
       </div>
 

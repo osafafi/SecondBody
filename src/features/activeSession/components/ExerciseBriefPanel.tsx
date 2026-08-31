@@ -1,4 +1,14 @@
-import { AlertTriangle, ChevronRight, Lightbulb, SkipForward, TrendingUp } from 'lucide-react';
+import { createElement } from 'react';
+import {
+  AlertTriangle,
+  ChevronRight,
+  Lightbulb,
+  Sparkles,
+  SkipForward,
+  TrendingDown,
+  TrendingUp,
+  type LucideIcon,
+} from 'lucide-react';
 
 import { ExerciseAnimation } from '@/components/ExerciseAnimation/ExerciseAnimation';
 import { GradientButton } from '@/components/GradientButton/GradientButton';
@@ -7,8 +17,18 @@ import { IconBadge } from '@/components/IconBadge/IconBadge';
 import { findExerciseById } from '@/content/exercises/allExercises';
 import type { PlannedExercise } from '@/domain/sessionPlanning';
 
-import { describeLoadChange, describePrescriptionHeadline } from '../prescriptionWording';
+import {
+  describeLoadChange,
+  describePrescriptionHeadline,
+  type LoadChangeDescription,
+} from '../prescriptionWording';
 import styles from './ExerciseBriefPanel.module.css';
+
+const ICON_BY_LOAD_CHANGE_DIRECTION: Record<LoadChangeDescription['direction'], LucideIcon> = {
+  up: TrendingUp,
+  down: TrendingDown,
+  firstTime: Sparkles,
+};
 
 export type ExerciseBriefPanelProps = {
   plannedExercise: PlannedExercise;
@@ -81,8 +101,17 @@ export function ExerciseBriefPanel({
 
         {loadChange ? (
           <p className={styles.loadChange}>
-            <TrendingUp size={14} strokeWidth={2} aria-hidden />
-            {loadChange}
+            {/*
+             * createElement rather than JSX: the icon is chosen from a table at
+             * render time, and the linter reads `<Icon />` as a component being
+             * defined during render.
+             */}
+            {createElement(ICON_BY_LOAD_CHANGE_DIRECTION[loadChange.direction], {
+              size: 14,
+              strokeWidth: 2,
+              'aria-hidden': true,
+            })}
+            {loadChange.text}
           </p>
         ) : null}
       </GradientSurface>

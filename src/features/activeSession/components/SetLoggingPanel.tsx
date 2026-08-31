@@ -78,7 +78,6 @@ export function SetLoggingPanel({
           value={setLogDraft.actualReps}
           step={resolveSetCountStep(countUnit)}
           minimumValue={0}
-          unitLabel={SET_COUNT_UNIT_LABELS[countUnit]}
           helperText={`Asked for ${String(setLogDraft.prescribedReps)}`}
           onValueChanged={(actualReps) => {
             onDraftChanged({ actualReps });

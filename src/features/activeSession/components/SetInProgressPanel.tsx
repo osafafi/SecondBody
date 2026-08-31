@@ -5,7 +5,7 @@ import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
 import { findExerciseById } from '@/content/exercises/allExercises';
 import type { PlannedExercise } from '@/domain/sessionPlanning';
 
-import { describePrescriptionHeadline } from '../prescriptionWording';
+import { describePrescriptionHeadline, describeSetTarget } from '../prescriptionWording';
 import styles from './SetInProgressPanel.module.css';
 
 export type SetInProgressPanelProps = {
@@ -47,7 +47,7 @@ export function SetInProgressPanel({
           {headline.unit ? <span className={styles.weightUnit}>{headline.unit}</span> : null}
         </p>
 
-        <p className={styles.targetDetail}>{headline.detail}</p>
+        <p className={styles.targetDetail}>{describeSetTarget(plannedExercise)}</p>
       </GradientSurface>
 
       {exercise ? (

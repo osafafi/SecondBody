@@ -81,29 +81,64 @@ export function describePrescriptionHeadline(
 }
 
 /**
+ * What one set of this asks for, without repeating the set count.
+ *
+ * The set-in-progress screen already says "SET 2 OF 2" above it, so saying "2
+ * sets of" underneath is the same fact twice on a screen that is being read
+ * mid-effort.
+ */
+export function describeSetTarget(plannedExercise: PlannedExercise): string {
+  const { prescription } = plannedExercise;
+
+  switch (prescription.kind) {
+    case 'weightAndReps':
+    case 'bodyweightReps':
+      return describeRepRange(prescription.repRange, prescription.isPerSide);
+
+    case 'loadedCarry':
+      return `${String(prescription.distanceMetresPerSet)} m`;
+
+    case 'steadyStateCardio':
+      return prescription.machineSettingsNote;
+  }
+}
+
+/**
  * How the weight has moved since last time, or null when it has not.
  *
  * Deliberately says nothing when the load is unchanged. That is most exercises
  * in most sessions, and announcing it every time is how a screen stops being
  * read.
+ *
+ * The direction comes with the words so the icon beside them cannot disagree —
+ * an up arrow next to "down 4 kg" is worse than no arrow at all.
  */
-export function describeLoadChange(prescription: PlannedPrescription): string | null {
+export type LoadChangeDescription = {
+  text: string;
+  direction: 'up' | 'down' | 'firstTime';
+};
+
+export function describeLoadChange(
+  prescription: PlannedPrescription,
+): LoadChangeDescription | null {
   if (prescription.kind !== 'weightAndReps' && prescription.kind !== 'loadedCarry') {
     return null;
   }
 
+  const changeKilograms = String(Math.abs(prescription.changeFromPreviousKilograms));
+
   switch (prescription.loadDecisionReason) {
     case 'firstTimeCalibration':
-      return 'First time on this one';
+      return { text: 'First time on this one', direction: 'firstTime' };
 
     case 'increasedAfterFullRange':
-      return `Up ${String(Math.abs(prescription.changeFromPreviousKilograms))} kg on last time`;
+      return { text: `Up ${changeKilograms} kg on last time`, direction: 'up' };
 
     case 'reducedAfterBrutalSet':
-      return `Down ${String(Math.abs(prescription.changeFromPreviousKilograms))} kg — last one was brutal`;
+      return { text: `Down ${changeKilograms} kg — last one was brutal`, direction: 'down' };
 
     case 'reducedAfterSharpPain':
-      return `Down ${String(Math.abs(prescription.changeFromPreviousKilograms))} kg — that one hurt last time`;
+      return { text: `Down ${changeKilograms} kg — that one hurt last time`, direction: 'down' };
 
     case 'held':
       return null;

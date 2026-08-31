@@ -30,6 +30,11 @@ function describeLoggedExercise(loggedExercise: PerformedExercise): string {
 
   const setCount = loggedExercise.performedSets.length;
 
+  if (setCount === 0) {
+    // Reached, opened, and then walked away from. Not the same as skipped.
+    return 'Nothing logged';
+  }
+
   return setCount === 1 ? '1 set' : `${String(setCount)} sets`;
 }
 

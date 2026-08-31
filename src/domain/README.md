@@ -51,6 +51,8 @@ a hand-built twelve week fixture would only prove they work on a fixture.
 | `bodyWeightTrend`            | The seven-day rolling average, and whether the scale is where it should be (M7)     |
 | `trainingVolumeTrend`        | Work done, bucketed into weeks, with the empty weeks kept (M7)                      |
 | `personalRecordProgress`     | Which lifts in a finished session were the best they have ever been (M7)            |
+| `habitCompliance`            | What was met, the run of good days, and how the last week went (M8)                 |
+| `profileEditing`             | Which profile fields may be changed later, and what a valid change is (M8)          |
 
 ## The rules these implement
 

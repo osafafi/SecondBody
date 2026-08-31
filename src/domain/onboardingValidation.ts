@@ -54,6 +54,38 @@ function isNumberWithin(value: number | null, minimum: number, maximum: number):
   return value !== null && Number.isFinite(value) && value >= minimum && value <= maximum;
 }
 
+/*
+ * The three checks below are exported because Settings edits the same three
+ * answers after onboarding is over — see `profileEditing.ts`. They are shared
+ * rather than restated so that the bounds cannot drift apart, which would mean
+ * a height the onboarding form accepts and the settings form rejects.
+ */
+
+/** True when a height is a height rather than a weight typed into the wrong box. */
+export function isPlausibleHeightCentimetres(heightCentimetres: number | null): boolean {
+  return isNumberWithin(heightCentimetres, MINIMUM_HEIGHT_CENTIMETRES, MAXIMUM_HEIGHT_CENTIMETRES);
+}
+
+/** True when a body weight is plausible for a person, with no view on direction. */
+export function isPlausibleBodyWeightKilograms(weightKilograms: number | null): boolean {
+  return isNumberWithin(weightKilograms, MINIMUM_WEIGHT_KILOGRAMS, MAXIMUM_WEIGHT_KILOGRAMS);
+}
+
+/** What is wrong with a set of training days, as sentences. Empty when it is fine. */
+export function findTrainingDayProblems(trainingDaysOfWeek: number[]): string[] {
+  const problems: string[] = [];
+
+  if (trainingDaysOfWeek.length === 0) {
+    problems.push('Pick at least one training day.');
+  }
+
+  if (trainingDaysOfWeek.some((day) => !Number.isInteger(day) || day < 0 || day > 6)) {
+    problems.push('Training days must be days of the week.');
+  }
+
+  return problems;
+}
+
 /**
  * What is wrong with one step, as sentences to show the user.
  *
@@ -82,13 +114,7 @@ export function findOnboardingStepProblems(
       );
     }
 
-    if (
-      !isNumberWithin(
-        draft.heightCentimetres,
-        MINIMUM_HEIGHT_CENTIMETRES,
-        MAXIMUM_HEIGHT_CENTIMETRES,
-      )
-    ) {
+    if (!isPlausibleHeightCentimetres(draft.heightCentimetres)) {
       problems.push(
         `Height should be between ${String(MINIMUM_HEIGHT_CENTIMETRES)} and ${String(MAXIMUM_HEIGHT_CENTIMETRES)} cm.`,
       );
@@ -96,13 +122,7 @@ export function findOnboardingStepProblems(
   }
 
   if (stepId === 'startingPoint') {
-    if (
-      !isNumberWithin(
-        draft.startingWeightKilograms,
-        MINIMUM_WEIGHT_KILOGRAMS,
-        MAXIMUM_WEIGHT_KILOGRAMS,
-      )
-    ) {
+    if (!isPlausibleBodyWeightKilograms(draft.startingWeightKilograms)) {
       problems.push(
         `Current weight should be between ${String(MINIMUM_WEIGHT_KILOGRAMS)} and ${String(MAXIMUM_WEIGHT_KILOGRAMS)} kg.`,
       );
@@ -114,13 +134,7 @@ export function findOnboardingStepProblems(
      * docs/TRAINING_PROGRAM.md. Insisting the target be lower would be the app
      * assuming a goal it was not told about.
      */
-    if (
-      !isNumberWithin(
-        draft.targetWeightKilograms,
-        MINIMUM_WEIGHT_KILOGRAMS,
-        MAXIMUM_WEIGHT_KILOGRAMS,
-      )
-    ) {
+    if (!isPlausibleBodyWeightKilograms(draft.targetWeightKilograms)) {
       problems.push(
         `Target weight should be between ${String(MINIMUM_WEIGHT_KILOGRAMS)} and ${String(MAXIMUM_WEIGHT_KILOGRAMS)} kg.`,
       );
@@ -137,13 +151,7 @@ export function findOnboardingStepProblems(
   }
 
   if (stepId === 'schedule') {
-    if (draft.trainingDaysOfWeek.length === 0) {
-      problems.push('Pick at least one training day.');
-    }
-
-    if (draft.trainingDaysOfWeek.some((day) => !Number.isInteger(day) || day < 0 || day > 6)) {
-      problems.push('Training days must be days of the week.');
-    }
+    problems.push(...findTrainingDayProblems(draft.trainingDaysOfWeek));
   }
 
   return problems;

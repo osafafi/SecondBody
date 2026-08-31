@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest';
 import {
   addLocalDays,
   countCalendarDaysBetween,
+  countWholeWeeksSince,
   formatIsoDate,
   isSameLocalDay,
+  parseIsoDate,
   startOfLocalDay,
   startOfLocalWeek,
 } from './calendarDates';
@@ -134,5 +136,46 @@ describe('startOfLocalWeek', () => {
 
   it('honours a Sunday-first week', () => {
     expect(formatIsoDate(startOfLocalWeek(new Date(2026, 3, 9), 0))).toBe('2026-04-05');
+  });
+});
+
+describe('parseIsoDate', () => {
+  it('lands on local midnight of the day named', () => {
+    const parsed = parseIsoDate('2026-04-09');
+
+    expect(parsed.getFullYear()).toBe(2026);
+    expect(parsed.getMonth()).toBe(3);
+    expect(parsed.getDate()).toBe(9);
+    expect(parsed.getHours()).toBe(0);
+  });
+
+  it('round-trips with formatIsoDate', () => {
+    expect(formatIsoDate(parseIsoDate('2026-12-31'))).toBe('2026-12-31');
+    expect(formatIsoDate(parseIsoDate('2026-01-01'))).toBe('2026-01-01');
+  });
+
+  it('does not slip a day the way parsing a bare date as UTC would', () => {
+    // `new Date('2026-04-09')` is midnight UTC, which is 9pm on the 8th in
+    // Sao Paulo and 8am on the 9th in Dubai. This must be neither.
+    expect(formatIsoDate(parseIsoDate('2026-04-09'))).toBe('2026-04-09');
+  });
+});
+
+describe('countWholeWeeksSince', () => {
+  it('counts nothing on the day itself', () => {
+    expect(countWholeWeeksSince('2026-04-06', new Date(2026, 3, 6, 23, 0))).toBe(0);
+  });
+
+  it('counts nothing until the whole week is up', () => {
+    expect(countWholeWeeksSince('2026-04-06', new Date(2026, 3, 12))).toBe(0);
+    expect(countWholeWeeksSince('2026-04-06', new Date(2026, 3, 13))).toBe(1);
+  });
+
+  it('counts several weeks', () => {
+    expect(countWholeWeeksSince('2026-04-06', new Date(2026, 4, 25))).toBe(7);
+  });
+
+  it('never counts backwards for a date in the future', () => {
+    expect(countWholeWeeksSince('2026-05-06', new Date(2026, 3, 6))).toBe(0);
   });
 });

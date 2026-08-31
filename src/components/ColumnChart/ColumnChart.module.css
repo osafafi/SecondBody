@@ -1,0 +1,68 @@
+.chart {
+  margin: 0;
+}
+
+.columns {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  height: 132px;
+}
+
+.column {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  height: 100%;
+}
+
+.track {
+  display: flex;
+  align-items: flex-end;
+  flex: 1 1 auto;
+
+  /*
+   * A baseline, not a background. A filled track reads as a full column, so a
+   * week nothing was trained in ends up looking like the best week of the block
+   * — which is the one thing this chart exists to show honestly.
+   */
+  border-bottom: 1px solid rgba(var(--surface-tint-rgb), 0.35);
+}
+
+.fill {
+  width: 100%;
+  border-radius: var(--radius-small);
+  background: rgba(var(--surface-tint-rgb), 0.55);
+
+  transition: height var(--motion-medium) var(--motion-easing);
+}
+
+.isHighlighted {
+  background: linear-gradient(
+    180deg,
+    var(--brand-gradient-start) 0%,
+    var(--brand-gradient-end) 100%
+  );
+}
+
+.label {
+  font-size: var(--text-caption-size);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}

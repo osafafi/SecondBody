@@ -19,6 +19,7 @@ import {
   findLastCompletedSessionAt,
 } from '@/domain/exercisePerformanceHistory';
 import { determineLayoffAdjustment, type LayoffAdjustment } from '@/domain/layoffRecovery';
+import { findPersonalRecordUpdates } from '@/domain/personalRecordProgress';
 import { findPhaseForWeekNumber, findSessionTemplate } from '@/domain/programPhases';
 import {
   advanceProgramAssignmentAfterSession,
@@ -35,6 +36,10 @@ import {
   type SetLogDraft,
 } from '@/domain/sessionLogging';
 import { resolveSessionPlan, type PlannedSession } from '@/domain/sessionPlanning';
+import {
+  readAllPersonalRecords,
+  writePersonalRecord,
+} from '@/services/repositories/personalRecordsRepository';
 import {
   createProgramAssignment,
   readActiveProgramAssignment,
@@ -440,6 +445,7 @@ export const useActiveSessionStore = create<ActiveSessionStore>()((set, get) => 
     }
 
     persistSessionProgress(set, get);
+    recordPersonalRecordsFromFinishedSession(set, get);
 
     /*
      * The document id is stripped before the assignment goes back to the domain
@@ -497,6 +503,69 @@ function resolveDefaultProgramTemplate(): ProgramTemplate {
   }
 
   return programTemplate;
+}
+
+/**
+ * Stores any lift that was the best it has ever been.
+ *
+ * Runs once, at the end, rather than per set — a record is a property of the
+ * session as a whole, and checking after every set would mean three writes to
+ * beat one record by three reps.
+ *
+ * **Only weight-and-reps movements are eligible.** A farmer's carry stores
+ * metres in `actualReps` and a treadmill walk stores minutes, and Epley on
+ * either produces a confident, meaningless number. Which is which is a fact
+ * about the prescription, which is why the list is resolved here and passed in —
+ * `src/domain/` may not read `src/content/`.
+ *
+ * The comparison itself is `findPersonalRecordUpdates`, and the repository
+ * deliberately does not second-guess it. See the note on `writePersonalRecord`.
+ */
+function recordPersonalRecordsFromFinishedSession(
+  set: (partial: Partial<ActiveSessionStore>) => void,
+  get: () => ActiveSessionStore,
+): void {
+  const { userId, plannedSession, machineState, workoutSessionId, sessionFinishedAt } = get();
+
+  /*
+   * No session document id means the very first write is still in flight, which
+   * only happens if the network died between the first set and the last. The
+   * records are skipped rather than stored against an id that does not exist:
+   * they are understated until the lift is next beaten, and nothing else breaks.
+   */
+  if (!userId || !plannedSession || workoutSessionId === null) {
+    return;
+  }
+
+  const exerciseIdsEligibleForRecords = plannedSession.exercises
+    .filter((plannedExercise) => plannedExercise.prescription.kind === 'weightAndReps')
+    .map((plannedExercise) => plannedExercise.exerciseId);
+
+  void readAllPersonalRecords(userId)
+    .then(async (existingRecords) => {
+      const recordUpdates = findPersonalRecordUpdates({
+        performedExercises: machineState.loggedExercises,
+        existingRecords,
+        exerciseIdsEligibleForRecords,
+        achievedOn: formatLocalIsoDate(sessionFinishedAt ?? new Date()),
+        achievedInSessionId: workoutSessionId,
+      });
+
+      await Promise.all(
+        recordUpdates.map((recordUpdate) => writePersonalRecord(userId, recordUpdate.record)),
+      );
+    })
+    .catch(() => {
+      /*
+       * Worth saying, and worth saying accurately: the session itself is safe.
+       * Only the records are behind, and they catch up the next time one of
+       * these lifts is beaten.
+       */
+      set({
+        saveErrorMessage:
+          'Your session is saved. Your personal records could not be updated just now — they will catch up next session.',
+      });
+    });
 }
 
 /**

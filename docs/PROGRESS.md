@@ -11,10 +11,10 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 |                       |                                                                        |
 | --------------------- | ---------------------------------------------------------------------- |
-| **Current milestone** | M6 — the dashboard and the schedule                                    |
-| **Status**            | Complete. Awaiting review on `feat/dashboard-and-schedule`             |
-| **Current branch**    | `feat/dashboard-and-schedule`, branched off `main`                     |
-| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then Today knows what is due    |
+| **Current milestone** | M7 — progress tracking                                                 |
+| **Status**            | Complete. Awaiting review on `feat/progress-tracking`                  |
+| **Current branch**    | `feat/progress-tracking`, branched off `main`                          |
+| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs are real     |
 | **Backend wired?**    | Yes. Auth, rules, repositories, onboarding, and sessions being written |
 | **Deployed?**         | No — arrives in M9                                                     |
 
@@ -24,32 +24,29 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ### What to do next
 
-**M6 is finished.** Review `feat/dashboard-and-schedule`, then start **M7 — progress
-tracking** on `feat/progress-tracking`.
+**M7 is finished.** Review `feat/progress-tracking`, then start **M8 — habits and
+settings** on `feat/habits-and-settings`.
 
 **The one thing to do before anything else is still the same: walk a real session in a
 gym.** It has been the top of this list since M5 and it has not happened yet. Every screen
-in M5 and M6 has been read back panel by panel and every rule has a test, but nobody has
+in M5, M6 and M7 has been read back panel by panel and every rule has a test, but nobody has
 logged a real set on a real phone with a real Firestore behind it. That is the check that
 matters, and it is Omar's to make — the app needs his Google account to get past the gate.
 
-M7 inherits everything it needs. What is already there for it:
+M7 closed the three loose ends it inherited. All of these now have callers:
+`readRecentBodyMetricEntries` and `addBodyMetricEntry` (the log control on Progress),
+`personalRecordsRepository` in both directions (written at the end of a session, read by the
+records panel), and `sessionVolume` (the week columns).
 
-- `readRecentBodyMetricEntries` and `addBodyMetricEntry`, written in M4 and **still with no
-  caller.** The weight trend is what they are for.
-- `personalRecordsRepository`, likewise unread. `estimatedOneRepMax.ts` (Epley) is the
-  domain function behind it.
-- `sessionVolume.ts` from M2, which counts dumbbell pairs and per-side reps properly. The
-  volume chart is its first caller.
-- `projectExpectedWeightRangeKilograms` in `bodyWeightExpectations.ts`, which says where the
-  weight should reasonably be after N weeks. A trend chart wants that band drawn on it.
-- `useTrainingOverview` in `src/hooks/`, new in M6. It already reads the assignment, the
-  recent sessions and the settings, and both M6 screens share it. M7 should use it rather
-  than reading sessions again.
+**One `ComingSoonPanel` is left, on Today, saying M8** — habits and the quick weight log. It
+should be gone by the end of M8. A `ComingSoonPanel` surviving past that is a bug.
 
-**Two `ComingSoonPanel`s are left, both saying M8.** One on Today (habits and the scale) and
-the Progress screen's own. They should both be gone by the end of M8 — a `ComingSoonPanel`
-surviving past that is a bug.
+**A new milestone was agreed with Omar during M7: M10, the training journal.** It is the
+capture-and-export half of a larger idea — being able to write things down in the app during
+the week, then open Claude Code at home and have the context already there to talk about it.
+The write-back half (a review that can adjust the programme) is deliberately not scheduled
+yet. See the M10 row and the session 12 entry below for the shape of it and for why it sits
+after deployment rather than before.
 
 **Every Firebase setup step is done and verified.** The project exists (`second-body-osi`,
 me-central1), Google Sign-In is on, Firestore is created, the rules are deployed and the
@@ -71,9 +68,44 @@ One branch and one pull request each. Do not mix milestones.
 | M4  | `feat/firebase-data-layer`     | Firebase init, Google Sign-In, typed repositories, security rules, onboarding                 | **Done**    |
 | M5  | `feat/active-session`          | Session player state machine, set logging, rest timer, wake lock                              | **Done**    |
 | M6  | `feat/dashboard-and-schedule`  | Today screen, calendar, 48-hour recovery awareness                                            | **Done**    |
-| M7  | `feat/progress-tracking`       | Weight trend, volume charts, personal records                                                 | Not started |
+| M7  | `feat/progress-tracking`       | Weight trend, volume charts, personal records                                                 | **Done**    |
 | M8  | `feat/habits-and-settings`     | Daily habit checklist, settings screen, profile editing                                       | Not started |
 | M9  | `feat/pages-deployment`        | Deploy workflow, web manifest, icons, production Firebase config                              | Not started |
+| M10 | `feat/training-journal`        | Free-text journal, the coaching export bundle, and the `coach-review` skill                   | Not started |
+
+### M10, and why it is last
+
+M10 is the capture half of something Omar asked for during M7: an LLM he can talk to about
+his training, in Claude Code, with the data already in front of it. The app does not get an
+LLM — there is no server, no API key in a public static site, and no cost. The app becomes
+the memory instead.
+
+Three parts, of which **only the first two are M10**:
+
+1. **Capture.** A `journalEntries` collection under the user document — free text, written in
+   the app during the week: a reflection after a session, a question on a rest day, a
+   concern about a knee. Stored verbatim, never summarised on write, tagged with the session
+   or exercise it is about, and carrying a `reviewStatus` so "everything since the last
+   review" is one query rather than a re-read of everything.
+2. **Retrieval.** A bundle builder in `src/domain/` — pure, so it is tested like everything
+   else there and so both ways of getting at it produce identical output. Two callers: a
+   download button in Settings, and `npm run coach:export`, a Node script using
+   `firebase-admin` with Application Default Credentials (`gcloud auth application-default
+login`) so that **no service account key file ever exists** — see DATA_MODEL section 5.
+   Output goes to `.coaching/`, which must be gitignored: it is precisely the personal data
+   CLAUDE.md rule 2 exists to keep out of this repository. The bundle is not a Firestore
+   dump; it resolves exercise ids to names, collapses sets to tuples, and precomputes the
+   aggregates the existing domain functions already produce.
+3. **The write-back — not scheduled.** A review that can store what was concluded and, when
+   it is worth it, a small closed vocabulary of adjustments the app knows how to honour.
+   Left unscheduled on purpose: it is the half that changes what weight goes on the bar, and
+   it should not be built until there are real weeks of real data to be wrong about.
+
+**Why after deployment rather than before.** Journal entries are only worth reviewing if
+they are being written, and they will not be written until the app is on his phone every
+day — which is M9. Building the capture surface first would accumulate an empty collection.
+If M8 and M9 slip a long way, this ordering is worth revisiting; the code has no dependency
+on either.
 
 ---
 
@@ -810,6 +842,82 @@ session was due; this replaces that, and fills in the Schedule tab beside it.
   weeks of grid needs far less; the number is a bound, not a page size.
 - The bundle is 1,068 kB before gzip, up from 1,038. The dynamic import of Firebase in M9
   keeps getting slightly more worthwhile.
+
+### Session 12 - 2026-08-31 - M7 progress tracking
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/progress-tracking`, branched off `main`
+
+The Progress tab, which had been a `ComingSoonPanel` since M1. Three panels and a control:
+the scale as a rolling average, work done by week, the best each lift has been, and the
+first way to actually log a weight.
+
+**Done**
+
+- **`src/domain/bodyWeightTrend.ts`** — the seven-day rolling average, the weekly rate, and a
+  verdict against the expected range from `bodyWeightExpectations`. The window is measured
+  **in days, not in readings**, so a lazy fortnight does not quietly stretch the average back
+  a month and draw a smoother line than the data behind it. Two weigh-ins on one day are
+  averaged rather than one being picked. `tooEarlyToTell` is a real verdict: weeks 1 to 3 are
+  exempt from judgement however much data there is.
+- **`src/domain/trainingVolumeTrend.ts`** — sessions bucketed into weeks, **including the
+  empty ones**. A fortnight off is the most important thing a volume chart can show, and
+  dropping the blank columns would redraw a layoff as an unbroken climb. The week-on-week
+  ratio is separately nullable: coming back after a week off is not an infinite improvement.
+- **`src/domain/personalRecordProgress.ts`** — which lifts in a finished session were the best
+  they have ever been, compared on estimated one-rep max so two extra reps at the same weight
+  counts. Two exclusions, both deliberate: only weight-and-reps movements are eligible (a
+  carry stores metres in `actualReps` and Epley on that is a confident, meaningless number),
+  and **a set that caused sharp pain never becomes a record** — it happened, it is on the
+  session, and it is not a target to beat next month.
+- **`parseIsoDate` and `countWholeWeeksSince`** added to `calendarDates`. The first is the
+  inverse of `formatIsoDate` and exists because `new Date('2026-04-09')` parses as midnight
+  UTC, which is the previous evening anywhere west of Greenwich.
+- **Two chart primitives in `src/components/`** — `TrendLineChart` (SVG, fixed viewBox so a dot
+  stays a circle) and `ColumnChart` (elements, so it reflows). Both are feature-agnostic:
+  they know about numbers and labels, never about kilograms or weeks.
+- **The Progress screen**, its four panels, `progressWording.ts`, `progressCoachLines.ts`,
+  `personalRecordPresentation.ts` and `useProgressHistory`. 82 new tests across the milestone,
+  bringing the suite to 893.
+- **Personal records are now written.** `recordPersonalRecordsFromFinishedSession` in
+  `useActiveSessionStore` runs once at the end of a session. `personalRecordsRepository` had
+  been sitting there unread since M4.
+- **A weight can be logged**, from the Progress screen. `addBodyMetricEntry`'s first caller.
+
+**Decisions made and why**
+
+| Decision                                                      | Reason                                                                                                                                                                       |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Weight logging lands in M7, not M8                            | M7 draws a weight trend. A trend with no way to add a reading is a chart of an empty collection. The _quick_ log on Today is still M8's                                      |
+| `useProgressHistory` is separate from `useTrainingOverview`   | Today and Schedule open on every launch and neither shows a weigh-in. Two more Firestore reads on cold start so a third screen could avoid a hook is the wrong trade         |
+| Runtime sentences live in `progressWording`, not `coachVoice` | Every one of them contains a number that only exists at runtime, so none could be written in advance. They still follow the voice's rules                                    |
+| Losing weight faster than planned is reported as a risk       | It is not good news on a beginner programme — muscle goes with the fat. The domain returns `aheadOfExpectation` as a neutral fact and the wording refuses to congratulate it |
+| Eligible-for-a-record is resolved by the caller               | Whether a movement is weight-and-reps is a fact about the prescription, and `src/domain/` may not read `src/content/`. Same shape as `resolveLoadingStyleForExercise`        |
+| A failed record write shows an accurate message               | "Your session is saved, your records will catch up" — because that is what happened. Reusing the generic save error would have said something false about the session        |
+| The column chart has a baseline, not a track                  | Found by looking at it: a filled track reads as a full column, so three empty weeks looked like the three best weeks of the block                                            |
+
+**Notes for the next session**
+
+- **Still nobody has walked a real session.** Unchanged since M5, and still the check that
+  matters most. Nothing in M7 changes that, and M7 is the milestone with the most to gain
+  from it — every number on the screen is currently drawn from fixtures.
+- **The panels were verified through a throwaway preview**, the trick sessions 10 and 11
+  recorded: `src/ScratchProgressPreview.tsx` plus a one-line swap in `main.tsx` rendered all
+  four panels with fixture data, and both were reverted before committing. Two real problems
+  came out of it that no test would have found, both in the decisions table: the column track
+  reading as data, and the week labels showing "16" twice across a three-month window.
+- **Personal records only start accumulating from the next session onwards.** Nothing
+  backfills them from existing sessions, and nothing should — the collection is keyed by
+  exercise and a backfill would have to invent `achievedInSessionId` for records set before
+  the code existed. There are no completed sessions yet, so nothing is actually lost.
+- If a session's document id is still in flight when the session finishes, records are
+  skipped for that session rather than stored against an id that does not exist. Commented
+  where it happens. It needs the network to die between the first set and the last.
+- `useActiveSessionStore` has a private `formatLocalIsoDate` that duplicates
+  `calendarDates.formatIsoDate` exactly. It predates M6 and was left alone rather than
+  widening this milestone's diff. Worth one line of cleanup in M8.
+- The bundle is 1,090 kB before gzip, up from 1,068. Still no dependency added — the charts
+  are hand-drawn SVG and flexbox rather than a charting library, which was the point.
 
 ---
 

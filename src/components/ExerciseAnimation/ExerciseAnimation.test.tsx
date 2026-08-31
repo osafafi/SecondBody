@@ -1,114 +1,40 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+
+import { exerciseMediaMatches } from '@/content/exerciseMedia/exerciseMediaMatches';
 
 import { ExerciseAnimation } from './ExerciseAnimation';
 
-const seatedCableRowSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="exerciseMediaTitle">
-  <title id="exerciseMediaTitle">Low Row, Neutral Grip</title>
-  <desc>A person seated at a low cable row drawing the handle to the navel.</desc>
-  <style>.torso { transform: rotate(6deg); }</style>
-  <g class="torso"><rect fill="var(--muscle-body-fill, #1C1934)" /></g>
-</svg>`;
-
-function respondWith(bodyByUrl: Record<string, string | null>) {
-  return vi.fn((url: string) => {
-    const body = bodyByUrl[url];
-
-    return Promise.resolve({
-      ok: body !== undefined && body !== null,
-      text: () => Promise.resolve(body ?? '<!doctype html><html></html>'),
-    } as Response);
-  });
-}
-
 /**
- * Waits for the component to draw, and returns the shadow root it drew into.
+ * A real matched exercise and a real unmatched one.
  *
- * Asserting on the root itself rather than on something inside it matters: an
- * optional chain through a root that is not there yet yields `undefined`, which
- * would satisfy a `not.toBeNull()` and let the test pass before the fetch had
- * even resolved.
+ * Reading them out of the committed table rather than hard-coding two ids means
+ * these tests keep testing both branches after somebody resolves one of the
+ * gaps. A hard-coded `couchStretch` would start silently testing the matched
+ * path the day a GIF is found for it.
  */
-async function waitForAnimationShadowRoot(container: HTMLElement) {
-  const shadowHost = container.querySelector('div');
+const [firstMatch] = exerciseMediaMatches;
 
-  await waitFor(() => {
-    expect(shadowHost?.shadowRoot).toBeTruthy();
-  });
-
-  const shadowRoot = shadowHost?.shadowRoot;
-
-  if (!shadowRoot) {
-    throw new Error('The animation never attached a shadow root.');
-  }
-
-  return shadowRoot;
+if (!firstMatch) {
+  throw new Error('The media match table is empty, so there is nothing to render.');
 }
 
 describe('ExerciseAnimation', () => {
-  beforeEach(() => {
-    // The module caches by exercise id across mounts, so each test uses its own
-    // ids rather than reaching in to clear a private map.
-    vi.stubGlobal('fetch', respondWith({}));
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.restoreAllMocks();
-  });
-
-  it('inlines the animation so it inherits the palette', async () => {
-    vi.stubGlobal(
-      'fetch',
-      respondWith({ '/exercise-media/seatedCableRow.svg': seatedCableRowSvg }),
-    );
-
-    const { container } = render(
+  it('draws the animation for an exercise that has one', () => {
+    render(
       <ExerciseAnimation
-        exerciseId="seatedCableRow"
-        displayName="Low Row, Neutral Grip"
-        primaryMuscleGroups={['midBack']}
+        exerciseId={firstMatch.exerciseId}
+        displayName="Leg Extension"
+        primaryMuscleGroups={['quadriceps']}
       />,
     );
 
-    const shadowRoot = await waitForAnimationShadowRoot(container);
+    const animation = screen.getByRole('img', { name: /Leg Extension/ });
 
-    expect(shadowRoot.querySelector('svg')).not.toBeNull();
-    expect(shadowRoot.querySelector('title')?.textContent).toBe('Low Row, Neutral Grip');
-    expect(shadowRoot.querySelector('rect')?.getAttribute('fill')).toBe(
-      'var(--muscle-body-fill, #1C1934)',
-    );
+    expect(animation).toHaveAttribute('src', `/exercise-media/${firstMatch.exerciseId}.gif`);
   });
 
-  it('keeps each animation styles and ids to itself', async () => {
-    vi.stubGlobal(
-      'fetch',
-      respondWith({
-        '/exercise-media/latPulldown.svg': seatedCableRowSvg,
-      }),
-    );
-
-    const { container } = render(
-      <ExerciseAnimation
-        exerciseId="latPulldown"
-        displayName="Lat Pulldown"
-        primaryMuscleGroups={['latissimusDorsi']}
-      />,
-    );
-
-    const shadowRoot = await waitForAnimationShadowRoot(container);
-
-    expect(shadowRoot.querySelector('#exerciseMediaTitle')).not.toBeNull();
-
-    // Two animations on one screen would otherwise share a `.torso` rule and a
-    // duplicated element id. Neither escapes the shadow boundary.
-    expect(document.querySelector('#exerciseMediaTitle')).toBeNull();
-    expect(container.querySelector('style')).toBeNull();
-  });
-
-  it('falls back to the muscle group icon when there is no animation yet', async () => {
-    vi.stubGlobal('fetch', respondWith({}));
-
+  it('says so, in words, when there is no animation yet', () => {
     render(
       <ExerciseAnimation
         exerciseId="couchStretch"
@@ -117,54 +43,39 @@ describe('ExerciseAnimation', () => {
       />,
     );
 
-    const fallback = await screen.findByRole('img', { name: /Couch Stretch/ });
+    // The accessible name carries the whole story, because a screen reader gets
+    // nothing from the icon and nothing from the label beside it.
+    const fallback = screen.getByRole('img', {
+      name: 'Couch Stretch. No preview available for this movement yet.',
+    });
 
-    expect(fallback).toBeInTheDocument();
+    expect(fallback).toHaveTextContent('No preview yet');
     expect(fallback.querySelector('svg')).not.toBeNull();
   });
 
-  it('does not mistake a dev server index.html for a drawing', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(() =>
-        Promise.resolve({
-          ok: true,
-          text: () => Promise.resolve('<!doctype html><html><body>app shell</body></html>'),
-        } as Response),
-      ),
-    );
-
-    render(
+  it('does not request a file for an exercise that has none', () => {
+    const { container } = render(
       <ExerciseAnimation
-        exerciseId="threadTheNeedle"
-        displayName="Thread the Needle"
+        exerciseId="catCow"
+        displayName="Cat-Cow"
         primaryMuscleGroups={['thoracicSpine']}
       />,
     );
 
-    expect(await screen.findByRole('img', { name: /Thread the Needle/ })).toBeInTheDocument();
+    // The committed table is what decides, so a missing preview costs no
+    // request at all — not even one that 404s.
+    expect(container.querySelector('img')).toBeNull();
   });
 
-  it('fetches a given exercise once however many times it is shown', async () => {
-    const fetchSpy = respondWith({ '/exercise-media/deadBug.svg': seatedCableRowSvg });
-    vi.stubGlobal('fetch', fetchSpy);
-
-    const properties = {
-      exerciseId: 'deadBug',
-      displayName: 'Dead Bug',
-      primaryMuscleGroups: ['abdominals'],
-    } as const;
-
-    const { container } = render(
-      <>
-        <ExerciseAnimation {...properties} />
-        <ExerciseAnimation {...properties} />
-      </>,
+  it('passes an unknown exercise id through to the fallback rather than a broken image', () => {
+    render(
+      <ExerciseAnimation
+        exerciseId="somethingStoredAgainstAnExerciseThatNoLongerExists"
+        displayName="Unknown Movement"
+        primaryMuscleGroups={['abdominals']}
+      />,
     );
 
-    const shadowRoot = await waitForAnimationShadowRoot(container);
-
-    expect(shadowRoot.querySelector('svg')).not.toBeNull();
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('img', { name: /No preview available/ })).toBeInTheDocument();
   });
 });

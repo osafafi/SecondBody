@@ -46,11 +46,12 @@ jobs:
       - name: Test
         run: npm run test
 
-      # Checks every committed animation against docs/EXERCISE_MEDIA_SPEC.md
-      # section 3. The test suite runs the same check, so this is belt and
-      # braces — but it is the step whose failure message names the file.
-      - name: Validate exercise animations
-        run: npm run media:validate
+      # Checks the committed animations against the match table that describes
+      # them — see docs/EXERCISE_MEDIA_SPEC.md section 7. The test suite runs the
+      # same check, so this is belt and braces — but it is the step whose failure
+      # message names the file.
+      - name: Verify exercise animations
+        run: npm run media:verify
 
       - name: Build
         run: npm run build

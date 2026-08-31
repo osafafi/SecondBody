@@ -64,7 +64,7 @@ and the 404-on-refresh.
 
 1. `npm ci`
 2. `npm run verify` — type-check, lint, test. **A failing test blocks the deploy.**
-3. `node tools/exercise-media/validateExerciseSvg.mjs` — a malformed exercise animation
+3. `node tools/exercise-media/verifyExerciseMedia.mjs` — a missing exercise animation
    blocks the deploy too.
 4. `npm run build`
 5. Upload `dist/` and deploy to Pages.

@@ -1,6 +1,11 @@
 # Dependencies
 node_modules/
 
+# The exercise media dataset, cloned by hand and never committed. It is 296 MB of
+# other people's animations; only the ~30 files the app actually uses are copied
+# out of it into public/exercise-media/. See tools/exercise-media/README.md.
+vendor/
+
 # Build output
 dist/
 dist-ssr/

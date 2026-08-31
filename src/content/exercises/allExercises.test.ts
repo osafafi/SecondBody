@@ -30,7 +30,7 @@ describe('the exercise registry', () => {
   });
 
   it('uses camelCase ids, because the id is also the media filename', () => {
-    // public/exercise-media/{exerciseId}.svg — see docs/EXERCISE_MEDIA_SPEC.md.
+    // public/exercise-media/{exerciseId}.gif — see docs/EXERCISE_MEDIA_SPEC.md.
     for (const exercise of allExercises) {
       expect(exercise.exerciseId).toMatch(CAMEL_CASE_PATTERN);
     }

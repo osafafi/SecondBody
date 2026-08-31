@@ -15,8 +15,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "media:generate": "node tools/exercise-media/generateExerciseSvg.mjs",
-    "media:validate": "node tools/exercise-media/validateExerciseSvg.mjs",
+    "media:copy": "node tools/exercise-media/copyDatasetGifs.mjs",
+    "media:verify": "node tools/exercise-media/verifyExerciseMedia.mjs",
     "verify": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {

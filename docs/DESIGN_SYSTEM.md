@@ -63,10 +63,10 @@ export type ColorPaletteDefinition = {
   dangerGradientStart: string;
   dangerGradientEnd: string;
 
-  // Exercise illustration colours. The generated SVGs consume these, which is how
-  // exercise animations recolour themselves when the palette changes.
-  // The exhaustive list an SVG may reference is EXERCISE_MEDIA_SPEC.md section 4 —
-  // keep the two in step.
+  // Exercise illustration colours. Nothing consumes these at present — they were
+  // written for the generated SVGs that M3 replaced with dataset GIFs, which are
+  // raster and take no colour from the page. They are still defined by every
+  // palette, so hand-drawn media can pick them up again. See EXERCISE_MEDIA_SPEC.md.
   muscleBodyFill: string;
   muscleBodyStroke: string;
   muscleHighlightPrimary: string;
@@ -86,11 +86,15 @@ so CSS and code can branch on the active palette without reading every property 
 
 **Default palette: `purpleBlue`.** Also shipping: `emeraldTeal`, `amberCrimson`.
 
-### The bit worth noticing
+### The bit that used to be worth noticing
 
-Because the generated exercise SVGs reference `var(--muscle-highlight-primary)` rather than
-literal colours, **switching palette recolours the exercise animations too**. Do not break
-this by baking colours into an SVG. See [EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md).
+The exercise animations used to recolour with the palette, because they were SVGs
+referencing `var(--muscle-highlight-primary)`. They are 180×180 GIFs now — legible, and
+fixed. Their frame still follows the palette, and the app inverts them so their white ground
+becomes the panel's black, but the figures themselves do not change colour.
+
+The `muscle*` fields survive in the palette contract for whatever draws itself next. Nothing
+reads them today. See [EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md).
 
 ### What "no hard-coded colours" actually forbids
 

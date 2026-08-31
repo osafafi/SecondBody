@@ -9,11 +9,12 @@ from the production bundle.
 
 ## Why it exists
 
-`tools/exercise-media/validateExerciseSvg.mjs` proves an animation satisfies the contract.
-It cannot prove the animation is any _good_ — that the knee bends the right way, that the
-glowing muscle is the one being trained, that the thing is legible at the size a phone
-actually draws it. [EXERCISE_MEDIA_SPEC.md](../../../docs/EXERCISE_MEDIA_SPEC.md) section 9
-lists those checks, and they are a person's job.
+`tools/exercise-media/verifyExerciseMedia.mjs` proves that every exercise has either an
+animation or a written reason it does not, and that every committed file is one something
+actually asks for. It cannot prove that the animation is _of the right exercise_ — the
+matching is done by a person looking at pictures, and this is where that looking happens.
+[EXERCISE_MEDIA_SPEC.md](../../../docs/EXERCISE_MEDIA_SPEC.md) sections 4 and 8 are the
+rules; this screen is the place they are applied.
 
 Doing that job across three dozen files by opening three dozen files is how it stops getting
 done. So they are all here, on one page, at both sizes, with the palette switcher beside
@@ -21,14 +22,19 @@ them.
 
 ## What to look for
 
-- The movement matches the exercise, at both ends of the rep.
-- The right muscle glows. A wrong one teaches wrong information.
-- It reads at 160 px, which is the size it is used at.
-- It survives a palette change. Anything that does not move when you press Emerald Teal has
-  a hard-coded colour in it, which the validator should have caught.
+- **The movement matches the exercise, at both ends of the rep.** This is the whole point.
+  27 of the 36 are matched to an open dataset rather than drawn for this app, and eight of
+  those 27 are marked `close` — same movement, something visibly different. If a `close`
+  match turns out to teach the wrong thing, demote it to `exercisesWithoutMediaMatch` rather
+  than keeping it because it is better than nothing.
+- **It reads at 160 px**, which is the size it is used at.
+- **The inversion has not made a mess of it.** The source files are dark line art on white
+  and the app inverts them; a machine with dark pads comes out with bright blocks in it.
+- **The nine fallbacks say "No preview yet"** rather than showing something wrong. Those are
+  listed in `src/content/exerciseMedia/exerciseMediaMatches.ts` with the reason for each.
 
-An exercise with no file yet shows its muscle group's icon instead. That is the same
-fallback the real app uses, so a gap here is a gap the user would see, not a broken page.
+The palette switcher no longer changes the animations themselves — they are raster. It still
+changes everything around them, which is worth a glance.
 
 ## Notes
 

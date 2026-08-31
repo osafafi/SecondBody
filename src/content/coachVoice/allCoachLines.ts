@@ -1,5 +1,6 @@
 import type { CoachLine, CoachLineCategory } from '@/types/coachVoiceTypes';
 
+import { authenticationCoachLines } from './authenticationCoachLines';
 import { habitCoachLines } from './habitCoachLines';
 import { programCoachLines } from './programCoachLines';
 import { sessionCoachLines } from './sessionCoachLines';
@@ -10,12 +11,13 @@ import { setFeedbackCoachLines } from './setFeedbackCoachLines';
  *
  * Components never write coach copy of their own — they ask for a category and
  * render whatever comes back. That is what makes the tone adjustable by editing
- * four files instead of hunting through JSX.
+ * the files in this folder instead of hunting through JSX.
  *
  * Choosing between the lines in a category is `src/domain/coachLineSelection.ts`,
  * which is where the "praise is earned and rationed" rule actually lives.
  */
 export const allCoachLines: CoachLine[] = [
+  ...authenticationCoachLines,
   ...sessionCoachLines,
   ...setFeedbackCoachLines,
   ...programCoachLines,

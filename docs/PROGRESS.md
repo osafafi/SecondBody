@@ -9,14 +9,14 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ## Current state
 
-|                       |                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------- |
-| **Current milestone** | M3 — exercise media pipeline                                                    |
-| **Status**            | Complete, awaiting review on `feat/exercise-media-pipeline`                     |
-| **Current branch**    | `feat/palette-contract-cleanup`, stacked on `feat/exercise-media-pipeline`      |
-| **App runs?**         | Yes — `npm run dev`. Same four screens, plus a dev-only `#/exercise-media` tool |
-| **Backend wired?**    | No — arrives in M4                                                              |
-| **Deployed?**         | No — arrives in M9                                                              |
+|                       |                                                                               |
+| --------------------- | ----------------------------------------------------------------------------- |
+| **Current milestone** | M4 — Firebase data layer                                                      |
+| **Status**            | Auth foundation done and verified. Repositories and onboarding still to write |
+| **Current branch**    | `feat/firebase-data-layer`, branched off `main`                               |
+| **App runs?**         | Yes — `npm run dev`. Sign-in screen first, then the same four screens         |
+| **Backend wired?**    | Partly. Firebase project live, rules deployed, Google Sign-In working         |
+| **Deployed?**         | No — arrives in M9                                                            |
 
 > **Read session 6 before touching the exercise animations.** The generated SVGs are gone.
 > The media is now sourced from an open dataset, and it is **not this project's to
@@ -24,14 +24,24 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ### What to do next
 
-Push `feat/exercise-media-pipeline` and open its pull request. Then `feat/palette-contract-cleanup`,
-which is stacked on it and has to go second. Then start **M4 — Firebase data
-layer** on branch `feat/firebase-data-layer`. Read [SETUP_FIREBASE.md](SETUP_FIREBASE.md) and
-[DATA_MODEL.md](DATA_MODEL.md) first.
+**M3 and the palette cleanup are already merged into `main`.** Both landed locally before
+session 8; the milestone table below still lists them as separate branches because that is how
+they were built.
 
-**M4 needs things only Omar can do**, and they block the milestone rather than the end of it:
-create the Firebase project, enable Google as an auth provider, create the Firestore database,
-and add the authorised domains. Ask for those before writing code that assumes them.
+M4 is in progress on `feat/firebase-data-layer` and is **paused at a deliberate checkpoint**.
+The auth foundation is written, verified and committed. Omar is signing in for real to confirm
+`users/{uid}` appears before anything gets built on top of it. Once he confirms, continue with:
+
+1. Typed repositories for the rest of the collections in
+   [DATA_MODEL.md](DATA_MODEL.md#2-collection-layout) — profile, settings, programAssignments,
+   workoutSessions, bodyMetrics, dailyHabits, personalRecords.
+2. The onboarding flow that writes `profile/current` on first run, which is what
+   `hasCompletedOnboarding` exists for.
+
+**Every setup step only Omar could do is done.** The Firebase project exists
+(`second-body-osi`, me-central1), Google Sign-In is enabled, Firestore is created, the rules
+are deployed and the authorised-domain list is correct and verified. Do not ask for them
+again — read session 8 first.
 
 From M3 you inherit `ExerciseAnimation`, ready for the session player in M5. Nothing in the
 shipping app draws it yet — only the development review screen does. Twenty-seven exercises
@@ -50,7 +60,7 @@ One branch and one pull request each. Do not mix milestones.
 | M1  | `feat/design-system`           | Tokens, palettes, `GradientSurface` and primitives, app shell, bottom nav, palette switcher   | **Done**    |
 | M2  | `feat/training-content`        | Exercise database, 12-week programme, mobility routines, coach voice, `domain/` logic + tests | **Done**    |
 | M3  | `feat/exercise-media-pipeline` | Media spec, dataset match table, copy tool, verifier, 27 animations + 9 fallbacks             | **Done**    |
-| M4  | `feat/firebase-data-layer`     | Firebase init, Google Sign-In, typed repositories, security rules, onboarding                 | Not started |
+| M4  | `feat/firebase-data-layer`     | Firebase init, Google Sign-In, typed repositories, security rules, onboarding                 | In progress |
 | M5  | `feat/active-session`          | Session player state machine, set logging, rest timer, wake lock                              | Not started |
 | M6  | `feat/dashboard-and-schedule`  | Today screen, calendar, 48-hour recovery awareness                                            | Not started |
 | M7  | `feat/progress-tracking`       | Weight trend, volume charts, personal records                                                 | Not started |
@@ -495,6 +505,80 @@ reversed here.** They are gone.
 - If SVG or hand-drawn media ever returns, add the fields it needs back to
   `ColorPaletteDefinition` and give each palette a value chosen against the actual artwork.
   The contract's shape does not need redesigning for that; it is an additive change.
+
+---
+
+### Session 8 - 2026-08-31 - M4 Firebase setup and the auth foundation
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/firebase-data-layer`, branched off `main`
+
+Omar worked through [SETUP_FIREBASE.md](SETUP_FIREBASE.md) himself and came back with two
+steps he could not complete. Both turned out to be defects in the document rather than
+mistakes he made.
+
+**The two setup problems, and what they actually were**
+
+| What he hit                                                                      | What was actually wrong                                                                                                                                                                                                                                                                                                         |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Step 5 told him to deploy `firestore.rules`. There was no such file              | **It had never been written.** Session 1's own notes say it arrives in M4. The document was written ahead of the file and then read as though the file existed. `firestore.rules`, `firebase.json` and `.firebaserc` are now committed, and the rules are deployed                                                              |
+| Step 6 told him to delete every domain except two. The console would not let him | **The instruction was wrong.** `second-body-osi.firebaseapp.com` is the `authDomain` in the config and hosts the OAuth redirect handler, so deleting it breaks Google Sign-In — which is why the console hides the delete icon. Neither it nor `.web.app` is a hole: both are Google-controlled hosts belonging to this project |
+
+**Verified rather than asked about.** The project (`second-body-osi`, project number
+917535912250), the Firestore database (native mode, `me-central1`) and the full
+authorised-domain list were all confirmed from the CLI and the Identity Toolkit endpoint
+before asking Omar anything. Only Google Sign-In genuinely has no CLI or API equivalent, so
+that was the one question worth his time.
+
+**Done**
+
+- `firestore.rules` — the ruleset from [DATA_MODEL.md](DATA_MODEL.md#4-security-rules)
+  verbatim. Deployed, compiled and released to `cloud.firestore`.
+- `firebase.json` points the deploy at it. `.firebaserc` pins the project id, which removes
+  the interactive `firebase use --add` from step 5 entirely. **No `hosting` block on purpose**
+  — deploying to Firebase Hosting is what would make `.web.app` meaningful, and this app
+  deploys to GitHub Pages.
+- `SETUP_FIREBASE.md` steps 5 and 6 rewritten. Step 6 now says the finished list has **four**
+  entries and explains why the last two cannot and should not be removed.
+- `firebaseApp.ts` — one app, `getAuth`, and Firestore with `persistentLocalCache`. The
+  `getApps()` guard is not defensive padding: Vite re-executes the module on hot reload, and
+  both `initializeApp` and `initializeFirestore` throw on a second call.
+- `googleAuthenticationService.ts` — popup sign-in, falling back to redirect. The fallback
+  rule lives in `popupSignInFallback.ts` so it can be tested without booting Firebase.
+- `userDocumentRepository.ts` — `ensureUserDocumentExists`. Reads before writing so
+  `createdAt` is only ever set once; a blind merge would reset "training since" on every
+  launch.
+- `AuthenticationProvider` / `authenticationContext` / `useAuthentication`, split three ways
+  for the same Fast Refresh reason as the palette trio.
+- `AuthenticationGate` as a layout route, so screens behind it can assume a signed-in user.
+- `SignInScreen`, and an account panel in Settings with sign-out.
+- Three `signInWelcome` coach lines in `src/content/coachVoice/authenticationCoachLines.ts`.
+- 474 tests, up from 449. Full `npm run verify` green. Sign-in screen rendered and checked at
+  375x812 with no console errors and no horizontal overflow.
+
+**Decisions made and why**
+
+| Decision                                                  | Reason                                                                                                                                                                                                                                            |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AuthenticationStatus` has three states, not two          | Firebase restores a session asynchronously. Collapsing the unknown moment into `signedOut` flashes the sign-in screen at an already-signed-in user on every refresh                                                                               |
+| A closed popup does **not** trigger the redirect fallback | `auth/popup-blocked` means the browser refused, and a redirect is the only way through. `auth/popup-closed-by-user` means he changed his mind — redirecting him to Google anyway is the app arguing with him                                      |
+| The Google "G" carries hard-coded hexes                   | A brand mark that recoloured with the palette stops being the brand mark. Same category as the neutral highlight and shadow overlays, so it is now written into DESIGN_SYSTEM.md as a third allowed exception rather than left as a silent breach |
+| A failed user-document write does not block sign-in       | Auth worked; the write is what failed, which in practice means the rules are not deployed. The message says so, and the user is let through rather than bounced off a screen they already dealt with                                              |
+| The dev-only media review screen sits outside the gate    | It renders content from `src/content/` and touches nothing personal. Signing in to look at a sheet of animations is friction for no gain                                                                                                          |
+| `App.test.tsx` mocks the two service modules              | CLAUDE.md section 5 says not to test Firebase. Mocking them also means `firebaseApp.ts` is never imported in tests, so no app is initialised and no IndexedDB cache is opened in jsdom                                                            |
+
+**Notes for the next session**
+
+- **This is a checkpoint, not a finished milestone.** M4 still needs the typed repositories
+  for the other seven collections and the onboarding flow that writes `profile/current`.
+- **Do not re-ask for the Firebase setup.** All of it is done and verified. If something looks
+  wrong, `firebase firestore:databases:list` and the Identity Toolkit `projects` endpoint will
+  report the live state without needing Omar.
+- The sign-in screen fixes verbosity at `standard` and the rotation index at `0`, because
+  settings live in Firestore and there is nobody to load them for yet. Once M8 has a settings
+  repository, that screen can read the real value.
+- `ensureUserDocumentExists` costs one read and one write per sign-in. That is deliberate and
+  documented in [DATA_MODEL.md](DATA_MODEL.md#6-cost) — it is not worth optimising.
 
 ---
 

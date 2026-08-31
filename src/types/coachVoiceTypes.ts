@@ -14,6 +14,9 @@
  * editing content.
  */
 export const COACH_LINE_CATEGORIES = [
+  /** The sign-in screen, before there is anybody to talk to yet. */
+  'signInWelcome',
+
   /** Opening a session, before the warm-up. */
   'sessionOpening',
 

@@ -19,6 +19,7 @@
     "media:verify": "node tools/exercise-media/verifyExerciseMedia.mjs",
     "icons:generate": "node tools/appIcon/generateAppIcons.mjs",
     "icons:verify": "node tools/appIcon/verifyAppIcons.mjs",
+    "coach:export": "node tools/coaching/exportCoachingBundle.mjs",
     "verify": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {
@@ -43,6 +44,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.5",
+    "firebase-admin": "^14.3.0",
     "globals": "^17.11.0",
     "jsdom": "^30.0.1",
     "prettier": "^3.9.6",

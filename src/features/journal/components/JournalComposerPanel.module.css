@@ -1,0 +1,166 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-4);
+}
+
+.fieldLabel {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  color: var(--text-secondary);
+}
+
+.textField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.textInput {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-medium);
+  background: rgba(var(--surface-tint-rgb), 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  font-family: inherit;
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  resize: vertical;
+}
+
+.textInput:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+.kindField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border: none;
+}
+
+.kindOptions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/*
+ * A real radio inside a label, visually hidden and drawn as a chip. The browser
+ * then handles keyboard operation and announces the group, which a row of
+ * styled buttons would not — the same reasoning as `ChoiceChipGrid`, which is
+ * checkboxes because it is a multi-select and this one is not.
+ */
+.kindOption {
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 var(--space-3);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-medium);
+  background: rgba(var(--surface-tint-rgb), 0.16);
+
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--motion-easing),
+    color var(--motion-fast) var(--motion-easing);
+}
+
+.kindOption.isSelected {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  color: var(--text-primary);
+}
+
+.kindOption:has(.hiddenRadio:focus-visible) {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 3px;
+}
+
+.hiddenRadio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.kindHint {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+}
+
+/*
+ * One field per row rather than a wrapping grid. Two of these fit across a
+ * phone by about a pixel, which means the layout would flip between one column
+ * and two on nothing — and this app is used on a phone, one-handed, where a
+ * full-width target is the better one anyway.
+ */
+.tagRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.tagField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.tagInput {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-medium);
+  background: rgba(var(--surface-tint-rgb), 0.16);
+
+  font-family: inherit;
+  font-size: var(--text-label-size);
+  color: var(--text-primary);
+}
+
+.tagInput:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+/*
+ * The native date and select popups are drawn by the platform in its own
+ * colours, so the option list is left alone rather than half-styled into
+ * something that looks broken on one browser and fine on another.
+ */
+.tagInput option {
+  color: initial;
+}
+
+.problemList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.problem {
+  font-size: var(--text-label-size);
+  line-height: var(--line-height-normal);
+  color: var(--danger-gradient-start);
+}

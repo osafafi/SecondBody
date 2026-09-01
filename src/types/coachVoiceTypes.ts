@@ -73,6 +73,15 @@ export const COACH_LINE_CATEGORIES = [
 
   /** The at-home mobility routine. */
   'mobilityRoutineOpening',
+
+  /**
+   * The journal, sitting empty and inviting a note. Deliberately low-pressure:
+   * a blank page that nags is a blank page nobody writes on.
+   */
+  'journalPrompt',
+
+  /** An entry was just saved. An acknowledgement, not a congratulation. */
+  'journalEntrySaved',
 ] as const;
 
 export type CoachLineCategory = (typeof COACH_LINE_CATEGORIES)[number];

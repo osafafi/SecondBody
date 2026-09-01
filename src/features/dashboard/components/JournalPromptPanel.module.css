@@ -1,0 +1,58 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.headlineText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  font-size: var(--text-heading-size);
+  font-weight: var(--text-heading-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.description {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+/*
+ * A link rather than a button, because it goes somewhere. Styled to match the
+ * secondary tone of `GradientButton` — see the same treatment on
+ * `TodaySessionPanel`, which is the reason this is a link and not a navigate().
+ */
+.journalLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  min-height: 48px;
+  padding: 0 var(--space-4);
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-large);
+  background: rgba(var(--surface-tint-rgb), 0.2);
+
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.journalLink:active {
+  transform: scale(0.98);
+}
+
+.journalLink:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 3px;
+}

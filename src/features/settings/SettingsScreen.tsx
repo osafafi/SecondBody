@@ -1,4 +1,12 @@
-import { Info, LogIn, MessageSquare, Palette, Settings2, UserRound } from 'lucide-react';
+import {
+  Info,
+  LogIn,
+  MessageSquare,
+  NotebookPen,
+  Palette,
+  Settings2,
+  UserRound,
+} from 'lucide-react';
 
 import { useAuthentication } from '@/app/useAuthentication';
 import { GradientButton } from '@/components/GradientButton/GradientButton';
@@ -7,12 +15,14 @@ import { IconBadge } from '@/components/IconBadge/IconBadge';
 import { ScreenHeader } from '@/components/ScreenHeader/ScreenHeader';
 import { exerciseMediaAttribution } from '@/content/exerciseMedia/exerciseMediaAttribution';
 
+import { CoachingExportPanel } from './components/CoachingExportPanel';
 import { CoachingPreferencesPanel } from './components/CoachingPreferencesPanel';
 import { ColorPalettePicker } from './components/ColorPalettePicker';
 import { ProfileDetailsPanel } from './components/ProfileDetailsPanel';
 import { SignedInAccountPanel } from './components/SignedInAccountPanel';
 import styles from './SettingsScreen.module.css';
 import { useEditableProfile } from './useEditableProfile';
+import { useCoachingBundleDownload } from './useCoachingBundleDownload';
 import { useEditableUserSettings } from './useEditableUserSettings';
 
 /**
@@ -48,6 +58,9 @@ export function SettingsScreen() {
     saveProfileEdits,
     forgetSaveResult,
   } = useEditableProfile();
+
+  const { downloadStatus, downloadErrorMessage, downloadedFileName, downloadCoachingBundle } =
+    useCoachingBundleDownload(signedInUser?.userId ?? null, userProfile);
 
   return (
     <>
@@ -144,6 +157,25 @@ export function SettingsScreen() {
             onEditStarted={forgetSaveResult}
           />
         ) : null}
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionHeading}>
+          <NotebookPen size={14} strokeWidth={2} aria-hidden />
+          Coaching export
+        </h2>
+
+        <p className={styles.sectionDescription}>
+          Everything the app knows about your training, as one file to hand to somebody who can read
+          it.
+        </p>
+
+        <CoachingExportPanel
+          downloadStatus={downloadStatus}
+          downloadErrorMessage={downloadErrorMessage}
+          downloadedFileName={downloadedFileName}
+          downloadCoachingBundle={downloadCoachingBundle}
+        />
       </section>
 
       <section className={styles.section}>

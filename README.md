@@ -17,7 +17,8 @@ Built for one person, on purpose. It is not a general-purpose fitness app.
 | **Schedule** | Calendar of planned vs completed sessions, and where you are in the programme |
 | **Progress** | Weight trend, training volume, personal records                               |
 | **Library**  | Every exercise, with an animated demo and coaching notes                      |
-| **Settings** | Colour palette, profile, targets, how chatty the coach is                     |
+| **Journal**  | Free-text notes written during the week, stored exactly as you wrote them     |
+| **Settings** | Colour palette, profile, targets, how chatty the coach is, data export        |
 
 ## Quick start
 
@@ -45,6 +46,7 @@ can test on the device you will actually use.
 | `npm run media:verify`            | Check the committed animations against the match table     |
 | `npm run icons:generate`          | Redraw the app icons in `public/icons/` from the artwork   |
 | `npm run icons:verify`            | Check the committed app icons still match the artwork      |
+| `npm run coach:export`            | Write your training history to `.coaching/` for a review   |
 
 ## Documentation
 

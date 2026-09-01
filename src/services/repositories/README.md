@@ -38,6 +38,11 @@ The mappings do not treat every field the same way, and the difference is delibe
   back to its default, because a later release both adds new preferences and renames the
   options of existing ones - and a release that bricks the app until every document is
   migrated is a bad release.
+- **A journal entry is never dropped.** `journalDocumentMapping` is the one file here that
+  will not throw over a tag: an unrecognised `entryKind` falls back rather than failing, so a
+  tag a later release renames cannot take somebody's own words down with it. The text itself
+  is still required, because an entry that reads back as an empty string is worse than an
+  error naming the document.
 
 ## Nulls are answers
 

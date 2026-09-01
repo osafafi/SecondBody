@@ -9,6 +9,14 @@ export const APP_ROUTE_PATHS = {
   schedule: '/schedule',
   progress: '/progress',
   settings: '/settings',
+
+  /**
+   * The training journal (M10). Inside the app shell but deliberately not in
+   * the bottom navigation — four targets across a phone is comfortable and five
+   * is fiddly, so it is reached from the Today screen. See `BottomNavigation`.
+   */
+  journal: '/journal',
+
   exerciseLibrary: '/library',
   activeSession: '/session',
 

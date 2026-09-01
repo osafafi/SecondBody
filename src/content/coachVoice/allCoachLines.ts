@@ -2,6 +2,7 @@ import type { CoachLine, CoachLineCategory } from '@/types/coachVoiceTypes';
 
 import { authenticationCoachLines } from './authenticationCoachLines';
 import { habitCoachLines } from './habitCoachLines';
+import { journalCoachLines } from './journalCoachLines';
 import { onboardingCoachLines } from './onboardingCoachLines';
 import { programCoachLines } from './programCoachLines';
 import { sessionCoachLines } from './sessionCoachLines';
@@ -24,6 +25,7 @@ export const allCoachLines: CoachLine[] = [
   ...setFeedbackCoachLines,
   ...programCoachLines,
   ...habitCoachLines,
+  ...journalCoachLines,
 ];
 
 /** Every line written for one moment, in the order they were authored. */

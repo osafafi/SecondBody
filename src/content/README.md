@@ -26,6 +26,8 @@ content/
                 the week. Here rather than in a feature because onboarding asks
                 these questions and Settings asks them again.
   coachVoice/   Everything Harout says.
+  coaching/     The facts a coaching bundle needs from this folder, gathered once so
+                the two export callers cannot resolve them differently.
 ```
 
 ## How it fits together

@@ -9,14 +9,14 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ## Current state
 
-|                       |                                                                                                                                                             |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Current milestone** | M9 — deployment                                                                                                                                             |
-| **Status**            | Merged to `main`. The deploy has not completed a full run yet: the rules job needs one more IAM role on the service account — see the session 14 follow-ups |
-| **Current branch**    | `fix/rules-admin-role-check`, branched off `main`                                                                                                           |
-| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs are real                                                                                          |
-| **Backend wired?**    | Yes. Every collection in the data model now has a caller both ways                                                                                          |
-| **Deployed?**         | Not yet. `build` is green; `deploy-firestore-rules` fails on a missing role, so Pages has never run. Nothing has half-shipped                               |
+|                       |                                                                                                                               |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Current milestone** | M10 — the training journal. **The last milestone on the list**                                                                |
+| **Status**            | Built on `feat/training-journal`, not yet pushed. `npm run verify` is green                                                   |
+| **Current branch**    | `feat/training-journal`, branched off `main`                                                                                  |
+| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs plus the journal are real                                           |
+| **Backend wired?**    | Yes. Every collection in the data model has a caller both ways                                                                |
+| **Deployed?**         | Not yet. `build` is green; `deploy-firestore-rules` fails on a missing role, so Pages has never run. Nothing has half-shipped |
 
 > **Read session 6 before touching the exercise animations.** The generated SVGs are gone.
 > The media is now sourced from an open dataset, and it is **not this project's to
@@ -41,12 +41,19 @@ every rule has a test, but nobody has logged a real set on a real phone with a r
 Firestore behind it. M9 was the thing standing in the way; once the Pages URL exists, it is
 just a case of going.
 
-**Then M10 — the training journal**, on `feat/training-journal`. It is the last milestone on
-the list.
+**M10 is built and every milestone on the list is done.** `feat/training-journal` is waiting
+to be pushed. What is left is not code: it is the two console steps above, a real session in
+a real gym, and then a few weeks of actually using it before deciding what the next thing is.
+
+**`npm run coach:export` has never been run against the real project.** It is tested where a
+test can reach — the argument parsing, the assembly, the determinism — but the half that
+talks to `firebase-admin` has only ever been reasoned about. The first run needs
+`gcloud auth application-default login` and it needs data in Firestore to be worth anything,
+so it is properly exercised on the same trip as the gym session, not before.
 
 **There are no `ComingSoonPanel`s left, and the component is gone.** M8 was the milestone it
 was supposed to die in, so it was deleted rather than left as dead code with a doc comment
-promising it would be. Adding a placeholder back for M10 is one small file in git history.
+promising it would be. M10 needed no placeholder — the journal shipped as a real screen.
 
 **Three things M8 finished that earlier milestones started:**
 
@@ -92,19 +99,19 @@ explains why and in which order.
 
 One branch and one pull request each. Do not mix milestones.
 
-| #   | Branch                         | Contents                                                                                      | Status      |
-| --- | ------------------------------ | --------------------------------------------------------------------------------------------- | ----------- |
-| M0  | `feat/repo-foundation`         | Git, Vite + TS scaffold, lint, format, tests, all docs, CI                                    | **Done**    |
-| M1  | `feat/design-system`           | Tokens, palettes, `GradientSurface` and primitives, app shell, bottom nav, palette switcher   | **Done**    |
-| M2  | `feat/training-content`        | Exercise database, 12-week programme, mobility routines, coach voice, `domain/` logic + tests | **Done**    |
-| M3  | `feat/exercise-media-pipeline` | Media spec, dataset match table, copy tool, verifier, 27 animations + 9 fallbacks             | **Done**    |
-| M4  | `feat/firebase-data-layer`     | Firebase init, Google Sign-In, typed repositories, security rules, onboarding                 | **Done**    |
-| M5  | `feat/active-session`          | Session player state machine, set logging, rest timer, wake lock                              | **Done**    |
-| M6  | `feat/dashboard-and-schedule`  | Today screen, calendar, 48-hour recovery awareness                                            | **Done**    |
-| M7  | `feat/progress-tracking`       | Weight trend, volume charts, personal records                                                 | **Done**    |
-| M8  | `feat/habits-and-settings`     | Daily habit checklist, quick weigh-in, settings screen, profile editing                       | **Done**    |
-| M9  | `feat/pages-deployment`        | Deploy workflow, Firestore rules deployed from CI, web manifest, generated icons              | **Done**    |
-| M10 | `feat/training-journal`        | Free-text journal, the coaching export bundle, and the `coach-review` skill                   | Not started |
+| #   | Branch                         | Contents                                                                                      | Status   |
+| --- | ------------------------------ | --------------------------------------------------------------------------------------------- | -------- |
+| M0  | `feat/repo-foundation`         | Git, Vite + TS scaffold, lint, format, tests, all docs, CI                                    | **Done** |
+| M1  | `feat/design-system`           | Tokens, palettes, `GradientSurface` and primitives, app shell, bottom nav, palette switcher   | **Done** |
+| M2  | `feat/training-content`        | Exercise database, 12-week programme, mobility routines, coach voice, `domain/` logic + tests | **Done** |
+| M3  | `feat/exercise-media-pipeline` | Media spec, dataset match table, copy tool, verifier, 27 animations + 9 fallbacks             | **Done** |
+| M4  | `feat/firebase-data-layer`     | Firebase init, Google Sign-In, typed repositories, security rules, onboarding                 | **Done** |
+| M5  | `feat/active-session`          | Session player state machine, set logging, rest timer, wake lock                              | **Done** |
+| M6  | `feat/dashboard-and-schedule`  | Today screen, calendar, 48-hour recovery awareness                                            | **Done** |
+| M7  | `feat/progress-tracking`       | Weight trend, volume charts, personal records                                                 | **Done** |
+| M8  | `feat/habits-and-settings`     | Daily habit checklist, quick weigh-in, settings screen, profile editing                       | **Done** |
+| M9  | `feat/pages-deployment`        | Deploy workflow, Firestore rules deployed from CI, web manifest, generated icons              | **Done** |
+| M10 | `feat/training-journal`        | Free-text journal, the coaching export bundle, and the `coach-review` skill                   | **Done** |
 
 ### M10, and why it is last
 
@@ -1283,3 +1290,93 @@ which is the usual reason someone is sure they granted a role that is not there.
 If Firebase Rules Admin turns out to be present, this diagnosis is wrong and the next things
 to rule out are the key belonging to another project — the job now prints its project id —
 and the service account being disabled.
+
+---
+
+### Session 15 - 2026-09-01 - M10 the training journal
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/training-journal`, branched off `main`
+
+The last milestone. Two halves of one idea: a place to write things down during the week, and
+a way to get everything out so a conversation about it can happen in Claude Code with the data
+already in front of it.
+
+**Done**
+
+- **`journalEntries`, the collection.** `journalTypes.ts`, `journalEntryDrafting.ts`,
+  `journalDocumentMapping.ts` and `journalEntriesRepository.ts` — the same four-file shape as
+  every other collection. Two things about it are unlike the others:
+  - **Append only.** No update, no delete, deliberately. An entry is a record of what somebody
+    thought on a day, and an edit would rewrite the history a review reads. If a note turns out
+    to be wrong, another note saying so is the honest fix.
+  - **The mapping never drops an entry.** Every other mapping here either throws on an
+    unrecognised value or silently discards it. Neither is right for somebody's own words, so
+    an unknown `entryKind` falls back and the text still comes back. `bodyText` itself is
+    required, because an entry that reads as an empty string is worse than an error.
+- **`src/domain/coachingBundle.ts`** — everything a coach would need, as one object. It is not
+  a Firestore dump: exercise ids resolve to names, each set collapses to one line
+  (`"60 kg x 8 brutal (prescribed 10)"`), and every aggregate comes from the domain function
+  the app's own screens already use, so the bundle and the Progress tab cannot disagree.
+- **`src/domain/coachingBundleAssembly.ts`** — stored documents to a finished bundle, in one
+  pure function, because there are two callers and they must not diverge.
+- **The journal screen** at `/journal`, reached from a panel on Today. Composer, entry list,
+  three kinds of note, and an optional session or movement tag.
+- **A download button in Settings**, and **`npm run coach:export`** — a Node script using
+  `firebase-admin` with Application Default Credentials, writing to a gitignored `.coaching/`.
+- **`.claude/skills/coach-review/SKILL.md`** — how to find a bundle, what is in it, what order
+  to read it in, and what not to do with it.
+- **`WEEKDAY_NAMES` moved into `calendarDates`.** The Schedule header had its own copy and the
+  bundle needed one; two lists that start the week on different days is a bug waiting.
+- **118 new tests, 1,096 in total**, up from 978.
+
+**Decisions made and why**
+
+| Decision                                                                 | Reason                                                                                                                                                                                                                                                                       |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The journal is not a fifth tab                                           | `BottomNavigation` already says why: four targets across a phone is comfortable and five is fiddly. It sits inside the shell, reached from Today, the same shape the exercise library was always going to have                                                               |
+| The export script loads `src/` through Vite's `ssrLoadModule`            | The alternative was a second copy of the bundle shape written in JavaScript, which would start identical and drift — the entire failure this design exists to prevent. It costs a second of start-up and no new dependency, since Vite is already a dev dependency           |
+| Application Default Credentials, not a second service account key        | The existing key is narrow enough that leaking it means a failed deploy. A key that can read the whole training log, living on a laptop, is a different category of thing. ADC has no file to leak and revoking it is revoking your own session                              |
+| The queries in the export script are written out again                   | A Node process has no browser to sign in with, so it cannot use `src/services/repositories/`. Each query names the repository it mirrors in a comment. The **limits** are not duplicated — both callers read `COACHING_EXPORT_LIMITS`                                        |
+| The document **mappings** are not written out again                      | They import no Firebase at all, which M4 did to make them testable and which turns out to be exactly what lets an admin-SDK document go through the same translation the app uses                                                                                            |
+| A set is one line of text, not an object                                 | A session is thirty of them. Thirty five-field objects would be most of the bundle for none of the meaning. `(prescribed N)` and `(sharp pain)` appear only when true, because a line saying "no pain" thirty times buries the one that does not                             |
+| The effort rating stays as the stored word                               | `justRight` rather than "just right". A bundle is a view of the database, and prettying the values would mean a reader seeing something the database does not say. It also avoids a fourth copy of a label that already exists in a feature this layer may not import        |
+| `reviewStatus` is written although nothing flips it                      | The flip belongs to the unscheduled write-back half. Adding the field later would mean backfilling every document written before it, and `readJournalEntriesAwaitingReview` already queries on it. Recorded in the type, the README and DATA_MODEL so it is not read as dead |
+| The journal write is the one write in the app that is **not** optimistic | A rolled-back tick has cost nobody anything. A rolled-back paragraph has thrown away something that only existed in somebody's head                                                                                                                                          |
+| The composer validates on submit, never while typing                     | A form that turns red halfway through a sentence about a sore knee is a form that teaches you not to write sentences about sore knees                                                                                                                                        |
+| Changing the tagged session clears the tagged movement                   | The movement list is drawn from the selected session, so keeping it would put a leg press on a pulling session in the bundle. There is a component test for exactly this                                                                                                     |
+| The content facts are gathered in `src/content/coaching/`                | Both callers need the programme, the step ramp, the sleep target and an exercise-name resolver. Gathering them at each caller is how one ends up using `shortDisplayName` and the other `displayName`, which would change the bundle and nobody would notice                 |
+| The tag fields are one per row rather than a wrapping grid               | Found by looking at it: two of them fit across a 375px phone by about one pixel, so the layout flipped between one column and two on nothing. Full width is the better thumb target anyway                                                                                   |
+
+**Notes for the next session**
+
+- **Nobody has still walked a real session in a gym.** Unchanged since M5 and still the check
+  that matters most. M10 adds a second thing to do on that trip: write a journal entry on the
+  phone, then run `npm run coach:export` at home and read what comes out.
+- **The export script has never been run against the real project.** Its pure parts are tested
+  — arguments, assembly, determinism — but the `firebase-admin` half has only been reasoned
+  about. It needs `gcloud auth application-default login`, and it needs data in Firestore to be
+  worth running, so the first real run belongs with the gym trip.
+- **`firebase-admin` is a new dev dependency**, and it brings six moderate advisories with it,
+  all through a transitive `uuid`. `npm audit --omit=dev` reports **0** — none of this reaches
+  the shipped bundle, which does not contain `firebase-admin` at all. It is a local script run
+  by hand. Left alone rather than force-fixed, because `npm audit fix --force` would move
+  `firebase-admin` itself.
+- **The panels were verified through a throwaway preview**, the trick sessions 10 to 12
+  recorded: a scratch component plus a one-line swap in `main.tsx` rendered the composer, the
+  entry list, the Today prompt and the export panel with fixture data, and both were reverted
+  before committing. One real problem came out of it and is in the decisions table above.
+- **The journal screen reads the preferences document itself** rather than borrowing
+  `useTrainingOverview`, which was the first attempt. That hook also reads the programme
+  assignment and forty sessions, and the journal wants neither — three reads to render one
+  coach line would have been a poor trade on a screen somebody opened to type a sentence.
+- **The journal composer and the entry list are the only new components**, and neither is in
+  `src/components/`. Nothing else needs them yet. If a second feature ever renders a note, the
+  entry list is the one to promote.
+- **`COACHING_BUNDLE_FORMAT_VERSION` is 1.** Bump it when the shape changes in a way a reader
+  would need to know about, and say what changed in the `coach-review` skill at the same time —
+  the skill is the thing that reads it.
+- The bundle carries the whole body-weight series rather than only the headline average. It is
+  about thirty numbers over a block, and it is the thing a coach actually reads.
+- The built bundle is 1,138 kB before gzip (334 kB after), up from 1,090 at the end of M7.
+  `firebase-admin` is nowhere near it — the export script is a dev tool, not part of the app.

@@ -7,21 +7,30 @@ import {
   readRecentJournalEntries,
 } from '@/services/repositories/journalEntriesRepository';
 import { describeRepositoryError } from '@/services/repositories/repositoryErrorMessages';
+import { readUserSettings } from '@/services/repositories/userSettingsRepository';
 import { readRecentWorkoutSessions } from '@/services/repositories/workoutSessionRepository';
 import type { JournalEntry } from '@/types/journalTypes';
 import type { WithDocumentId, WorkoutSession } from '@/types/trainingHistoryTypes';
+import type { UserSettings } from '@/types/userAccountTypes';
 
 /**
  * The journal, read once and appended to.
  *
- * Two reads, because the screen needs two things: what has already been
- * written, and enough recent sessions to offer as tags. They go out together in
- * one `Promise.all` so the screen has one loading state rather than a composer
- * that appears before the tag picker it contains.
+ * Three reads, because the screen needs three things: what has already been
+ * written, enough recent sessions to offer as tags, and how much of Harout the
+ * user asked for. They go out together in one `Promise.all` so the screen has
+ * one loading state rather than a composer that appears before the tag picker
+ * it contains.
  *
- * Deliberately not folded into `useTrainingOverview`. Today and Schedule open
- * on every launch and neither shows a journal entry; adding this to the shared
- * hook would make both of them pay for a collection they never draw.
+ * The preferences document is read here rather than through
+ * `useTrainingOverview`, which also has it. That hook additionally reads the
+ * programme assignment and forty sessions, and nothing on this screen wants
+ * either — paying for both to render one line would be a poor trade on a screen
+ * somebody opened to type a sentence.
+ *
+ * Deliberately not folded into `useTrainingOverview` for the mirror-image
+ * reason: Today and Schedule open on every launch and neither shows a journal
+ * entry.
  */
 
 /**
@@ -53,6 +62,9 @@ export type JournalState = {
   /** Recent sessions offered as tags, newest first. Empty before the first one. */
   taggableSessions: WithDocumentId<WorkoutSession>[];
 
+  /** The stored preferences, or null until they have been read. */
+  userSettings: UserSettings | null;
+
   journalErrorMessage: string | null;
 
   isSavingEntry: boolean;
@@ -82,6 +94,7 @@ type CompletedRead = {
   status: 'ready' | 'failed';
   journalEntries: WithDocumentId<JournalEntry>[];
   taggableSessions: WithDocumentId<WorkoutSession>[];
+  userSettings: UserSettings | null;
   errorMessage: string | null;
 };
 
@@ -107,9 +120,10 @@ export function useJournal(userId: string | null): JournalState {
 
     const loadJournal = async () => {
       try {
-        const [journalEntries, recentSessions] = await Promise.all([
+        const [journalEntries, recentSessions, userSettings] = await Promise.all([
           readRecentJournalEntries(userId, RECENT_JOURNAL_ENTRY_COUNT),
           readRecentWorkoutSessions(userId, TAGGABLE_SESSION_COUNT),
+          readUserSettings(userId),
         ]);
 
         if (!isCurrentRequest) {
@@ -122,6 +136,7 @@ export function useJournal(userId: string | null): JournalState {
           status: 'ready',
           journalEntries,
           taggableSessions: recentSessions,
+          userSettings,
           errorMessage: null,
         });
       } catch (error: unknown) {
@@ -135,6 +150,7 @@ export function useJournal(userId: string | null): JournalState {
           status: 'failed',
           journalEntries: [],
           taggableSessions: [],
+          userSettings: null,
           errorMessage: describeRepositoryError(error),
         });
       }
@@ -206,6 +222,7 @@ export function useJournal(userId: string | null): JournalState {
       journalStatus: 'loading',
       journalEntries: null,
       taggableSessions: [],
+      userSettings: null,
       journalErrorMessage: null,
       isSavingEntry,
       saveErrorMessage,
@@ -219,6 +236,7 @@ export function useJournal(userId: string | null): JournalState {
     journalStatus: completedRead.status,
     journalEntries: completedRead.status === 'ready' ? completedRead.journalEntries : null,
     taggableSessions: completedRead.taggableSessions,
+    userSettings: completedRead.userSettings,
     journalErrorMessage: completedRead.errorMessage,
     isSavingEntry,
     saveErrorMessage,

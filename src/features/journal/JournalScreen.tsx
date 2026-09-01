@@ -9,7 +9,6 @@ import { findCoachLinesByCategory } from '@/content/coachVoice/allCoachLines';
 import { findExerciseById } from '@/content/exercises/allExercises';
 import { formatIsoDate } from '@/domain/calendarDates';
 import { selectCoachLine } from '@/domain/coachLineSelection';
-import { useTrainingOverview } from '@/hooks/useTrainingOverview';
 import type { JournalEntry } from '@/types/journalTypes';
 import type { WithDocumentId, WorkoutSession } from '@/types/trainingHistoryTypes';
 
@@ -40,6 +39,7 @@ export function JournalScreen() {
     journalStatus,
     journalEntries,
     taggableSessions,
+    userSettings,
     journalErrorMessage,
     isSavingEntry,
     saveErrorMessage,
@@ -48,21 +48,23 @@ export function JournalScreen() {
     saveJournalEntry,
   } = useJournal(signedInUserId);
 
-  /*
-   * Only for the coach line's rotation. The journal itself needs nothing from
-   * the programme, and this hook is already loaded and cached by the time
-   * anyone reaches this screen from Today.
-   */
-  const { trainingOverview } = useTrainingOverview(signedInUserId);
-
   /* One reading of the clock for the whole screen. See the note on `TodayScreen`. */
   const todayIsoDate = formatIsoDate(new Date());
 
+  /*
+   * Two different moments, and only one of them applies at a time. Before
+   * anything has been saved this visit, the line invites a note and the empty
+   * list is where it belongs. After a save it acknowledges the save, and it
+   * belongs above the entry that just appeared — where the empty state, by
+   * definition, is no longer rendered.
+   */
+  const hasJustSavedAnEntry = savedEntryCount > 0;
+
   const coachLine = selectCoachLine({
     candidateLines: findCoachLinesByCategory(
-      savedEntryCount > 0 ? 'journalEntrySaved' : 'journalPrompt',
+      hasJustSavedAnEntry ? 'journalEntrySaved' : 'journalPrompt',
     ),
-    configuredVerbosity: trainingOverview?.userSettings.coachVerbosity ?? 'standard',
+    configuredVerbosity: userSettings?.coachVerbosity ?? 'standard',
     rotationIndex: savedEntryCount + (journalEntries?.length ?? 0),
     mayUsePraise: false,
   });
@@ -124,10 +126,18 @@ export function JournalScreen() {
               onEntryWritten={saveJournalEntry}
             />
 
+            {hasJustSavedAnEntry && coachLine ? (
+              <GradientSurface variant="glass" radius="large" className={styles.coachNote}>
+                <p className={styles.coachLine} role="status">
+                  {coachLine.text}
+                </p>
+              </GradientSurface>
+            ) : null}
+
             <JournalEntryList
               entries={buildEntryRows(journalEntries, taggableSessions)}
               todayIsoDate={todayIsoDate}
-              emptyStateCoachLine={coachLine?.text ?? null}
+              emptyStateCoachLine={hasJustSavedAnEntry ? null : (coachLine?.text ?? null)}
             />
           </>
         ) : null}

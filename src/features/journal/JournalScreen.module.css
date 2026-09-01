@@ -41,3 +41,19 @@
   line-height: var(--line-height-normal);
   color: var(--text-secondary);
 }
+
+/*
+ * Harout's acknowledgement after a note lands, above the entry that just
+ * appeared. It is a `status` rather than an `alert` — nothing has gone wrong,
+ * and a screen reader interrupting to say "saved" would be worse than the
+ * silence.
+ */
+.coachNote {
+  padding: var(--space-3) var(--space-4);
+}
+
+.coachLine {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}

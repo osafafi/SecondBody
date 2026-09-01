@@ -1328,7 +1328,7 @@ already in front of it.
   to read it in, and what not to do with it.
 - **`WEEKDAY_NAMES` moved into `calendarDates`.** The Schedule header had its own copy and the
   bundle needed one; two lists that start the week on different days is a bug waiting.
-- **111 new tests, 1,089 in total**, up from 978.
+- **118 new tests, 1,096 in total**, up from 978.
 
 **Decisions made and why**
 
@@ -1366,6 +1366,10 @@ already in front of it.
   recorded: a scratch component plus a one-line swap in `main.tsx` rendered the composer, the
   entry list, the Today prompt and the export panel with fixture data, and both were reverted
   before committing. One real problem came out of it and is in the decisions table above.
+- **The journal screen reads the preferences document itself** rather than borrowing
+  `useTrainingOverview`, which was the first attempt. That hook also reads the programme
+  assignment and forty sessions, and the journal wants neither — three reads to render one
+  coach line would have been a poor trade on a screen somebody opened to type a sentence.
 - **The journal composer and the entry list are the only new components**, and neither is in
   `src/components/`. Nothing else needs them yet. If a second feature ever renders a note, the
   entry list is the one to promote.

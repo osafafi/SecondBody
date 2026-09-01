@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SignedInUser } from '@/types/authenticationTypes';
 import type { UserProfile } from '@/types/userAccountTypes';
@@ -85,6 +85,24 @@ vi.mock('@/services/repositories/workoutSessionRepository', () => ({
 
 const { App } = await import('./App');
 
+/**
+ * The instant these tests run at.
+ *
+ * `buildOnboardedProfile` trains Monday, Wednesday and Friday, and the Today
+ * screen only offers "Start the session" on a training day — on a rest day the
+ * very same link reads "Train it today instead". Reading the real clock made
+ * this file pass three days a week and fail the other four, which is how it went
+ * green in CI on a Monday and red on the Tuesday.
+ *
+ * Deliberately written without a timezone: it parses as local time, so it is a
+ * Monday on a runner in UTC and on a laptop in UTC+3 alike. It also sits after
+ * the profile's `createdAt`, so the programme has started.
+ *
+ * Everything in `src/domain/` takes `now` as an argument precisely to avoid
+ * this. A test that renders the whole app cannot, so it pins the clock instead.
+ */
+const A_MONDAY_DURING_THE_PROGRAMME = new Date('2026-09-07T09:00:00');
+
 function buildOnboardedProfile(): UserProfile {
   return {
     displayName: 'Omar',
@@ -103,12 +121,23 @@ function buildOnboardedProfile(): UserProfile {
 }
 
 beforeEach(() => {
+  /*
+   * Only `Date` is faked. Faking the timers as well would stop Testing Library's
+   * `findBy*` queries and `userEvent`'s delays from ever resolving.
+   */
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(A_MONDAY_DURING_THE_PROGRAMME);
+
   window.localStorage.clear();
   // HashRouter reads the hash, so reset it between tests.
   window.location.hash = '';
   backend.signedInUser = { userId: 'test-user', displayName: 'Omar' };
   backend.storedProfile = buildOnboardedProfile();
   backend.shouldProfileReadFail = false;
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('App', () => {

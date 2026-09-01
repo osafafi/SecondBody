@@ -9,14 +9,14 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ## Current state
 
-|                       |                                                                                                                                      |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| **Current milestone** | M9 — deployment                                                                                                                      |
-| **Status**            | Complete. Awaiting review on `feat/pages-deployment`                                                                                 |
-| **Current branch**    | `feat/pages-deployment`, branched off `main`                                                                                         |
-| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs are real                                                                   |
-| **Backend wired?**    | Yes. Every collection in the data model now has a caller both ways                                                                   |
-| **Deployed?**         | The workflow is written and green locally. **Not yet run** — it needs Omar to push, enable Pages, and add one secret. See session 14 |
+|                       |                                                                                                                                                      |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Current milestone** | M9 — deployment                                                                                                                                      |
+| **Status**            | Merged to `main`. The first deploy failed on a pre-existing clock-dependent test; the fix is on `fix/clock-dependent-app-test` and is not yet merged |
+| **Current branch**    | `fix/clock-dependent-app-test`, branched off `main`                                                                                                  |
+| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs are real                                                                                   |
+| **Backend wired?**    | Yes. Every collection in the data model now has a caller both ways                                                                                   |
+| **Deployed?**         | No. The workflow exists and its `build` job is what failed, so nothing shipped — not the rules and not Pages. See the session 14 follow-up           |
 
 > **Read session 6 before touching the exercise animations.** The generated SVGs are gone.
 > The media is now sourced from an open dataset, and it is **not this project's to
@@ -24,12 +24,12 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ### What to do next
 
-**M9 is written but not yet run, and it cannot be finished by an agent.** Three things are
-Omar's, in this order, and the app is not on a phone until all three are done:
+**`main` is red, and the fix is written but not merged.** Merge
+`fix/clock-dependent-app-test` first — the session 14 follow-up explains what broke. Then two
+things are Omar's, and the app is not on a phone until both are done:
 
-1. **Push and open the pull request** for `feat/pages-deployment`.
-2. **Settings -> Pages -> Source: GitHub Actions** — DEPLOYMENT.md section 3.
-3. **Add the `FIREBASE_SERVICE_ACCOUNT` secret** — SETUP_FIREBASE.md step 8. This is new in
+1. **Settings -> Pages -> Source: GitHub Actions** — DEPLOYMENT.md section 3.
+2. **Add the `FIREBASE_SERVICE_ACCOUNT` secret** — SETUP_FIREBASE.md step 8. This is new in
    M9 and it is the one genuinely new setup task. The deploy fails without it, deliberately.
 
 **Then walk a real session in a gym.** This has been the top of this list since M5 and it is
@@ -1176,3 +1176,37 @@ runs green on pull requests, so the new ground is the two deploy jobs.
   Android build would take, decided against it for now, and asked to stick to the plan. The
   ROADMAP row saying a PWA is enough is therefore left standing rather than quietly
   rewritten.
+
+**Follow-up: the first CI run went red, and it was not M9's doing**
+
+Merged to `main`, and the deploy failed on `App > offers a way into the session player`:
+
+```
+Unable to find role="link" and name `/start the session/i`
+```
+
+**A test that only passed three days a week.** `buildOnboardedProfile` in `App.test.tsx`
+trains Monday, Wednesday and Friday, and the file read the real clock. On a training day the
+Today screen offers "Start the session"; on a rest day the very same link reads "Train it
+today instead". So the test passed on Mon/Wed/Fri and failed the other four days. M9 was
+committed on a Monday and pushed on the Tuesday, which is the entire story — the test has
+been like this since the Today screen was built in M6, and nothing in M9 touched it.
+
+**Fixed by pinning the clock, not by loosening the assertion.** `App.test.tsx` now fakes
+`Date` only — faking the timers as well would stop Testing Library's `findBy*` queries and
+`userEvent` from ever resolving — and sets it to a Monday during the programme. The date is
+written without a timezone on purpose, so it parses as local time and is a Monday on a UTC
+runner and on a UTC+3 laptop alike. The assertion stays exact rather than being softened to
+"some link into the session player", because with the clock pinned it can be.
+
+**The whole suite was audited rather than assumed.** All 978 tests were run against six
+frozen dates — a Tuesday, a Saturday, a Sunday, and three dates in late 2026 and 2027 well
+past the twelve-week programme. Before the fix, exactly one test failed and only on non
+Mon/Wed/Fri dates. After it, 978 pass on every one. The `src/domain/` rule that nothing reads
+a clock is why the damage stopped at a single file.
+
+**Nothing half-shipped.** The failure was in the `build` job, which both deploy jobs depend
+on, so neither the rules nor Pages were touched. That is the ordering in DEPLOYMENT.md
+section 6 doing exactly what it is there for, on its first real outing.
+
+Branch: `fix/clock-dependent-app-test`. One file changed.

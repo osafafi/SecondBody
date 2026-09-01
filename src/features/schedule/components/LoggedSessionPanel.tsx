@@ -172,14 +172,20 @@ function PerformedExerciseCard({ performedExercise }: { performedExercise: Perfo
                   {againstPrescription ? (
                     <span className={styles.setAgainstPrescription}>{againstPrescription}</span>
                   ) : null}
-                </span>
 
-                {performedSet.didCauseSharpPain ? (
-                  <span className={styles.painFlag}>
-                    <AlertTriangle size={14} strokeWidth={2} aria-hidden />
-                    Sharp pain
-                  </span>
-                ) : null}
+                  {/*
+                   * Under the set rather than beside it. A set that both went
+                   * off the prescription and hurt has three things to say, and
+                   * three things across a phone row leaves each of them wrapped
+                   * onto two lines.
+                   */}
+                  {performedSet.didCauseSharpPain ? (
+                    <span className={styles.painFlag}>
+                      <AlertTriangle size={14} strokeWidth={2} aria-hidden />
+                      Sharp pain
+                    </span>
+                  ) : null}
+                </span>
 
                 <span className={styles.setEffort}>
                   {createElement(effort.icon, {

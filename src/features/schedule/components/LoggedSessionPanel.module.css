@@ -220,21 +220,17 @@
   color: var(--text-muted);
 }
 
+/* Inside the text column, under the set, rather than a third thing across the row. */
 .painFlag {
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  margin-left: auto;
 
   font-size: var(--text-caption-size);
   font-weight: 600;
   color: var(--danger-gradient-start);
 }
 
-/*
- * `margin-left: auto` on both this and the pain flag: whichever comes first
- * takes the space, so effort sits at the far end with or without a flag beside it.
- */
 .setEffort {
   display: flex;
   align-items: center;

@@ -84,21 +84,30 @@ export function describePerformedSet(performedSet: PerformedSet): string {
  * set of every session is noise that hides the one set that was not.
  */
 export function describeSetAgainstPrescription(performedSet: PerformedSet): string | null {
-  const differences: string[] = [];
-
-  if (
+  const didWeightDiffer =
     performedSet.prescribedWeightKilograms !== null &&
     performedSet.actualWeightKilograms !== null &&
-    performedSet.actualWeightKilograms !== performedSet.prescribedWeightKilograms
-  ) {
-    differences.push(`asked for ${String(performedSet.prescribedWeightKilograms)} kg`);
+    performedSet.actualWeightKilograms !== performedSet.prescribedWeightKilograms;
+
+  const didRepsDiffer = performedSet.actualReps !== performedSet.prescribedReps;
+
+  if (!didWeightDiffer && !didRepsDiffer) {
+    return null;
   }
 
-  if (performedSet.actualReps !== performedSet.prescribedReps) {
-    differences.push(`asked for ${String(performedSet.prescribedReps)} reps`);
+  /*
+   * Written as one prescription rather than as a list of departures from it.
+   * "asked for 12 kg, asked for 10 reps" says "asked for" twice and takes two
+   * lines on a phone; "asked for 12 kg × 10" is the same fact in one phrase and
+   * matches the shape of the line it sits under.
+   */
+  if (didWeightDiffer && didRepsDiffer) {
+    return `asked for ${String(performedSet.prescribedWeightKilograms)} kg × ${String(performedSet.prescribedReps)}`;
   }
 
-  return differences.length === 0 ? null : differences.join(', ');
+  return didWeightDiffer
+    ? `asked for ${String(performedSet.prescribedWeightKilograms)} kg`
+    : `asked for ${String(performedSet.prescribedReps)} reps`;
 }
 
 /** "52 min", or null when the session never recorded a duration. */

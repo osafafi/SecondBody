@@ -113,7 +113,7 @@ describe('describeSetAgainstPrescription', () => {
     ).toBe('asked for 12 reps');
   });
 
-  it('names both when both differed', () => {
+  it('writes one prescription rather than two departures when both differed', () => {
     expect(
       describeSetAgainstPrescription(
         buildLoggedSet({
@@ -123,7 +123,7 @@ describe('describeSetAgainstPrescription', () => {
           actualReps: 9,
         }),
       ),
-    ).toBe('asked for 30 kg, asked for 12 reps');
+    ).toBe('asked for 30 kg × 12');
   });
 });
 

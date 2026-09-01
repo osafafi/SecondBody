@@ -15,6 +15,7 @@ import {
   movementPatternLabels,
   painAreaLabels,
 } from '@/content/vocabulary/trainingVocabularyLabels';
+import type { ExerciseDefinition } from '@/types/exerciseTypes';
 import type { PainArea } from '@/types/trainingVocabulary';
 
 import styles from './ExerciseDetailScreen.module.css';
@@ -69,7 +70,7 @@ export function ExerciseDetailScreen() {
     <>
       <ScreenHeader
         title={exercise.displayName}
-        subtitle={`${movementCategoryLabels[exercise.movementCategory]} · ${movementPatternLabels[exercise.movementPattern]}`}
+        subtitle={describeCategoryAndPattern(exercise)}
         trailingSlot={
           <NavigationLink
             to={APP_ROUTE_PATHS.exerciseLibrary}
@@ -202,6 +203,20 @@ export function ExerciseDetailScreen() {
       </div>
     </>
   );
+}
+
+/**
+ * "Strength · Squat", or just "Mobility" when both words are the same.
+ *
+ * Every mobility drill is in the `mobility` category *and* has the `mobility`
+ * pattern, so the naive join reads "Mobility · Mobility", which looks like a
+ * rendering bug rather than like two facts that happen to agree.
+ */
+function describeCategoryAndPattern(exercise: ExerciseDefinition): string {
+  const categoryLabel = movementCategoryLabels[exercise.movementCategory];
+  const patternLabel = movementPatternLabels[exercise.movementPattern];
+
+  return categoryLabel === patternLabel ? categoryLabel : `${categoryLabel} · ${patternLabel}`;
 }
 
 function FactRow({ label, value }: { label: string; value: string }) {

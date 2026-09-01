@@ -192,7 +192,7 @@ describe('a day that was trained', () => {
   it('says where a set went off the prescription, and only there', async () => {
     renderDay('2026-08-31');
 
-    expect(await screen.findByText('asked for 30 kg, asked for 12 reps')).toBeInTheDocument();
+    expect(await screen.findByText('asked for 30 kg × 12')).toBeInTheDocument();
 
     /* The first set went to plan, so exactly one row carries a difference. */
     expect(screen.getAllByText(/asked for/)).toHaveLength(1);

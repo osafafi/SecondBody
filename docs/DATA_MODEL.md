@@ -374,3 +374,43 @@ signal drops in the gym invisible — writes queue locally and flush on reconnec
 
 There is no service worker and no asset precaching. If the gym has genuinely no signal on
 first load, the app will not start. That was an accepted trade.
+
+## 8. Starting again from a clean slate
+
+Sometimes the database holds a session nobody actually trained — a walk through the app
+during development that reached the end of the session player and wrote a real
+`workoutSessions` document. That session is indistinguishable from a real one to everything
+downstream: the Today screen says you trained yesterday, the calendar draws a completed day,
+progression reads it as evidence and prescribes off it.
+
+There is no reset button in the app, and there should not be. Deleting training history is a
+once-a-project operation with no undo, and a control that does it does not belong on a screen
+somebody is tapping one-handed in a gym.
+
+**Do it in the Firebase console**, at
+[console.firebase.google.com](https://console.firebase.google.com) → `second-body-osi` →
+Firestore Database → `users` → the single user document.
+
+Delete these three subcollections in full:
+
+| Subcollection        | Why it goes                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `workoutSessions`    | The sessions themselves. This is what makes Today say you trained, and what progression reads                 |
+| `personalRecords`    | Derived from those sessions. Leaving them behind would show bests for lifts with no session behind them       |
+| `programAssignments` | Holds `startedOn` and the A / B / C position. Leaving it starts week 1 from whenever the app was first opened |
+
+Keep everything else. `profile` and `settings` are the real onboarding answers, and deleting
+them means answering height, weight, goals, pain areas and gym equipment again for no gain.
+`bodyMetrics`, `dailyHabits` and `journalEntries` are only there if they were genuinely
+written.
+
+**Deleting `programAssignments` is safe and is the point.** `useTrainingOverview` builds a
+starting assignment in memory when there is none stored and deliberately does not save it —
+see the note at the top of that hook. The assignment is written for real by `prepareSession`
+at the moment a session actually starts, so the twelve weeks begin on the day of the first
+real session rather than on the day somebody first opened the app.
+
+Afterwards the app should say week 1, session A, nothing completed, and the calendar should
+have no filled days at all. If it still says you trained, the browser is holding a cached
+read — Firestore's `persistentLocalCache` is enabled (section 7). Close and reopen the
+installed app.

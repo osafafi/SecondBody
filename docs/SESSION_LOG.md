@@ -1278,3 +1278,111 @@ will be.
 - **The milestone table is closed.** Do not add M11. New work is a numbered item in
   FEEDBACK.md and a branch named after it; `feat/<milestone-slug>` no longer has a milestone
   list to draw from, so CLAUDE.md rule 5 now names FEEDBACK.md instead.
+
+---
+
+### Session 17 - 2026-09-01 - The first feedback, and it is about browsing
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/browse-sessions-and-library`, branched off `main`
+
+The first session driven by [FEEDBACK.md](FEEDBACK.md) rather than by a milestone. Omar
+opened the shipped app, found it "a bit restrictive", and came back with four things. Three
+are built here. The fourth is his to run.
+
+**One branch for four items, by his decision.** CLAUDE.md rule 5 says one item, one branch,
+one pull request, and the honest reading of these four is four branches. He was asked and
+chose one, on the grounds that two of them touch the same files in `features/schedule/` and
+would conflict on the second merge. The rule is not repealed — this is one exception, taken
+knowingly.
+
+**Done**
+
+- **The calendar says which month it is.** The grid is a rolling window of weeks rather than
+  a month, so it was a field of numbers between 1 and 31 with nothing naming them. Each row
+  now carries a heading, drawn only when the month turns over.
+
+  A row of seven days can straddle two months, so one of them has to be chosen.
+  `describeWeekMonth` reads the **median** day, which for an odd-length row is always in the
+  month holding the majority of it. Monday 31 August to Sunday 6 September is six sevenths
+  September; reading the row's first day would file it under August and put every heading a
+  week out for the first six days of a month. This was verified on screen, and the two
+  straddling rows land correctly in both directions.
+
+- **A day is something you can open.** `SessionDetailScreen` at `/schedule/day/:isoDate`,
+  reached from any day in the grid with something behind it and from any row in "Coming up".
+  Past sessions show every set at the weight it was actually done at, what was written
+  afterwards, and where a set went off the prescription. Planned days show the movements and
+  the sets and reps.
+
+  It is addressed by date rather than by session id because half of what it shows has no
+  session document — a future Friday exists only as a projection. It rebuilds the same
+  calendar the grid does, from constants that moved into `src/domain/trainingCalendar.ts` for
+  exactly that reason: the A / B / C projection is a running cycle, so a different window
+  would hand out different letters and the grid would show a B where the day view opened a C.
+
+- **The exercise library is built**, which closes F2. That path had been reserved and empty
+  since M3, on the reasoning that an animation is wanted in a session and nowhere else. The
+  reasoning was wrong in a specific way — it assumed the only reason to look at an exercise is
+  to be about to perform it. `/library` searches and filters every movement;
+  `/library/:exerciseId` is one in full. Neither reads Firestore.
+
+- **`window.scrollTo` on every navigation.** Found by looking at the screens rather than at
+  their tests: opening an exercise from the bottom of the library landed you halfway down its
+  cues. Harmless while the only way to change screen was the bottom navigation between four
+  short ones; not harmless the moment there are screens you reach from partway down a list.
+
+**Two rules this branch is built to keep**
+
+1. **No weight appears on a planned day.** Every number that goes on a bar is decided by
+   `resolveSessionPlan` when the session opens, against history read at that moment. One
+   shown a day early is a guess that has already changed by the time it is acted on. There is
+   a test that fails if a kilogram figure ever renders on a planned day.
+2. **Nothing here starts a session.** Reading what is on Friday is not doing it. Today owns
+   the way into the player because Today is the screen that knows about the 48-hour rail, and
+   a second door would be a second place to get that rail wrong.
+
+**F6, which is not a code defect and is not fixed**
+
+Omar's fourth report: a freshly built app said he had trained yesterday. He had not.
+
+Nothing in the app is wrong. A completed `workoutSessions` document exists — almost certainly
+a walk through the session player during development that reached the end — and every screen
+is reading it correctly. It is simply not a session anybody trained, and it is the input the
+progression rules read to decide what weight goes on the bar.
+
+It could not be fixed from this side. There is no Application Default Credential on this
+machine, so `firebase-admin` cannot reach Firestore, and a "delete all my training data"
+button in the app would be an irreversible control on a screen used one-handed in a gym,
+built for a once-a-project problem. Omar chose the console, by hand. The procedure is
+[DATA_MODEL.md section 8](DATA_MODEL.md#8-starting-again-from-a-clean-slate): delete
+`workoutSessions`, `personalRecords` and `programAssignments`, keep `profile` and `settings`.
+
+Deleting the assignment is the part that is easy to get nervous about and is actually the
+point — `useTrainingOverview` builds one in memory when there is none stored and deliberately
+does not save it, so the twelve weeks begin on the day of the first real session rather than
+on the day the app was first opened.
+
+**How it was verified**
+
+Every new screen sits behind the authentication gate, and signing in as Omar was not an
+option. So:
+
+- `SessionDetailScreen.test.tsx` renders all four states a date can resolve to, with
+  Firestore mocked the way `App.test.tsx` does it. `ExerciseLibraryScreen.test.tsx` renders
+  with no mocks at all, because there is nothing to mock.
+- The visuals were checked by temporarily registering the library screens and a scratch
+  component outside the gates, screenshotting at 375x812, and then deleting both. `App.tsx`
+  has no diff against the commit that preceded that check.
+
+**Notes for the next session**
+
+- **F6 first, then the first real session.** Week 1 starting on top of a session that never
+  happened is worse than a day's delay.
+- `JournalPromptPanel.module.css` still hard-codes `rgba(255, 255, 255, 0.14)`, against
+  CLAUDE.md section 4. It was left alone because it is not this item, but the new
+  `NavigationLink` is the component that should replace that link, and doing so would remove
+  the literal.
+- **The bottom navigation is still four items.** Two features now have front doors on Today
+  instead — the journal and the library. A third would be a reason to reopen the question,
+  not a reason to add a fifth tab quietly.

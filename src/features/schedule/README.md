@@ -3,16 +3,52 @@
 The training calendar: which sessions are done, which are planned, which were missed, and
 where the twelve weeks have got to.
 
-**Status:** built in **M6**.
+**Status:** built in **M6**, extended by **F3** and **F4** with month headings and a day view.
 
 ## The four panels
 
 | Panel                  | What it is for                                                                   |
 | ---------------------- | -------------------------------------------------------------------------------- |
 | `ProgramProgressPanel` | Week N of 12, the three phases, and a bar measured in sessions rather than weeks |
-| `TrainingCalendarGrid` | Five weeks of days, from `buildTrainingCalendar`                                 |
-| `UpcomingSessionsList` | The next three training days and what each one is                                |
+| `TrainingCalendarGrid` | Seven weeks of days, from `buildTrainingCalendar`                                |
+| `UpcomingSessionsList` | The next five training days and what each one is                                 |
 | `RecoveryRailPanel`    | The 48-hour rail, stated in full                                                 |
+
+## The day view
+
+`SessionDetailScreen` at `/schedule/day/:isoDate`, reached by tapping a day in the grid or a
+row in "Coming up". It shows one of four things: a session that happened, a session left
+unfinished, a session that is planned, or an honest account of why a day has nothing behind
+it.
+
+**It is addressed by date, not by session id.** Half of what it shows has no session document
+— a future Friday exists only as a projection out of `buildTrainingCalendar`.
+
+**It rebuilds the same calendar the grid did**, from the constants exported by
+`src/domain/trainingCalendar.ts`. That is load-bearing rather than lazy: the A / B / C
+projection is a running cycle, so a different window would hand out different letters and the
+grid would show a B on Friday while the day view opened a C.
+
+Two things it deliberately does not do:
+
+- **No weights on a planned day.** Every number that goes on a bar is decided by
+  `resolveSessionPlan` when the session opens, against history read at that moment. One shown
+  a day early is a guess that has already changed. There is a test that fails if a kilogram
+  figure ever appears there.
+- **No way to start a session.** Reading what is on Friday is not doing it. Today owns the way
+  into the player because Today is the screen that knows about the 48-hour rail, and a second
+  door would be a second place to get that rail wrong.
+
+## Why the calendar says which month it is
+
+The grid is a rolling window of weeks rather than a month, so without a heading it is a field
+of numbers between 1 and 31 with nothing naming them. Each row carries a heading, drawn only
+when the month turns over.
+
+A row of seven days can straddle two months. `describeWeekMonth` gives it to whichever month
+holds most of it, by reading the **median** day — for an odd-length row that is always the
+majority month. Reading the row's first day instead would file Monday 31 August to Sunday 6
+September under August, putting the heading a week out for the first six days of every month.
 
 ## Why the recovery panel exists
 

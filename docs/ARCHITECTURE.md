@@ -96,8 +96,14 @@ This split matters and is easy to get wrong.
 | Completed sessions, sets, reps, ratings         | Firestore                 | Personal, and grows forever                                                        |
 | Daily habit ticks                               | Firestore                 | Personal                                                                           |
 | Settings, chosen palette                        | Firestore                 | Personal, and should follow him between devices                                    |
+| Journal entries                                 | Firestore                 | The most personal thing here — it is what he chose to write down                   |
 
 **Nothing personal is ever committed to this repository.**
+
+The one place that pulls personal data back out onto a disk is the M10 coaching export, which
+writes to `.coaching/`. That directory is gitignored, the script authenticates as the user
+through Application Default Credentials rather than through a key, and the rule above is why
+both of those are true. See [DATA_MODEL.md section 5](DATA_MODEL.md#5-what-is-and-is-not-a-secret-here).
 
 ## 6. State management
 

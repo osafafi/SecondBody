@@ -28,6 +28,7 @@ users/{userId}
   +-- bodyMetrics/{metricId}
   +-- dailyHabits/{yyyy-mm-dd}
   +-- personalRecords/{exerciseId}
+  +-- journalEntries/{entryId}
 ```
 
 `dailyHabits` is keyed by ISO date (`2026-09-01`) rather than a random id, so a day can be
@@ -36,8 +37,8 @@ same reason.
 
 ## 3. Document shapes
 
-Types live in `src/types/` — `userAccountTypes.ts`, `trainingHistoryTypes.ts` and
-`dailyTrackingTypes.ts`. These are the shapes, in TypeScript, with the fields named the way
+Types live in `src/types/` — `userAccountTypes.ts`, `trainingHistoryTypes.ts`,
+`dailyTrackingTypes.ts` and `journalTypes.ts`. These are the shapes, in TypeScript, with the fields named the way
 they are actually named.
 
 **Two things below differ from what the application types actually say, and both are
@@ -207,6 +208,40 @@ type PersonalRecord = {
 };
 ```
 
+### `journalEntries/{entryId}`
+
+Free text, written in the app during the week. **Append only** — there is no edit and no
+delete, because an entry is a record of what somebody thought on a day and an edit would
+rewrite the history a coaching review reads.
+
+```ts
+type JournalEntry = {
+  // Exactly what was written. Trimmed at its ends and nowhere else.
+  bodyText: string;
+
+  entryKind: 'reflection' | 'question' | 'concern';
+
+  // The day it is ABOUT, which is not always the day it was typed. A note
+  // written at ten past midnight is about the session that finished at nine.
+  aboutDate: string; // ISO date
+  writtenAt: Timestamp;
+
+  // A workoutSessions document id, an exercise in src/content/exercises/, or
+  // null. Most entries are about the week in general and tag neither.
+  aboutSessionId: string | null;
+  aboutExerciseId: string | null;
+
+  reviewStatus: 'awaitingReview' | 'reviewed';
+  reviewedAt: Timestamp | null;
+};
+```
+
+**Nothing sets `reviewStatus` to `reviewed` yet**, and that is deliberate rather than
+unfinished. Storing what a coaching review concluded is the write-back half of M10, which is
+explicitly not scheduled — see the M10 section of [PROGRESS.md](PROGRESS.md). The field is
+written from the first entry anyway, because adding it later would mean backfilling every
+document that predates it, and `readJournalEntriesAwaitingReview` already queries on it.
+
 ## 4. Security rules
 
 The entire ruleset. It is short on purpose.
@@ -291,6 +326,27 @@ Keys -> delete, then create a new one and update the GitHub secret. Nothing in t
 breaks in the meantime; only the deploy stops working, which is the correct failure
 direction.
 
+### The one that reads the database, and why it is not a key
+
+M10 added `npm run coach:export`, which reads every collection above and writes a coaching
+bundle to `.coaching/`. That is a script with read access to the entire training log, so it
+is worth being equally precise about what it authenticates with: **your own Google account**,
+through Application Default Credentials.
+
+```bash
+gcloud auth application-default login   # once, ever
+```
+
+A second service account key would have been simpler to write and much worse to own. The
+existing key is narrow enough that leaking it means a failed deploy; a key that could read
+this data, sitting on a laptop, is a different category of thing. ADC has no file to leak,
+expires on its own, and revoking it is revoking your own session. See
+[tools/coaching/README.md](../tools/coaching/README.md).
+
+**`.coaching/` is gitignored**, and that is load-bearing rather than tidy: a bundle is body
+weight, every session and every journal entry — precisely the personal data section 1 exists
+to keep out of a public repository.
+
 An earlier version of this document said no service account key should ever exist for this
 project. That was true while rules were deployed by hand, and the trade was made
 deliberately: one narrow credential in one secret store, in exchange for the app and its
@@ -304,6 +360,11 @@ Firestore's free tier allows 50,000 document reads and 20,000 writes per day.
 A heavy day for this app is roughly: 1 session x ~30 sets = 30 writes, plus a handful of
 habit and metric writes, plus maybe 100 reads. That is about **0.2% of a single day's free
 allowance**. This will not cost money.
+
+The coaching export is the most expensive single thing either caller does — six queries whose
+windows are set by `COACHING_EXPORT_LIMITS`, so at most a few hundred documents. It happens
+because somebody pressed a button, not because a screen opened, and even a bundle exported
+every day is a rounding error against the same allowance.
 
 ## 7. Offline
 

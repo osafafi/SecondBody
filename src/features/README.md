@@ -33,6 +33,7 @@ This is what keeps a new feature from becoming a refactor. See
 | `schedule/`            | Calendar of planned vs completed sessions, phase progress                 | M6        |
 | `progress/`            | Weight trend, training volume, personal records                           | M7        |
 | `settings/`            | Palette picker, profile editing, coaching and session preferences         | M8        |
+| `journal/`             | Free-text notes written during the week, stored exactly as written        | M10       |
 | `exerciseMediaReview/` | A dev-only contact sheet of every exercise animation                      | M3        |
 | `exerciseLibrary/`     | Browse every exercise with its animation and coaching notes. Not built    | —         |
 

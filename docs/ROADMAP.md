@@ -33,6 +33,13 @@ stored; only the screen is missing.
 ("you are down 1.4 kg over three weeks, that is bang on target"). Deliberately more useful
 than a raw line chart, because a raw line chart is what makes people panic on a water-weight day.
 
+**The coaching write-back.** M10 built capture and retrieval: notes are written in the app,
+and a bundle comes out for a conversation in Claude Code. The third part — a review that can
+store what it concluded, and a small closed vocabulary of adjustments the app knows how to
+honour — is deliberately unscheduled. It is the half that changes what weight goes on the
+bar, and it should not be built until there are real weeks of real data to be wrong about.
+`reviewStatus` on a journal entry is the field it would flip first.
+
 ## Worth considering later
 
 **Deload detection.** Watch for stalled progression, repeated "brutal" ratings, or a run of
@@ -48,7 +55,9 @@ Requires OAuth flows that a static site makes awkward — needs research before 
 rather than showing an empty screen.
 
 **Export to CSV.** All sessions and metrics out as a file. Cheap insurance against ever
-feeling locked in, and easy to build.
+feeling locked in, and easy to build. Partly answered by M10's coaching bundle, which is JSON
+rather than CSV and is shaped for reading rather than for a spreadsheet — a CSV would still be
+the better answer for "put my training in Excel".
 
 **More palettes.** Three ship today (purple-blue, emerald-teal, amber-crimson). Adding
 another is one file in `src/theme/palettes/` plus a line in the registry — it then appears

@@ -48,6 +48,12 @@ service-account*.json
 *-firebase-adminsdk-*.json
 gcloud-service-key.json
 
+# Exported coaching bundles. Every one of them is body weight, every session and
+# everything written in the journal — exactly the personal data rule 2 of
+# CLAUDE.md exists to keep out of a public repository. `npm run coach:export`
+# writes here and nothing else does. See tools/coaching/README.md.
+.coaching/
+
 # Local Claude Code settings (machine-specific). launch.json IS committed, since
 # it tells any future session how to start the dev server.
 .claude/settings.local.json

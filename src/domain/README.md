@@ -53,6 +53,9 @@ a hand-built twelve week fixture would only prove they work on a fixture.
 | `personalRecordProgress`     | Which lifts in a finished session were the best they have ever been (M7)            |
 | `habitCompliance`            | What was met, the run of good days, and how the last week went (M8)                 |
 | `profileEditing`             | Which profile fields may be changed later, and what a valid change is (M8)          |
+| `journalEntryDrafting`       | What a usable journal entry is, and what a draft turns into (M10)                   |
+| `coachingBundle`             | Everything a coach would need to know, as one object (M10)                          |
+| `coachingBundleAssembly`     | Stored documents to a bundle — the one path both export callers take (M10)          |
 
 ## The rules these implement
 

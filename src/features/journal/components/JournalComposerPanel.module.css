@@ -107,15 +107,19 @@
   color: var(--text-muted);
 }
 
+/*
+ * One field per row rather than a wrapping grid. Two of these fit across a
+ * phone by about a pixel, which means the layout would flip between one column
+ * and two on nothing — and this app is used on a phone, one-handed, where a
+ * full-width target is the better one anyway.
+ */
 .tagRow {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-3);
 }
 
 .tagField {
-  flex: 1 1 150px;
-
   display: flex;
   flex-direction: column;
   gap: var(--space-2);

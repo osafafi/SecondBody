@@ -11,6 +11,7 @@ Everything the user can change about the app, plus the answers the programme is 
 | **Appearance**            | `selectedPaletteId`. Applies instantly, everywhere, and follows the account        |
 | **Coaching and sessions** | `coachVerbosity`, `shouldPlayRestTimerSound`, `shouldKeepScreenAwakeDuringSession` |
 | **Profile**               | Name, height, target weight, training days, pain areas                             |
+| **Coaching export**       | The whole training history as one file, for a conversation outside the app         |
 | **Account**               | Who is signed in, and signing out                                                  |
 | **Credits**               | The animation attribution. Required, not decorative                                |
 
@@ -50,6 +51,28 @@ nobody finds until it happens to them.
 
 Both are left off because a switch that changes nothing is worse than no switch. They wait
 until there is something behind them.
+
+## The coaching export
+
+**Download my training data** builds the bundle described in
+[tools/coaching/README.md](../../../tools/coaching/README.md): the programme, every session,
+the scale, the habits, the records and every journal entry, as one JSON file.
+
+Two things about it are deliberate.
+
+**It is the same file `npm run coach:export` writes.** The app reads Firestore with the web
+SDK and the script reads it with `firebase-admin`, then both hand what they read to
+`assembleCoachingBundle` in `src/domain/` and both ask `findCoachingContentFacts` for the
+content half. Everything after the read is one pure function, which is the only way two
+processes using two libraries can produce identical bytes. There is a test pinning that the
+shared assembly is deterministic.
+
+**The panel says what is in the file, on the screen.** This is personal data leaving a phone,
+and "your programme, every session, the scale, the habits, your records and every note in the
+journal" belongs where the button is rather than only in a document nobody opens.
+
+`saveTextFileToDevice.ts` is the only DOM-poking in this feature and is kept in its own module
+so the hook above it stays a matter of reads and a pure build.
 
 ## Where the palette lives
 

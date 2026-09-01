@@ -7,6 +7,8 @@ import { formatIsoDate } from './calendarDates';
 import {
   buildTrainingCalendar,
   countMissedTrainingDays,
+  findSessionOnDay,
+  findTrainingCalendarDay,
   findUpcomingTrainingDays,
   flattenTrainingCalendar,
   type TrainingCalendarDay,
@@ -322,5 +324,74 @@ describe('findUpcomingTrainingDays', () => {
     const weeks = buildTrainingCalendar(buildInput({ weeksAfterToday: 3 }));
 
     expect(findUpcomingTrainingDays(weeks, 2)).toHaveLength(2);
+  });
+});
+
+describe('findTrainingCalendarDay', () => {
+  it('finds a day anywhere in the window, not only in the first row', () => {
+    const weeks = buildTrainingCalendar(buildInput({ weeksBeforeToday: 1, weeksAfterToday: 1 }));
+
+    expect(findTrainingCalendarDay(weeks, '2026-04-13')?.isoDate).toBe('2026-04-13');
+    expect(findTrainingCalendarDay(weeks, '2026-03-30')?.isoDate).toBe('2026-03-30');
+  });
+
+  it('returns the day with everything the grid drew it from', () => {
+    const weeks = buildTrainingCalendar(
+      buildInput({ recentSessions: [buildSessionOn(6, { sessionLetter: 'A', weekNumber: 1 })] }),
+    );
+
+    const trainedDay = findTrainingCalendarDay(weeks, '2026-04-06');
+
+    expect(trainedDay?.kind).toBe('completedSession');
+    expect(trainedDay?.sessionLetter).toBe('A');
+    expect(trainedDay?.weekNumber).toBe(1);
+  });
+
+  it('returns null for a date outside the window rather than throwing', () => {
+    const weeks = buildTrainingCalendar(buildInput());
+
+    expect(findTrainingCalendarDay(weeks, '2025-01-01')).toBeNull();
+  });
+});
+
+describe('findSessionOnDay', () => {
+  it('files a completed session under the day it finished', () => {
+    /* Started before midnight, finished after it. The day it counts for is the finish. */
+    const overnightSession = buildWorkoutSession({
+      startedAt: new Date(2026, 3, 6, 23, 30),
+      completedAt: new Date(2026, 3, 7, 0, 40),
+      status: 'completed',
+    });
+
+    expect(findSessionOnDay([overnightSession], '2026-04-07')).toBe(overnightSession);
+    expect(findSessionOnDay([overnightSession], '2026-04-06')).toBeNull();
+  });
+
+  it('files an unfinished session under the day it began, having no finish', () => {
+    const abandonedMidSession = buildWorkoutSession({
+      startedAt: new Date(2026, 3, 6, 18, 0),
+      completedAt: null,
+      status: 'inProgress',
+    });
+
+    expect(findSessionOnDay([abandonedMidSession], '2026-04-06')).toBe(abandonedMidSession);
+  });
+
+  it('agrees with the grid about which day a session is on', () => {
+    const session = buildSessionOn(6, { sessionLetter: 'A' });
+    const weeks = buildTrainingCalendar(buildInput({ recentSessions: [session] }));
+
+    expect(findTrainingCalendarDay(weeks, '2026-04-06')?.kind).toBe('completedSession');
+    expect(findSessionOnDay([session], '2026-04-06')).toBe(session);
+  });
+
+  it('ignores abandoned sessions, the way the grid does', () => {
+    const abandoned = buildSessionOn(6, { status: 'abandoned' });
+
+    expect(findSessionOnDay([abandoned], '2026-04-06')).toBeNull();
+  });
+
+  it('returns null for a day nothing was filed under', () => {
+    expect(findSessionOnDay([buildSessionOn(6)], '2026-04-07')).toBeNull();
   });
 });

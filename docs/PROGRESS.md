@@ -12,17 +12,17 @@ it is.
 
 ## Current state
 
-|                           |                                                                                               |
-| ------------------------- | --------------------------------------------------------------------------------------------- |
-| **Version**               | **v0 — shipped, in use, no training data yet**                                                |
-| **Milestones**            | M0 to M10, all done and all merged. The list is closed                                        |
-| **Current branch**        | `main`. There is no milestone in flight                                                       |
-| **Live at**               | **https://osafafi.github.io/SecondBody/** — installed to a home screen and signed in          |
-| **Deployed?**             | **Yes.** Every push to `main` builds, deploys the Firestore rules, then deploys Pages         |
-| **App runs locally?**     | Yes — `npm run dev`. Sign in, onboard, then all four tabs plus the journal are real           |
-| **Backend wired?**        | Yes. Every collection in the data model has a caller both ways                                |
-| **Real training?**        | **None.** Onboarding is done and Firestore has a profile. **The first session is 2026-09-02** |
-| **Where work comes from** | [FEEDBACK.md](FEEDBACK.md), not the milestone table                                           |
+|                           |                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------- |
+| **Version**               | **v0 — shipped, in use, no training data yet**                                        |
+| **Milestones**            | M0 to M10, all done and all merged. The list is closed                                |
+| **Current branch**        | `feat/browse-sessions-and-library`, answering F2 to F5. Not pushed                    |
+| **Live at**               | **https://osafafi.github.io/SecondBody/** — installed to a home screen and signed in  |
+| **Deployed?**             | **Yes.** Every push to `main` builds, deploys the Firestore rules, then deploys Pages |
+| **App runs locally?**     | Yes — `npm run dev`. Sign in, onboard, then all four tabs plus the journal are real   |
+| **Backend wired?**        | Yes. Every collection in the data model has a caller both ways                        |
+| **Real training?**        | **None.** But Firestore holds one session nobody trained — F6, and Omar's to delete   |
+| **Where work comes from** | [FEEDBACK.md](FEEDBACK.md), not the milestone table                                   |
 
 > **Read session 6 in [SESSION_LOG.md](SESSION_LOG.md) before touching the exercise
 > animations.** The generated SVGs are gone. The media is now sourced from an open dataset,
@@ -41,6 +41,16 @@ it is.
 | Installing to a home screen: manifest, icons, standalone launch             | Every screen that needs completed sessions to have anything to show           |
 
 ### What to do next
+
+**0. Clear the training data that is in Firestore and should not be** — F6 in
+[FEEDBACK.md](FEEDBACK.md), and the procedure is
+[DATA_MODEL.md section 8](DATA_MODEL.md#8-starting-again-from-a-clean-slate). A walk through
+the session player during development wrote a real `workoutSessions` document, so the app
+believes it has been trained on. Everything downstream reads it as evidence — the Today
+screen, the calendar, and the progression that decides what weight goes on the bar. **This
+needs doing before the first real session, not after**, or week 1 starts on top of a session
+that never happened. Only Omar can do it; nothing in this repository has Firestore
+credentials.
 
 **1. The first real session is on 2026-09-02.** This has been the top of this list since M5,
 and every milestone that stood in the way is now done. Nobody has logged a real set on a real
@@ -76,6 +86,15 @@ explains why and in which order.
 **There are no `ComingSoonPanel`s left, and the component is gone.** M8 was the milestone it
 was supposed to die in, so it was deleted rather than left as dead code with a doc comment
 promising it would be.
+
+**`/library` is no longer a reserved path.** It was one from M3 until F2, and the note saying
+so is now wrong wherever it survives. `features/exerciseLibrary/` owns `/library` and
+`/library/:exerciseId`, and `features/schedule/` owns `/schedule/day/:isoDate`.
+
+**The bottom navigation still has four items and should stay that way.** The library and the
+journal are both reached from the Today screen instead. Five targets across a phone is
+fiddly, which is the note on `BottomNavigation` and the reason two features have front doors
+rather than tabs.
 
 **Two stored preferences are deliberately not editable**, and this is worth knowing before
 someone "finishes the settings screen": `defaultRestSeconds` is read by nothing (rest comes
@@ -177,6 +196,6 @@ change, raise it with him.
 
 ## The session log
 
-Sixteen sessions, in [SESSION_LOG.md](SESSION_LOG.md). **Add an entry there at the end of
+Seventeen sessions, in [SESSION_LOG.md](SESSION_LOG.md). **Add an entry there at the end of
 every session, and update the current state table above at the same time.** An unrecorded
 session is a session the next person has to reverse-engineer.

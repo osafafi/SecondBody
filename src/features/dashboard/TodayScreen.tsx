@@ -1,10 +1,12 @@
-import { CalendarHeart, Dumbbell } from 'lucide-react';
+import { BookOpen, CalendarHeart, Dumbbell } from 'lucide-react';
 
+import { APP_ROUTE_PATHS } from '@/app/appRoutes';
 import { useAuthentication } from '@/app/useAuthentication';
 import { useUserProfile } from '@/app/useUserProfile';
 import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
 import { IconBadge } from '@/components/IconBadge/IconBadge';
+import { NavigationLink } from '@/components/NavigationLink/NavigationLink';
 import { ScreenHeader } from '@/components/ScreenHeader/ScreenHeader';
 import { findCoachLinesByCategory } from '@/content/coachVoice/allCoachLines';
 import { nightlySleepTargetHours } from '@/content/habits/dailyHabitDefinitions';
@@ -297,10 +299,30 @@ function TodayBriefing({
         }
       />
 
-      <p className={styles.scheduleHint}>
-        <CalendarHeart size={14} strokeWidth={2} aria-hidden />
-        The Schedule tab has the calendar and where the twelve weeks have got to.
-      </p>
+      {/*
+       * The two screens that are neither the plan for today nor a thing to
+       * write down: the calendar you can browse forwards and back, and every
+       * movement the app knows. Both are one tap from here rather than a fifth
+       * item in the bottom navigation — four targets across a phone is
+       * comfortable and five is fiddly, which is the note on `BottomNavigation`.
+       */}
+      <div className={styles.exploreLinks}>
+        <NavigationLink
+          to={APP_ROUTE_PATHS.schedule}
+          leadingIcon={<CalendarHeart size={16} strokeWidth={2} aria-hidden />}
+          isFullWidth
+        >
+          Calendar
+        </NavigationLink>
+
+        <NavigationLink
+          to={APP_ROUTE_PATHS.exerciseLibrary}
+          leadingIcon={<BookOpen size={16} strokeWidth={2} aria-hidden />}
+          isFullWidth
+        >
+          Exercises
+        </NavigationLink>
+      </div>
     </div>
   );
 }

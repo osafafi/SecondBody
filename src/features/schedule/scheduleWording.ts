@@ -38,6 +38,27 @@ export function formatMonthAndYear(date: Date): string {
   return MONTH_FORMATTER.format(date);
 }
 
+/**
+ * Which month a week row of the calendar belongs to, as "April 2026".
+ *
+ * A row of seven days can straddle two months, so one of them has to be
+ * chosen. The **median** day decides it, and that is not an arbitrary pick: with
+ * an odd number of days, the month holding the median day is always the month
+ * holding the majority of the row. A row of Mon 31 August to Sun 6 September is
+ * six sevenths September, and the median day is the Thursday, which is in
+ * September. Taking the row's first day instead would file that row under
+ * August and put the heading a week out for the first six days of every month.
+ *
+ * Returns an empty string for an empty row, which cannot happen —
+ * `buildTrainingCalendar` always produces seven — but is cheaper to return than
+ * to make impossible in the type.
+ */
+export function describeWeekMonth(weekDates: readonly Date[]): string {
+  const medianDate = weekDates[Math.floor(weekDates.length / 2)];
+
+  return medianDate ? formatMonthAndYear(medianDate) : '';
+}
+
 /** "Monday 6 April at 19:00" — when the 48-hour rail lifts. */
 export function formatDateAndTime(date: Date): string {
   return DATE_AND_TIME_FORMATTER.format(date);

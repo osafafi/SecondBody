@@ -36,12 +36,15 @@ This is what keeps a new feature from becoming a refactor. See
 | `settings/`            | Palette picker, profile editing, coaching and session preferences         | M8        |
 | `journal/`             | Free-text notes written during the week, stored exactly as written        | M10       |
 | `exerciseMediaReview/` | A dev-only contact sheet of every exercise animation                      | M3        |
-| `exerciseLibrary/`     | **Not built.** No folder, no screen, no route                             | —         |
+| `exerciseLibrary/`     | Every movement, searchable, outside any session                           | F2        |
 
-`APP_ROUTE_PATHS.exerciseLibrary` (`/library`) exists as a reserved path but no `<Route>` is
-registered for it, so navigating there falls through to the catch-all and lands on Today.
-Exercise animations are shown inside a session, where they are actually needed. If a library
-is ever built, the path is waiting; until then do not link to it.
+`schedule/` also owns the **day view** (`/schedule/day/:isoDate`) — one day of the calendar,
+opened: what was trained that day, or what is planned for it. It is nested under Schedule so
+the bottom navigation keeps the Schedule tab lit while a day is open.
+
+The exercise library was a reserved path with no screen behind it from M3 until F2, which
+existed to force the question. Omar answered it by asking for the library. See
+[exerciseLibrary/README.md](exerciseLibrary/README.md).
 
 ## Anatomy of a feature
 

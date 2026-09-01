@@ -33,11 +33,26 @@ later.
 
 ## Open
 
-| #   | What                                                        | Reported   | Notes                                                                                                                                                                                                            |
-| --- | ----------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| F2  | Decide what `/library` is for, or delete the reserved route | 2026-09-01 | `APP_ROUTE_PATHS.exerciseLibrary` is a path with no screen behind it. It is documented as reserved rather than left to be rediscovered, but a constant nothing registers is still a decision nobody has made yet |
+| #   | What                                             | Reported   | Notes                                                                                                                                                                                                                  |
+| --- | ------------------------------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F6  | Firestore holds a session that was never trained | 2026-09-01 | Today said "you trained yesterday" on an app that had never been used. A walk through the session player during development reached the end and wrote a real `workoutSessions` document. **Omar's to run** — see below |
 
 _The first real session is 2026-09-02. Expect this table to grow after it._
+
+### F6, in full
+
+This is not a code defect. Nothing in the app is wrong: a completed session document exists,
+and every screen is reading it correctly. The document is simply not a session anybody
+trained.
+
+It cannot be fixed from this side — an agent has no Firestore credentials, and building a
+"delete all my training data" button into the app to solve a once-a-project problem would be
+putting an irreversible control on a screen used one-handed in a gym.
+
+The procedure is **[DATA_MODEL.md section 8](DATA_MODEL.md#8-starting-again-from-a-clean-slate)**:
+delete `workoutSessions`, `personalRecords` and `programAssignments` in the Firebase console,
+and keep `profile` and `settings` so onboarding does not have to be done again. Close this
+item once it has been done and the app says week 1 with nothing completed.
 
 ## In progress
 
@@ -47,9 +62,13 @@ _The first real session is 2026-09-02. Expect this table to grow after it._
 
 ## Done
 
-| #   | What                                                                                     | Branch                            | Notes                                                                                                                                                      |
-| --- | ---------------------------------------------------------------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| F1  | The docs described an app that had not shipped, and a Library screen that does not exist | `docs/v0-state-and-feedback-loop` | v0 state recorded, session log split out, this file created, the real Pages URL written everywhere, and the phantom Library screen removed from the README |
+| #   | What                                                                                     | Branch                             | Notes                                                                                                                                                      |
+| --- | ---------------------------------------------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F1  | The docs described an app that had not shipped, and a Library screen that does not exist | `docs/v0-state-and-feedback-loop`  | v0 state recorded, session log split out, this file created, the real Pages URL written everywhere, and the phantom Library screen removed from the README |
+| F2  | Decide what `/library` is for, or delete the reserved route                              | `feat/browse-sessions-and-library` | **Decided by Omar asking for it.** `features/exerciseLibrary/` is built: every movement, searchable, with its animation and its cues, outside any session  |
+| F3  | The calendar does not show the month                                                     | `feat/browse-sessions-and-library` | Each row of the grid carries a month heading, drawn when the month turns over. A straddling row goes to whichever month holds most of it                   |
+| F4  | Sessions can only be started, not browsed                                                | `feat/browse-sessions-and-library` | `/schedule/day/:isoDate` — tap any day in the grid or any row in "Coming up". Past sessions show every set; planned ones show the movements and no weights |
+| F5  | The exercise library was only reachable from inside a session                            | `feat/browse-sessions-and-library` | Same branch as F2 — the library is the answer to both. Reached from Today, from the Schedule header, and from every movement row on a session              |
 
 ## Declined
 

@@ -1,16 +1,24 @@
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, Dumbbell } from 'lucide-react';
 
+import { APP_ROUTE_PATHS } from '@/app/appRoutes';
 import { useAuthentication } from '@/app/useAuthentication';
 import { useUserProfile } from '@/app/useUserProfile';
 import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
 import { IconBadge } from '@/components/IconBadge/IconBadge';
+import { NavigationLink } from '@/components/NavigationLink/NavigationLink';
 import { ScreenHeader } from '@/components/ScreenHeader/ScreenHeader';
 import { WEEKDAY_NAMES } from '@/domain/calendarDates';
 import { determineDailyTrainingStatus } from '@/domain/dailyTrainingStatus';
 import { findPhaseForWeekNumber, findSessionTemplate } from '@/domain/programPhases';
 import { summariseProgramProgress } from '@/domain/programProgressSummary';
-import { buildTrainingCalendar, findUpcomingTrainingDays } from '@/domain/trainingCalendar';
+import {
+  buildTrainingCalendar,
+  findUpcomingTrainingDays,
+  TRAINING_CALENDAR_FIRST_DAY_OF_WEEK,
+  TRAINING_CALENDAR_WEEKS_AFTER_TODAY,
+  TRAINING_CALENDAR_WEEKS_BEFORE_TODAY,
+} from '@/domain/trainingCalendar';
 import { useTrainingOverview, type TrainingOverview } from '@/hooks/useTrainingOverview';
 import type { ProgramTemplate } from '@/types/programTypes';
 import type { SessionLetter } from '@/types/trainingVocabulary';
@@ -30,14 +38,14 @@ import styles from './ScheduleScreen.module.css';
  * that the two screens cannot disagree about what week it is.
  */
 
-/** Three weeks back and one forward. Enough to see a pattern, not a history. */
-const WEEKS_OF_HISTORY_SHOWN = 3;
-const WEEKS_OF_PLAN_SHOWN = 1;
-
-/** Monday, so a Monday-Wednesday-Friday week does not straddle two rows. */
-const FIRST_DAY_OF_WEEK = 1;
-
-const UPCOMING_SESSION_COUNT = 3;
+/**
+ * How far the "Coming up" list runs.
+ *
+ * Five rather than three, now that a row is something you can open and read.
+ * Three was the right number for a list you could only look at; it is a short
+ * list for one you are meant to browse.
+ */
+const UPCOMING_SESSION_COUNT = 5;
 
 export function ScheduleScreen() {
   const { signedInUser } = useAuthentication();
@@ -55,6 +63,16 @@ export function ScheduleScreen() {
         title="Schedule"
         subtitle={describeTrainingDays(userProfile)}
         leadingSlot={<IconBadge icon={<CalendarDays size={22} strokeWidth={1.75} />} isSolid />}
+        trailingSlot={
+          <NavigationLink
+            to={APP_ROUTE_PATHS.exerciseLibrary}
+            size="compact"
+            leadingIcon={<Dumbbell size={16} strokeWidth={2} aria-hidden />}
+            accessibleLabel="Browse the exercise library"
+          >
+            Library
+          </NavigationLink>
+        }
       />
 
       <div className={styles.body}>
@@ -135,9 +153,9 @@ function ScheduleContent({
 
   const calendarWeeks = buildTrainingCalendar({
     now,
-    weeksBeforeToday: WEEKS_OF_HISTORY_SHOWN,
-    weeksAfterToday: WEEKS_OF_PLAN_SHOWN,
-    firstDayOfWeek: FIRST_DAY_OF_WEEK,
+    weeksBeforeToday: TRAINING_CALENDAR_WEEKS_BEFORE_TODAY,
+    weeksAfterToday: TRAINING_CALENDAR_WEEKS_AFTER_TODAY,
+    firstDayOfWeek: TRAINING_CALENDAR_FIRST_DAY_OF_WEEK,
     trainingDaysOfWeek: userProfile.trainingDaysOfWeek,
     recentSessions,
     nextSessionLetter: startPosition.sessionLetter,

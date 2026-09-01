@@ -1,25 +1,19 @@
 import { findExerciseById } from '@/content/exercises/allExercises';
 import {
-  findPhaseForWeekNumber,
-  findProgramWeek,
-  findSessionTemplate,
-} from '@/domain/programPhases';
-import { isExerciseSlotAvailable } from '@/domain/sessionPlanning';
-import type { ProgramTemplate } from '@/types/programTypes';
-import type { PainArea, SessionLetter } from '@/types/trainingVocabulary';
+  buildPlannedSessionOutline,
+  type PlannedSessionOutlineInput,
+} from '@/domain/plannedSessionOutline';
+import type { SessionLetter } from '@/types/trainingVocabulary';
 
 /**
  * What the session due next contains, without prescribing any of it.
  *
- * The Today screen shows movements and never weights — every number is decided
- * when the session opens, against history read at that moment, and a weight
- * shown a day early would be a second opinion nobody asked for. So this reads
- * the programme content and stops there.
- *
- * The one thing it does borrow from the planner is
- * `isExerciseSlotAvailable`, so that the movements listed here are exactly the
- * movements the session will contain. A slot the pain conditions drop must not
- * appear on the dashboard and then be missing from the session.
+ * The rules — which slots the pain areas drop, what order they come in, and the
+ * fact that no weight comes out of any of it — moved to
+ * `src/domain/plannedSessionOutline.ts` when the Schedule screen needed to ask
+ * the same question about any day rather than only about today. Features may not
+ * import from each other, so the shared part is in the domain and this is the
+ * short adapter that turns exercise ids into the names Today puts on screen.
  */
 
 export type DueSessionOutline = {
@@ -38,49 +32,30 @@ export type DueSessionOutline = {
   movementNames: string[];
 };
 
-export type DueSessionOutlineInput = {
-  programTemplate: ProgramTemplate;
-  weekNumber: number;
-  sessionLetter: SessionLetter;
-
-  /** From the profile. Drops the slots that need an area to be clear. */
-  activePainAreas: PainArea[];
-
-  /** From the profile. A hard blacklist that beats everything. */
-  excludedExerciseIds: string[];
-};
+export type DueSessionOutlineInput = PlannedSessionOutlineInput;
 
 /** Null when the week and letter name a session this programme does not have. */
 export function resolveDueSessionOutline(input: DueSessionOutlineInput): DueSessionOutline | null {
-  const { programTemplate, weekNumber, sessionLetter, activePainAreas, excludedExerciseIds } =
-    input;
+  const plannedSession = buildPlannedSessionOutline(input);
 
-  const phase = findPhaseForWeekNumber(programTemplate, weekNumber);
-  const week = findProgramWeek(programTemplate, weekNumber);
-  const sessionTemplate = phase ? findSessionTemplate(phase, sessionLetter) : null;
-
-  if (!phase || !week || !sessionTemplate) {
+  if (!plannedSession) {
     return null;
   }
 
-  const movementNames = sessionTemplate.exerciseSlots
-    .filter((slot) => isExerciseSlotAvailable(slot, activePainAreas, excludedExerciseIds))
-    .slice()
-    .sort((firstSlot, secondSlot) => firstSlot.orderIndex - secondSlot.orderIndex)
-    .map((slot) => findExerciseById(slot.exerciseId)?.displayName ?? slot.exerciseId);
-
   return {
-    sessionLetter,
-    displayName: sessionTemplate.displayName,
-    summary: sessionTemplate.summary,
+    sessionLetter: plannedSession.sessionLetter,
+    displayName: plannedSession.displayName,
+    summary: plannedSession.summary,
 
-    weekNumber,
-    totalWeekCount: programTemplate.totalWeekCount,
-    phaseDisplayName: phase.displayName,
+    weekNumber: plannedSession.weekNumber,
+    totalWeekCount: plannedSession.totalWeekCount,
+    phaseDisplayName: plannedSession.phaseDisplayName,
 
-    isDeloadWeek: week.isDeloadWeek,
-    isCalibrationWeek: week.isCalibrationWeek,
+    isDeloadWeek: plannedSession.isDeloadWeek,
+    isCalibrationWeek: plannedSession.isCalibrationWeek,
 
-    movementNames,
+    movementNames: plannedSession.slots.map(
+      (slot) => findExerciseById(slot.exerciseId)?.displayName ?? slot.exerciseId,
+    ),
   };
 }

@@ -3,12 +3,27 @@
  *
  * Import from here rather than typing path strings — a typo in a `<Link to>` is
  * invisible until someone taps it in a gym.
+ *
+ * Paths with a parameter in them are declared in the form React Router matches
+ * on, and have a builder underneath that fills the parameter in. Both halves
+ * live here so that the pattern and the thing that satisfies it cannot drift.
  */
 export const APP_ROUTE_PATHS = {
   today: '/',
   schedule: '/schedule',
   progress: '/progress',
   settings: '/settings',
+
+  /**
+   * One day of the calendar: what was trained that day, or what is planned for
+   * it. Nested under Schedule so the bottom navigation keeps the Schedule tab
+   * lit while you are reading a day.
+   *
+   * Keyed by the calendar date rather than by a session id, because a future day
+   * has no session document to name and is exactly what this screen exists to
+   * show. See `features/schedule/SessionDetailScreen.tsx`.
+   */
+  scheduleDay: '/schedule/day/:isoDate',
 
   /**
    * The training journal (M10). Inside the app shell but deliberately not in
@@ -18,14 +33,17 @@ export const APP_ROUTE_PATHS = {
   journal: '/journal',
 
   /**
-   * Reserved, and **not built**. No feature owns this path and no `<Route>` is
-   * registered for it, so navigating here falls through to the catch-all and
-   * lands on Today. It is kept because the path is referenced by name in
-   * `BottomNavigation`'s comment explaining why the library is absent, and a
-   * reserved path is cheaper than a second opinion about what it should be.
-   * See the exercise library row in `src/features/README.md`.
+   * Every exercise the app knows, with its animation and its cues, outside any
+   * session. Reserved and unbuilt until F2 in docs/FEEDBACK.md, which Omar
+   * answered by asking for exactly this.
+   *
+   * Not in the bottom navigation, for the same reason the journal is not — the
+   * ways in are the Today screen and the movement rows on a session.
    */
   exerciseLibrary: '/library',
+
+  /** One exercise, in full. */
+  exerciseDetail: '/library/:exerciseId',
 
   activeSession: '/session',
 
@@ -39,3 +57,18 @@ export const APP_ROUTE_PATHS = {
 } as const;
 
 export type AppRoutePath = (typeof APP_ROUTE_PATHS)[keyof typeof APP_ROUTE_PATHS];
+
+/** The day view for one ISO `YYYY-MM-DD` calendar date. */
+export function buildScheduleDayPath(isoDate: string): string {
+  return `/schedule/day/${isoDate}`;
+}
+
+/**
+ * The library entry for one exercise.
+ *
+ * Exercise ids are camelCase by contract — see `ExerciseDefinition.exerciseId`,
+ * which is also a filename — so there is nothing here that needs escaping.
+ */
+export function buildExerciseDetailPath(exerciseId: string): string {
+  return `/library/${exerciseId}`;
+}

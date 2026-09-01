@@ -1,0 +1,227 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --- Search and filters --------------------------------------------------- */
+
+.searchPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+
+/*
+ * The label wraps the input, so tapping anywhere along the row focuses it. The
+ * visible text is the placeholder; the real label is read out and not drawn.
+ */
+.searchField {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  min-height: 44px;
+  padding: 0 var(--space-3);
+
+  border-radius: var(--radius-medium);
+  border: 1px solid rgba(var(--surface-tint-rgb), 0.28);
+  background: rgba(var(--surface-tint-rgb), 0.1);
+}
+
+.searchField:focus-within {
+  border-color: var(--brand-gradient-start);
+}
+
+.searchIcon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+
+  border: none;
+  background: none;
+  outline: none;
+
+  font: inherit;
+  font-size: var(--text-body-size);
+  color: var(--text-primary);
+}
+
+.searchInput::placeholder {
+  color: var(--text-muted);
+}
+
+/* The browser's own clear affordance, removed so there are not two of them. */
+.searchInput::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.clearButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: rgba(var(--surface-tint-rgb), 0.2);
+  color: var(--text-secondary);
+}
+
+.clearButton:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+.categoryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.categoryChip {
+  min-height: 36px;
+  padding: 0 var(--space-3);
+
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(var(--surface-tint-rgb), 0.28);
+  background: rgba(var(--surface-tint-rgb), 0.08);
+
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-secondary);
+
+  transition:
+    background var(--motion-fast) var(--motion-easing),
+    color var(--motion-fast) var(--motion-easing);
+}
+
+.categoryChip:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+/*
+ * Told apart by fill as well as by colour, the same rule the calendar's four
+ * kinds of day follow. `aria-pressed` carries it for a screen reader.
+ */
+.isSelected {
+  background: linear-gradient(135deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  border-color: transparent;
+  color: var(--text-primary);
+}
+
+/* --- The list ------------------------------------------------------------- */
+
+.exerciseRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  list-style: none;
+}
+
+.exerciseCard {
+  padding: var(--space-2);
+}
+
+.exerciseLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  min-height: 64px;
+  padding: var(--space-2);
+  border-radius: var(--radius-medium);
+
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.exerciseLink:active {
+  transform: scale(0.99);
+}
+
+.exerciseLink:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+.exerciseAnimation {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-small);
+}
+
+.exerciseText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.exerciseName {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.exercisePattern {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--brand-gradient-start);
+}
+
+.exerciseMuscles {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+}
+
+.exerciseChevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+/* --- Nothing matched ------------------------------------------------------ */
+
+.emptyPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+}
+
+.emptyTitle {
+  font-size: var(--text-heading-size);
+  font-weight: var(--text-heading-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.emptyMessage {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+.screenReaderOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

@@ -33,6 +33,28 @@ import {
 
 const DAYS_PER_WEEK = 7;
 
+/**
+ * How much of the calendar the app draws, in whole weeks either side of the week
+ * containing today.
+ *
+ * Here rather than on the Schedule screen because two screens now build the same
+ * calendar and have to agree about it: the grid, and the day view reached by
+ * tapping a square in it. The day view re-derives the calendar to find out what
+ * a planned day is, and a different window would hand out different letters —
+ * the projection is a running cycle, so a row of history added or removed
+ * changes what every future day is called.
+ *
+ * Three weeks back is enough to see a pattern without turning the screen into a
+ * history. Three weeks forward is what makes the plan browsable: one was enough
+ * when a future day was only a coloured square, and is not enough now that a
+ * future day is something you can open and read.
+ */
+export const TRAINING_CALENDAR_WEEKS_BEFORE_TODAY = 3;
+export const TRAINING_CALENDAR_WEEKS_AFTER_TODAY = 3;
+
+/** Monday, so a Monday-Wednesday-Friday week does not straddle two rows. */
+export const TRAINING_CALENDAR_FIRST_DAY_OF_WEEK = 1;
+
 export const TRAINING_CALENDAR_DAY_KINDS = [
   /** A session was completed on this day. */
   'completedSession',
@@ -146,6 +168,24 @@ function indexSessionsByDay(recentSessions: readonly WorkoutSession[]): Map<stri
   }
 
   return sessionsByDay;
+}
+
+/**
+ * The session filed under one calendar day, or null when nothing is.
+ *
+ * The day view needs the session itself, not just the coloured square the grid
+ * drew from it, and "which day is a session filed under" is a question with a
+ * fiddly answer — a completed session goes under the day it *finished*, an
+ * unfinished one under the day it *began*, and an abandoned one nowhere. That
+ * answer lives in `indexSessionsByDay`, so this reads it rather than restating
+ * it. Two places disagreeing about which day a session belongs to would show a
+ * square on one date and open the session on another.
+ */
+export function findSessionOnDay(
+  recentSessions: readonly WorkoutSession[],
+  isoDate: string,
+): WorkoutSession | null {
+  return indexSessionsByDay(recentSessions).get(isoDate)?.session ?? null;
 }
 
 /** A, B, C, A, ... starting from whatever the assignment says is next. */
@@ -269,6 +309,30 @@ export function buildTrainingCalendar(input: TrainingCalendarInput): TrainingCal
   return weeks;
 }
 
+/**
+ * One day of the calendar, by its ISO date. Null when the date is outside the
+ * window the calendar covers.
+ *
+ * This is what the day view is built on. It deliberately reads the calendar
+ * rather than the session list, because the two questions a day view has to
+ * answer — what was done, and what is planned — are the same question here, and
+ * only the calendar knows the answer to the second one.
+ */
+export function findTrainingCalendarDay(
+  weeks: readonly TrainingCalendarWeek[],
+  isoDate: string,
+): TrainingCalendarDay | null {
+  for (const week of weeks) {
+    const day = week.days.find((candidate) => candidate.isoDate === isoDate);
+
+    if (day) {
+      return day;
+    }
+  }
+
+  return null;
+}
+
 /** Every day in the calendar, flattened. Useful for counting. */
 export function flattenTrainingCalendar(
   weeks: readonly TrainingCalendarWeek[],
@@ -289,6 +353,10 @@ export function countMissedTrainingDays(weeks: readonly TrainingCalendarWeek[]):
 
 export type UpcomingTrainingDay = {
   date: Date;
+
+  /** ISO `YYYY-MM-DD`. What the day view is addressed by. */
+  isoDate: string;
+
   sessionLetter: SessionLetter;
   isToday: boolean;
 };
@@ -314,6 +382,7 @@ export function findUpcomingTrainingDays(
     if (day.kind === 'plannedSession' && day.sessionLetter) {
       upcomingDays.push({
         date: day.date,
+        isoDate: day.isoDate,
         sessionLetter: day.sessionLetter,
         isToday: day.isToday,
       });

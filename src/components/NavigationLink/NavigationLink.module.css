@@ -1,0 +1,124 @@
+/*
+ * Deliberately the same shape and the same tones as `GradientButton`, so a link
+ * and a button can sit in one row without one of them looking like a mistake.
+ * If a token changes there, change it here too.
+ */
+
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  /* 44px is the smallest target that is reliably hittable with a thumb, and this
+     app is used mid-set. Same floor as the button. Do not shrink it. */
+  min-height: 44px;
+  padding: 0 var(--space-5);
+
+  border-radius: var(--radius-medium);
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+  isolation: isolate;
+
+  transition: transform var(--motion-fast) var(--motion-easing);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* The hairline edge, drawn as a masked border so it can carry a gradient. */
+.link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.link:active {
+  transform: scale(0.97);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 3px;
+}
+
+/* --- Tone: primary --------------------------------------------------------- */
+
+.tonePrimary {
+  background: linear-gradient(135deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  box-shadow: 0 8px 24px -8px rgba(var(--surface-tint-rgb), 0.7);
+}
+
+.tonePrimary::before {
+  background: linear-gradient(
+    150deg,
+    rgba(var(--surface-tint-rgb), 0.5),
+    rgba(var(--surface-tint-rgb), 0.08)
+  );
+}
+
+/* --- Tone: secondary ------------------------------------------------------- */
+
+.toneSecondary {
+  background: linear-gradient(
+    150deg,
+    rgba(var(--surface-tint-rgb), 0.16),
+    rgba(var(--surface-tint-rgb), 0.05)
+  );
+  backdrop-filter: blur(14px);
+}
+
+.toneSecondary::before {
+  background: linear-gradient(
+    150deg,
+    rgba(var(--surface-tint-rgb), 0.4),
+    rgba(var(--surface-tint-rgb), 0.08)
+  );
+}
+
+/* --- Tone: ghost ----------------------------------------------------------- */
+/* No surface at all. For tertiary ways out that should not draw the eye. */
+
+.toneGhost {
+  color: var(--text-secondary);
+}
+
+.toneGhost::before {
+  background: none;
+}
+
+.toneGhost:active {
+  color: var(--text-primary);
+}
+
+/* --- Size ------------------------------------------------------------------ */
+
+/*
+ * For a header's trailing slot, where the title beside it is what should be
+ * read first. Still 40px tall, which is as small as a real target gets.
+ */
+.sizeCompact {
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-label-size);
+  border-radius: var(--radius-small);
+}
+
+.isFullWidth {
+  display: flex;
+  width: 100%;
+}

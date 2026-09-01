@@ -1,0 +1,219 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --- The animation -------------------------------------------------------- */
+
+.animationPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+/*
+ * The source files are 180x180. Drawn larger than that here, because this is the
+ * screen someone opened specifically to look at the movement — and larger than
+ * source is exactly what `image-rendering: auto` handles gracefully on a raster
+ * animation of a line drawing.
+ */
+.animation {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: var(--radius-large);
+}
+
+.noAnimationReason {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* --- The facts ------------------------------------------------------------ */
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.factRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.factLabel {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.factValue {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+}
+
+/* --- Cues, mistakes, reason ----------------------------------------------- */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.sectionHeading {
+  font-size: var(--text-heading-size);
+  font-weight: var(--text-heading-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+/*
+ * Numbered, because the cues are written in the order they are performed — setup
+ * to finish — and are meant to be read mid-set with a weight in hand.
+ */
+.cueList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-left: var(--space-5);
+  list-style: decimal;
+
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+.mistakeList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-left: var(--space-5);
+  list-style: disc;
+
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+.reason {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.reasonText {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+}
+
+/* --- Pain areas ----------------------------------------------------------- */
+
+.painPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.painHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.painAreas {
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.painDetail {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+}
+
+/* --- Substitutes ---------------------------------------------------------- */
+
+.substituteIntro {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+}
+
+.substituteRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.substituteRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  min-height: 56px;
+  padding: var(--space-2);
+  border-radius: var(--radius-medium);
+
+  transition: background var(--motion-fast) var(--motion-easing);
+}
+
+.substituteRow:active {
+  background: rgba(var(--surface-tint-rgb), 0.12);
+}
+
+.substituteRow:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+.substituteAnimation {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-small);
+}
+
+.substituteName {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.substituteChevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+/* --- Nothing under that id ------------------------------------------------ */
+
+.missingPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-4);
+}
+
+.missingMessage {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}

@@ -1,0 +1,259 @@
+.headline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+}
+
+.eyebrow {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.title {
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.unfinishedNotice {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--warning-gradient-start);
+}
+
+/* --- The three headline numbers ------------------------------------------- */
+
+.statRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+
+  padding-top: var(--space-3);
+  border-top: 1px solid rgba(var(--surface-tint-rgb), 0.2);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statLabel {
+  font-size: var(--text-caption-size);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.statValue {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  font-size: var(--text-heading-size);
+  font-weight: var(--text-heading-weight);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+/* --- What was written afterwards ------------------------------------------ */
+
+.sessionNotes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.sessionNotesHeading {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Stored verbatim, so the line breaks the person typed are the line breaks shown. */
+.sessionNotesText {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  white-space: pre-wrap;
+}
+
+/* --- One exercise --------------------------------------------------------- */
+
+.exercises {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  list-style: none;
+}
+
+.exerciseCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.exerciseHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  padding: var(--space-2);
+  margin: calc(var(--space-2) * -1);
+  border-radius: var(--radius-medium);
+
+  transition: background var(--motion-fast) var(--motion-easing);
+}
+
+.exerciseHeading:active {
+  background: rgba(var(--surface-tint-rgb), 0.12);
+}
+
+.exerciseHeading:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+.exerciseAnimation {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-small);
+}
+
+.exerciseText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.exerciseName {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.exerciseSetCount {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.exerciseChevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.skipReason {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+}
+
+/* --- One set -------------------------------------------------------------- */
+
+.setRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.setRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-small);
+  background: rgba(var(--surface-tint-rgb), 0.08);
+}
+
+.setNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(var(--surface-tint-rgb), 0.35);
+
+  font-size: var(--text-caption-size);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.setText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.setResult {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+/*
+ * Only rendered when the set differed from what was asked for. "As prescribed"
+ * beside every set of every session is noise that hides the one set that was not.
+ */
+.setAgainstPrescription {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+.painFlag {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
+
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  color: var(--danger-gradient-start);
+}
+
+/*
+ * `margin-left: auto` on both this and the pain flag: whichever comes first
+ * takes the space, so effort sits at the far end with or without a flag beside it.
+ */
+.setEffort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
+  flex-shrink: 0;
+
+  font-size: var(--text-caption-size);
+  color: var(--text-secondary);
+}
+
+.screenReaderOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

@@ -6,10 +6,40 @@
 }
 
 .weekdayRow,
-.week {
+.weekDays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: var(--space-2);
+}
+
+/*
+ * A row of the grid is a week and a possible month heading, so it stacks rather
+ * than being the seven-column grid itself. `.weekDays` is the grid now.
+ */
+.week {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/*
+ * Drawn only when the month changes, so a window sitting inside one month gets
+ * one of these rather than seven. Without it the grid is a field of numbers
+ * between 1 and 31 with nothing saying which month they are in — the grid is a
+ * rolling window of weeks, not a month.
+ */
+.monthLabel {
+  padding-top: var(--space-2);
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* The first row's heading sits directly under the weekday initials. */
+.week:first-child .monthLabel {
+  padding-top: 0;
 }
 
 .weekdayInitial {
@@ -106,6 +136,25 @@
   background: color-mix(in srgb, var(--danger-gradient-start) 12%, transparent);
   border-style: dashed;
   border-color: var(--danger-gradient-start);
+}
+
+/*
+ * A day with something behind it is a link to the day view. Missed and rest days
+ * are not — there is no session document and no projected letter for either, so
+ * there would be nothing on the other side of the tap.
+ */
+.isOpenable {
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.isOpenable:active {
+  transform: scale(0.94);
+}
+
+.isOpenable:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 3px;
 }
 
 /* Today is marked by a ring outside the cell, so it composes with all four. */

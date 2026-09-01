@@ -2,10 +2,13 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { ActiveSessionScreen } from '@/features/activeSession/ActiveSessionScreen';
 import { TodayScreen } from '@/features/dashboard/TodayScreen';
+import { ExerciseDetailScreen } from '@/features/exerciseLibrary/ExerciseDetailScreen';
+import { ExerciseLibraryScreen } from '@/features/exerciseLibrary/ExerciseLibraryScreen';
 import { ExerciseMediaReviewScreen } from '@/features/exerciseMediaReview/ExerciseMediaReviewScreen';
 import { JournalScreen } from '@/features/journal/JournalScreen';
 import { ProgressScreen } from '@/features/progress/ProgressScreen';
 import { ScheduleScreen } from '@/features/schedule/ScheduleScreen';
+import { SessionDetailScreen } from '@/features/schedule/SessionDetailScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { ColorPaletteProvider } from '@/theme/ColorPaletteProvider';
 
@@ -45,8 +48,33 @@ export function App() {
                   <Route element={<AppShell />}>
                     <Route path={APP_ROUTE_PATHS.today} element={<TodayScreen />} />
                     <Route path={APP_ROUTE_PATHS.schedule} element={<ScheduleScreen />} />
+
+                    {/*
+                     * One day of the calendar. Nested under Schedule so the
+                     * bottom navigation keeps the Schedule tab lit while a day
+                     * is open, and inside the shell because reading a day is
+                     * browsing rather than training — unlike the player below.
+                     */}
+                    <Route path={APP_ROUTE_PATHS.scheduleDay} element={<SessionDetailScreen />} />
+
                     <Route path={APP_ROUTE_PATHS.progress} element={<ProgressScreen />} />
                     <Route path={APP_ROUTE_PATHS.journal} element={<JournalScreen />} />
+
+                    {/*
+                     * The exercise library. Both screens read only committed
+                     * content, so neither has a loading state — but they sit
+                     * inside the gates anyway, because a screen inside the shell
+                     * needs the bottom navigation under it to get back out.
+                     */}
+                    <Route
+                      path={APP_ROUTE_PATHS.exerciseLibrary}
+                      element={<ExerciseLibraryScreen />}
+                    />
+                    <Route
+                      path={APP_ROUTE_PATHS.exerciseDetail}
+                      element={<ExerciseDetailScreen />}
+                    />
+
                     <Route path={APP_ROUTE_PATHS.settings} element={<SettingsScreen />} />
                   </Route>
 

@@ -18,10 +18,36 @@
   list-style: none;
 }
 
+/*
+ * A whole row is the tap target, not just the name inside it. It is a link
+ * because it goes somewhere — see the same reasoning on `JournalPromptPanel`.
+ */
 .row {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+
+  padding: var(--space-2);
+  margin: calc(var(--space-2) * -1);
+  border-radius: var(--radius-medium);
+
+  transition: background var(--motion-fast) var(--motion-easing);
+}
+
+.row:active {
+  background: rgba(var(--surface-tint-rgb), 0.12);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--brand-gradient-start);
+  outline-offset: 2px;
+}
+
+/* Pushed to the far end, so it reads as "there is more of this over here". */
+.rowChevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--text-muted);
 }
 
 .letter {

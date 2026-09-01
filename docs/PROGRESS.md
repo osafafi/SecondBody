@@ -13,7 +13,7 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Current milestone** | M9 — deployment                                                                                                                                             |
 | **Status**            | Merged to `main`. The deploy has not completed a full run yet: the rules job needs one more IAM role on the service account — see the session 14 follow-ups |
-| **Current branch**    | `fix/rules-deploy-permissions`, branched off `main`                                                                                                         |
+| **Current branch**    | `fix/rules-admin-role-check`, branched off `main`                                                                                                           |
 | **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs are real                                                                                          |
 | **Backend wired?**    | Yes. Every collection in the data model now has a caller both ways                                                                                          |
 | **Deployed?**         | Not yet. `build` is green; `deploy-firestore-rules` fails on a missing role, so Pages has never run. Nothing has half-shipped                               |
@@ -27,11 +27,11 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 **The deploy gets as far as the rules job and stops there.** One thing is Omar's, in the
 Google Cloud console, and it takes a minute:
 
-1. **Add the `roles/serviceusage.serviceUsageViewer` role** to the
-   `github-actions-rules-deployer` service account — SETUP_FIREBASE.md step 8a. The original
-   instructions asked for Firebase Rules Admin alone, which is not enough: the Firebase CLI
-   checks that the Firestore API is enabled before it deploys, and that check is a Service
-   Usage read. No new key and no new service account is needed.
+1. **Check both roles are actually on the service account** — SETUP_FIREBASE.md,
+   "Checking which roles are actually granted". They must be **Firebase Rules Admin** and
+   **Service Usage Viewer**, and they are listed on the IAM page, not on the Service Accounts
+   page. Service Usage Viewer is confirmed present — the precheck it covers now passes — and
+   Firebase Rules Admin appears not to be. No new key and no new service account is needed.
 2. Confirm **Settings -> Pages -> Source: GitHub Actions** — DEPLOYMENT.md section 3. Pages
    has never run, so this has not been exercised yet either.
 
@@ -1251,3 +1251,35 @@ The step is `continue-on-error`, because a diagnostic must never be able to bloc
 
 SETUP_FIREBASE.md also gained a troubleshooting table for this job, keyed by the exact error
 text, since every one of these failures names the permission it wants if you read it.
+
+**Follow-up 3: past the precheck, stopped at the deploy itself**
+
+Service Usage Viewer worked — `required API firestore.googleapis.com is enabled` now passes.
+The next call failed instead:
+
+```
+firebaserules.googleapis.com/v1/projects/second-body-osi:test
+403, The caller does not have permission
+```
+
+`:test` is the CLI compiling the rules before uploading, and it is the **first call that
+needs a `firebaserules` permission at all**. `roles/firebaserules.admin` contains
+`firebaserules.rulesets.test`, so the reading is that the role is not actually on the
+account — most likely because the creation wizard's "Grant this service account access to
+project" panel was skipped, which produces a valid service account with no permissions.
+
+Two details make that the likely story rather than a guess. Service Usage Viewer was added
+deliberately afterwards and took effect immediately, so grants propagate and the right
+project is being edited. And the error names no permission at all, which is what a plain IAM
+denial looks like here — as opposed to the previous one, which named
+`serviceusage.services.get` outright.
+
+**Nothing was changed in the workflow.** This is a console-side fact, so the work was to make
+the documentation able to answer it: the troubleshooting table now keys off the URL in the
+error rather than a permission name that this failure does not carry, and there is a section
+on where granted roles are actually visible — the IAM page, not the Service Accounts page,
+which is the usual reason someone is sure they granted a role that is not there.
+
+If Firebase Rules Admin turns out to be present, this diagnosis is wrong and the next things
+to rule out are the key belonging to another project — the job now prints its project id —
+and the service account being disabled.

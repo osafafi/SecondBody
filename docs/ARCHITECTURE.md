@@ -100,7 +100,7 @@ This split matters and is easy to get wrong.
 
 **Nothing personal is ever committed to this repository.**
 
-The one place that pulls personal data back out onto a disk is the M10 coaching export, which
+The one place that pulls personal data back out onto a disk is the coaching export, which
 writes to `.coaching/`. That directory is gitignored, the script authenticates as the user
 through Application Default Credentials rather than through a key, and the rule above is why
 both of those are true. See [DATA_MODEL.md section 5](DATA_MODEL.md#5-what-is-and-is-not-a-secret-here).
@@ -183,4 +183,6 @@ We do not test Firebase. We do not chase a coverage number.
 4. Build the UI from `components/` primitives. Use `GradientSurface` for every panel.
 5. Take all colours from CSS custom properties. Never a literal hex value.
 6. Register the route in `src/app/`.
-7. Update `docs/PROGRESS.md`.
+7. Add the feature to the table in `src/features/README.md`.
+8. Write the session up in `docs/SESSION_LOG.md` and update the current state table in
+   `docs/PROGRESS.md`.

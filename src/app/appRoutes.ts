@@ -17,7 +17,16 @@ export const APP_ROUTE_PATHS = {
    */
   journal: '/journal',
 
+  /**
+   * Reserved, and **not built**. No feature owns this path and no `<Route>` is
+   * registered for it, so navigating here falls through to the catch-all and
+   * lands on Today. It is kept because the path is referenced by name in
+   * `BottomNavigation`'s comment explaining why the library is absent, and a
+   * reserved path is cheaper than a second opinion about what it should be.
+   * See the exercise library row in `src/features/README.md`.
+   */
   exerciseLibrary: '/library',
+
   activeSession: '/session',
 
   /**

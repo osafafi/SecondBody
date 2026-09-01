@@ -151,11 +151,23 @@ with the `second-body-osi` project selected:
 2. Name it `github-actions-rules-deployer`. The description is worth filling in — future you
    will want to know what it is for: _"Publishes Firestore security rules from the GitHub
    Actions deploy workflow."_
-3. **Grant this service account access to project** -> role **Firebase Rules Admin**
-   (`roles/firebaserules.admin`).
-4. Add no other role. It needs to publish rules and nothing else — it has no reason to be
-   able to read the database, and section 5 of DATA_MODEL.md says so out loud.
+3. **Grant this service account access to project** and add **two** roles:
+
+   | Role                                                               | Why it is needed                                                                                                                                                                                    |
+   | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | **Firebase Rules Admin** (`roles/firebaserules.admin`)             | Publishing the ruleset. This is the one doing the actual work                                                                                                                                       |
+   | **Service Usage Viewer** (`roles/serviceusage.serviceUsageViewer`) | Before deploying, the Firebase CLI checks that `firestore.googleapis.com` is enabled on the project. That check is a read against the Service Usage API, and Firebase Rules Admin does not grant it |
+
+4. **Add no third role.** Service Usage Viewer is read-only metadata about which Google APIs
+   are switched on — it cannot read the database, cannot read your training data and cannot
+   change anything. Firebase Rules Admin can publish rules and nothing else. Between them
+   that is the whole job.
 5. Done.
+
+> **If you only granted Firebase Rules Admin**, the deploy fails with
+> `403, Permission denied to get service [firestore.googleapis.com]`. That is this exact
+> missing role, and adding it is the whole fix — you do not need to recreate the service
+> account or the key. See the troubleshooting table.
 
 ### 8b — Create a key
 
@@ -196,6 +208,22 @@ upgrade your local CLI, bump the pin and the version at the top of this document
 | `auth/popup-blocked`                  | Browser blocked the popup. The app falls back to redirect sign-in                           |
 | Data appears then vanishes            | You are signed in as a different Google account than before                                 |
 | Nothing writes, no error shown        | Check the browser console — Firestore rule denials are logged there, not surfaced in the UI |
+
+## Troubleshooting the rules deploy
+
+These are failures of the `deploy-firestore-rules` job in Actions, not of the app. Read the
+permission name in the error — it says precisely what is missing.
+
+| Error in the job log                                               | What it means                                                                                                                                                                                                      |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `403, Permission denied to get service [firestore.googleapis.com]` | The service account is missing **Service Usage Viewer**. The CLI checks Firestore is enabled before deploying, and Firebase Rules Admin does not cover that read. Add the role — step 8a. Nothing needs recreating |
+| `403, Permission denied to enable service [...]`                   | Different problem: the API genuinely is not switched on, and the account cannot switch it on. Enable it once yourself in the Google Cloud console. Do **not** grant Service Usage Admin to fix this                |
+| `403` naming a `firebaserules.*` permission                        | **Firebase Rules Admin** is missing, or was granted on the wrong project                                                                                                                                           |
+| `Failed to get Firebase project` / the project cannot be found     | The key belongs to a different project. The job prints the service account and the key's project id before deploying — check that project id reads `second-body-osi`                                               |
+| The job fails immediately saying the secret is not set             | `FIREBASE_SERVICE_ACCOUNT` is missing or empty — step 8c                                                                                                                                                           |
+
+The job prints which identity it is deploying as before it does anything, so "wrong account"
+and "wrong project" are visible in the log rather than something to guess at.
 
 ## What to do if the config leaks somewhere it should not
 

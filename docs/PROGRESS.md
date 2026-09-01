@@ -9,14 +9,14 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ## Current state
 
-|                       |                                                                                                                                                      |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Current milestone** | M9 — deployment                                                                                                                                      |
-| **Status**            | Merged to `main`. The first deploy failed on a pre-existing clock-dependent test; the fix is on `fix/clock-dependent-app-test` and is not yet merged |
-| **Current branch**    | `fix/clock-dependent-app-test`, branched off `main`                                                                                                  |
-| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs are real                                                                                   |
-| **Backend wired?**    | Yes. Every collection in the data model now has a caller both ways                                                                                   |
-| **Deployed?**         | No. The workflow exists and its `build` job is what failed, so nothing shipped — not the rules and not Pages. See the session 14 follow-up           |
+|                       |                                                                                                                                                             |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Current milestone** | M9 — deployment                                                                                                                                             |
+| **Status**            | Merged to `main`. The deploy has not completed a full run yet: the rules job needs one more IAM role on the service account — see the session 14 follow-ups |
+| **Current branch**    | `fix/rules-deploy-permissions`, branched off `main`                                                                                                         |
+| **App runs?**         | Yes — `npm run dev`. Sign in, onboard, then all four tabs are real                                                                                          |
+| **Backend wired?**    | Yes. Every collection in the data model now has a caller both ways                                                                                          |
+| **Deployed?**         | Not yet. `build` is green; `deploy-firestore-rules` fails on a missing role, so Pages has never run. Nothing has half-shipped                               |
 
 > **Read session 6 before touching the exercise animations.** The generated SVGs are gone.
 > The media is now sourced from an open dataset, and it is **not this project's to
@@ -24,13 +24,16 @@ add an entry. An unrecorded session is a session the next person has to reverse-
 
 ### What to do next
 
-**`main` is red, and the fix is written but not merged.** Merge
-`fix/clock-dependent-app-test` first — the session 14 follow-up explains what broke. Then two
-things are Omar's, and the app is not on a phone until both are done:
+**The deploy gets as far as the rules job and stops there.** One thing is Omar's, in the
+Google Cloud console, and it takes a minute:
 
-1. **Settings -> Pages -> Source: GitHub Actions** — DEPLOYMENT.md section 3.
-2. **Add the `FIREBASE_SERVICE_ACCOUNT` secret** — SETUP_FIREBASE.md step 8. This is new in
-   M9 and it is the one genuinely new setup task. The deploy fails without it, deliberately.
+1. **Add the `roles/serviceusage.serviceUsageViewer` role** to the
+   `github-actions-rules-deployer` service account — SETUP_FIREBASE.md step 8a. The original
+   instructions asked for Firebase Rules Admin alone, which is not enough: the Firebase CLI
+   checks that the Firestore API is enabled before it deploys, and that check is a Service
+   Usage read. No new key and no new service account is needed.
+2. Confirm **Settings -> Pages -> Source: GitHub Actions** — DEPLOYMENT.md section 3. Pages
+   has never run, so this has not been exercised yet either.
 
 **Then walk a real session in a gym.** This has been the top of this list since M5 and it is
 still the top of it. Every screen in M5 through M8 has been read back panel by panel and
@@ -1210,3 +1213,41 @@ on, so neither the rules nor Pages were touched. That is the ordering in DEPLOYM
 section 6 doing exactly what it is there for, on its first real outing.
 
 Branch: `fix/clock-dependent-app-test`. One file changed.
+
+**Follow-up 2: the rules deploy failed on a role step 8a did not ask for**
+
+With the clock fix merged, `build` went green and the deploy reached the rules job, which
+failed:
+
+```
+403, Permission denied to get service [firestore.googleapis.com]
+```
+
+**The setup instructions were wrong, not the setup.** Before deploying, the Firebase CLI
+checks that `firestore.googleapis.com` is enabled on the project. That check is a read
+against the Service Usage API, and **Firebase Rules Admin does not grant it** — so step 8a,
+which said to add that role and no other, produced a service account that could publish
+rules but could not get as far as trying.
+
+**The fix is one more role**, not a new service account and not a new key:
+**Service Usage Viewer** (`roles/serviceusage.serviceUsageViewer`). Confirmed against
+Google's Service Usage access-control documentation as the narrowest predefined role
+containing `serviceusage.services.get`, which is the permission the error names. It reads a
+list of which Google APIs are switched on and grants nothing over any data — neither role
+can read the database. Step 8a and DATA_MODEL section 5 both now say two roles, and section
+5 no longer claims the key is scoped to rules and nothing else.
+
+**Deliberately not Service Usage Admin.** The error is a denied _get_. Admin would also
+allow _enabling_ APIs, which is a genuinely bigger permission and is not needed — Firestore
+has been enabled since M4. If the log ever says "permission denied to **enable** service",
+that is a different problem and the answer is to switch the API on by hand, not to widen the
+key.
+
+**The job now prints which identity it is deploying as**, before it does anything: the
+service account address and the project id from the key. Both are identifiers rather than
+credentials — the same distinction section 5 draws about the Firebase config — and they turn
+"wrong account" and "wrong project" into something visible in the log instead of a guess.
+The step is `continue-on-error`, because a diagnostic must never be able to block a release.
+
+SETUP_FIREBASE.md also gained a troubleshooting table for this job, keyed by the exact error
+text, since every one of these failures names the permission it wants if you read it.

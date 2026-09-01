@@ -12,10 +12,23 @@
       content="second body — your personal training coach, in your pocket."
     />
 
-    <!-- Lets the app run full-screen when added to the iOS home screen. -->
+    <!-- Lets the app run full-screen when added to the home screen. The
+         unprefixed name is the standard; Safari still only reads the prefixed
+         one, so both are here rather than either. -->
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="second body" />
+
+    <!-- Every path here is relative, like every other asset path in the build,
+         so the app works from a GitHub Pages sub-path, a custom domain or
+         localhost without being rebuilt. See docs/DEPLOYMENT.md section 4. -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="./icons/favicon-96.png" />
+
+    <!-- iOS ignores the manifest's icons entirely and reads only this one. -->
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon-180.png" />
 
     <title>second body</title>
   </head>

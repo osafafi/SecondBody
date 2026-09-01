@@ -3,7 +3,7 @@
 One-time setup. **Omar has to do most of this himself** — creating projects, enabling auth
 providers and clicking through consoles are not things an agent can or should do.
 
-Estimated time: 10 minutes.
+Estimated time: 15 minutes.
 
 ---
 
@@ -71,7 +71,7 @@ person uses this app.
 
 **Yes, these values get committed to a public repository, and that is fine.** They are
 identifiers, not secrets — see
-[DATA_MODEL.md](DATA_MODEL.md#5-why-the-firebase-config-is-not-a-secret) for the full
+[DATA_MODEL.md](DATA_MODEL.md#5-what-is-and-is-not-a-secret-here) for the full
 explanation. Security comes from the rules in step 5 and the domain restriction in step 6.
 
 ## Step 5 — Deploy the security rules
@@ -89,6 +89,12 @@ shipping a broken ruleset. A successful run ends with `released rules to cloud.f
 
 Then verify in the console under **Firestore -> Rules** that the published rules match the
 file. Until this succeeds the database is closed, which is the correct failure direction.
+
+**This is the only time you run that command by hand.** From M9 onwards every push to `main`
+redeploys the rules from CI, so that what is live and what is in the repository cannot drift
+apart — [DEPLOYMENT.md section 6](DEPLOYMENT.md#6-why-the-rules-deploy-from-ci-and-in-that-order).
+Step 8 sets that up. Deploying by hand afterwards is not forbidden, but it is pointless: the
+next push overwrites it.
 
 ## Step 6 — Restrict the authorised domains
 
@@ -127,6 +133,58 @@ Open the app, sign in with Google, and confirm:
 - **Firestore -> Data** in the console shows a `users/{yourUid}` document appear.
 - Signing out and back in returns you to the same data.
 
+## Step 8 — Give CI its own credentials
+
+Everything up to here can be done once and forgotten. This step is what lets the deploy
+workflow publish the security rules, so that they always match the app that is live.
+
+**Why a key at all.** Deploying rules requires authenticating as something. Your own
+`firebase login` session cannot travel to a CI runner, so the runner gets a service account
+of its own — narrowly scoped, and revocable without touching your account.
+
+### 8a — Create the service account
+
+In the [Google Cloud console](https://console.cloud.google.com/iam-admin/serviceaccounts),
+with the `second-body-osi` project selected:
+
+1. **Create service account**.
+2. Name it `github-actions-rules-deployer`. The description is worth filling in — future you
+   will want to know what it is for: _"Publishes Firestore security rules from the GitHub
+   Actions deploy workflow."_
+3. **Grant this service account access to project** -> role **Firebase Rules Admin**
+   (`roles/firebaserules.admin`).
+4. Add no other role. It needs to publish rules and nothing else — it has no reason to be
+   able to read the database, and section 5 of DATA_MODEL.md says so out loud.
+5. Done.
+
+### 8b — Create a key
+
+1. Open the service account -> **Keys** tab -> **Add key** -> **Create new key** -> **JSON**.
+2. It downloads immediately. **This is the credential.** Do not put it in the repository, do
+   not put it in a chat window, and delete it from your downloads folder once step 8c is done.
+
+### 8c — Paste it into GitHub
+
+**Repository -> Settings -> Secrets and variables -> Actions -> New repository secret.**
+
+| Field | Value                                                                   |
+| ----- | ----------------------------------------------------------------------- |
+| Name  | `FIREBASE_SERVICE_ACCOUNT`                                              |
+| Value | The entire contents of the JSON file, pasted verbatim — braces included |
+
+Then delete the downloaded file.
+
+### 8d — Check it
+
+Push anything to `main`, or run the **Deploy** workflow manually from the Actions tab. The
+`deploy-firestore-rules` job should end with `released rules to cloud.firestore`. If the
+secret is missing the job fails with a message saying exactly that, on purpose — see
+[DEPLOYMENT.md section 7](DEPLOYMENT.md#7-the-one-secret-this-repository-needs).
+
+**Keep the pinned CLI version honest.** `.github/workflows/deploy.yml` pins
+`firebase-tools@15.22.4` so a CLI release cannot silently change what a deploy does. If you
+upgrade your local CLI, bump the pin and the version at the top of this document to match.
+
 ---
 
 ## Troubleshooting
@@ -145,5 +203,16 @@ Nothing urgent. Confirm the step 6 authorised-domain list is still correct and t
 step 5 rules are published. Those two things are the entire security model, and neither is
 weakened by the config being public.
 
-If a **service account key** ever leaks, that is a real incident: revoke it immediately in
-the Google Cloud console. This app does not use one and should never need one.
+## What to do if the service account key leaks
+
+This one is a real incident, and it is the only credential this project has.
+
+1. **Google Cloud console -> IAM & Admin -> Service Accounts ->
+   `github-actions-rules-deployer` -> Keys -> delete the key.** It stops working
+   immediately.
+2. Create a new key (step 8b) and update the `FIREBASE_SERVICE_ACCOUNT` secret (step 8c).
+
+Nothing in the app breaks while you do this. The key publishes security rules and can do
+nothing else — it cannot read your training data — so the blast radius is that deploys fail
+until you replace it. That is the correct failure direction, and it is why the role in step
+8a is as narrow as it is.

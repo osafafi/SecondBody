@@ -1,0 +1,147 @@
+name: Deploy
+
+# The production deploy. Everything that reaches the phone comes through here.
+#
+# Three jobs, in a deliberate order:
+#
+#   build  ->  deploy-firestore-rules  ->  deploy-pages
+#
+# The security rules and the app are one release, not two. Deploying them by
+# hand is how they drift: the rules on the project stop matching the rules in
+# the commit that is live, and nobody finds out until a write is denied in a
+# gym. So the rules are deployed from the same workflow run, from the same
+# commit, on every push — not only when `firestore.rules` happens to have
+# changed. Redeploying identical rules is a no-op; the point is that `main`
+# always wins, including over a change somebody made in the Firebase console.
+#
+# Rules go first. A new app version that needs a permission must never meet the
+# old ruleset. The reverse case — a rules change that *removes* a permission the
+# live app still uses — needs two releases, and docs/DEPLOYMENT.md section 6
+# says so.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# One deploy at a time, and never cancel one that has started. A cancelled run
+# is the other way the two halves drift: rules released, app not.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Verify and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
+      - name: Verify exercise animations
+        run: npm run media:verify
+
+      - name: Verify app icons
+        run: npm run icons:verify
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload the built site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy-firestore-rules:
+    name: Deploy Firestore rules
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      # A missing secret would otherwise surface as an authentication error from
+      # the Firebase CLI, which is a long way from telling anyone what to do.
+      - name: Check the credentials secret is present
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error::The FIREBASE_SERVICE_ACCOUNT secret is not set, so the security rules cannot be deployed. See docs/SETUP_FIREBASE.md step 8. This fails the deploy on purpose, rather than shipping the app against whatever rules happen to be live."
+            exit 1
+          fi
+
+      # Written through an environment variable rather than interpolated into the
+      # script, so the key never appears in a command line. RUNNER_TEMP is on the
+      # ephemeral runner disk and goes away with it; the step below removes the
+      # file anyway.
+      - name: Write the service account key
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-service-account.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-service-account.json" >> "$GITHUB_ENV"
+
+      # The CLI compiles the rules before uploading, so a syntax error fails here
+      # — which, because this job runs before the Pages deploy, means a broken
+      # ruleset stops the whole release instead of half of it.
+      #
+      # The version is pinned so a CLI release cannot change what a deploy does.
+      # Bump it deliberately, and keep it matching the version in
+      # docs/SETUP_FIREBASE.md so local and CI deploys behave the same.
+      - name: Deploy the rules
+        run: >
+          npx --yes firebase-tools@15.22.4 deploy
+          --only firestore:rules
+          --project second-body-osi
+          --non-interactive
+
+      - name: Remove the service account key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firebase-service-account.json"
+
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    needs: deploy-firestore-rules
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

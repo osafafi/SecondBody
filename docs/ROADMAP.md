@@ -1,7 +1,13 @@
 # Roadmap
 
-Ideas beyond the ten milestones in [PROGRESS.md](PROGRESS.md). Nothing here is committed to
-— it is a parking place so good ideas do not get lost, and so they do not get built too early.
+Ideas nobody has asked for. Nothing here is committed to — it is a parking place so good
+ideas do not get lost, and so they do not get built too early.
+
+**This is not the work queue.** v0 shipped and the milestone table in
+[PROGRESS.md](PROGRESS.md) is closed; what actually gets built next comes from
+[FEEDBACK.md](FEEDBACK.md), which is things that came back from using the app. The
+difference is the point: this file is speculation, that file is evidence. An item moves from
+here to there when something real makes the case for it.
 
 The app is modular specifically so that anything on this list can be added without
 disturbing what already works. If something here turns out to need an architectural change,
@@ -9,7 +15,7 @@ that is a signal worth investigating.
 
 ---
 
-## Likely next, once the core works
+## Likely next, now that the core works
 
 **Programme block 2.** The current programme covers 12 weeks. Around week 10 the next block
 needs designing — heavier, more free weights, probably a genuine upper/lower split. The

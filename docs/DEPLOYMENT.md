@@ -3,6 +3,9 @@
 The app is a pile of static files served by GitHub Pages, built by GitHub Actions on every
 push to `main`.
 
+**It is live at https://osafafi.github.io/SecondBody/**, and the one-time setup in section 3
+is done. That section is kept as a rebuild guide, not as a to-do list.
+
 ---
 
 ## 1. The flow
@@ -23,7 +26,7 @@ push to `main`.
   deploy rules     firebase deploy --only firestore:rules
         |
         v
-  deploy pages     GitHub Pages  -->  https://<username>.github.io/second-body/
+  deploy pages     GitHub Pages  -->  https://osafafi.github.io/SecondBody/
 ```
 
 **The rules and the app are one release.** They deploy from the same workflow run and the
@@ -35,33 +38,36 @@ same commit, in that order, and section 6 explains why the order is that way rou
 branch; Omar handles everything involving a remote. This is stated in
 [CLAUDE.md](../CLAUDE.md) and it is not negotiable.
 
-|                   |                                                                                 |
-| ----------------- | ------------------------------------------------------------------------------- |
-| Branch naming     | `feat/<milestone-slug>` — see the milestone table in [PROGRESS.md](PROGRESS.md) |
-| One branch        | One milestone. Never mix two                                                    |
-| Before committing | `npm run verify` must pass                                                      |
-| Commit messages   | Imperative mood, explain **why** in the body when it is not obvious             |
+|                   |                                                                                         |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| Branch naming     | `feat/<slug>` for new behaviour, `fix/<slug>` for a defect, `docs/<slug>` for paperwork |
+| One branch        | One item from [FEEDBACK.md](FEEDBACK.md). Never mix two                                 |
+| Before committing | `npm run verify` must pass                                                              |
+| Commit messages   | Imperative mood, explain **why** in the body when it is not obvious                     |
 
-## 3. One-time GitHub setup (Omar)
+## 3. One-time GitHub setup — done
 
-1. Create a public repository named `second-body`.
-2. Add it as a remote and push `main`:
-   ```bash
-   git remote add origin https://github.com/<username>/second-body.git
-   git push -u origin main
-   ```
-3. **Settings -> Pages -> Source: GitHub Actions.** Not "Deploy from a branch" — the
-   workflow in this repo uses the Actions deployment path.
-4. Add the Pages domain to Firebase's authorised domains — see
-   [SETUP_FIREBASE.md](SETUP_FIREBASE.md) step 6. **Sign-in will fail until you do this.**
-5. Add the `FIREBASE_SERVICE_ACCOUNT` secret — see
-   [SETUP_FIREBASE.md](SETUP_FIREBASE.md) step 8. **The deploy will fail until you do
-   this**, deliberately: see section 7.
+**All five steps below have been performed.** They are kept because this is how the project
+is stood up again if it ever has to be, not because anything here is outstanding. Do not ask
+Omar to do any of it.
+
+| #   | Step                                                                                                                             | Value it ended up with                          |
+| --- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| 1   | Create a public repository                                                                                                       | `osafafi/SecondBody`                            |
+| 2   | Add it as a remote and push `main`                                                                                               | `https://github.com/osafafi/SecondBody.git`     |
+| 3   | **Settings -> Pages -> Source: GitHub Actions.** Not "Deploy from a branch" — the workflow here uses the Actions deployment path | Serving `https://osafafi.github.io/SecondBody/` |
+| 4   | Add the Pages domain to Firebase's authorised domains — [SETUP_FIREBASE.md](SETUP_FIREBASE.md) step 6                            | `osafafi.github.io`                             |
+| 5   | Add the `FIREBASE_SERVICE_ACCOUNT` secret — [SETUP_FIREBASE.md](SETUP_FIREBASE.md) step 8                                        | Set. See section 7                              |
+
+**The repository name is `SecondBody` and the Pages path is therefore `/SecondBody/`**, with
+that capitalisation. The npm package is still `second-body` and the Firebase project is still
+`second-body-osi`; none of the three has to match, and the build does not know any of them —
+see section 4.
 
 ## 4. Why the build does not know the repository name
 
 `vite.config.ts` sets `base: './'`, so all asset URLs in the built `index.html` are
-relative. The app works from `https://user.github.io/second-body/`, from a custom domain, or
+relative. The app works from `https://osafafi.github.io/SecondBody/`, from a custom domain, or
 from `npm run preview` on `localhost`, with no configuration and no rebuild.
 
 Combined with `HashRouter` (see [ARCHITECTURE.md](ARCHITECTURE.md#7-routing)) this removes
@@ -158,9 +164,9 @@ stop matching the artwork.
 
 **Everything in the manifest is a relative path, and `id` is deliberately absent.** `id`
 resolves against the _origin_ rather than the manifest URL, so setting it to `./` on a
-GitHub Pages site would claim `https://<username>.github.io/` — the whole account, shared
-with every other project you host there. Omitting it makes it default to `start_url`, which
-resolves to `/second-body/` and is unique.
+GitHub Pages site would claim `https://osafafi.github.io/` — the whole account, shared with
+every other project hosted there. Omitting it makes it default to `start_url`, which resolves
+to `/SecondBody/` and is unique.
 
 ## 9. Rolling back
 

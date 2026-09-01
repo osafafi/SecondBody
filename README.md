@@ -6,6 +6,20 @@ the way a coach standing next to you would.
 
 Built for one person, on purpose. It is not a general-purpose fitness app.
 
+**Live at [osafafi.github.io/SecondBody](https://osafafi.github.io/SecondBody/)** — open it on
+a phone and add it to the home screen.
+
+---
+
+## Status — v0
+
+Everything described below is built, deployed and installed. **No training has been logged
+yet**; the first real session is 2026-09-02, and the parts of the app that need completed
+sessions have therefore never had anything real to show.
+
+Where the project actually is, in detail: [docs/PROGRESS.md](docs/PROGRESS.md). What gets
+built next comes from [docs/FEEDBACK.md](docs/FEEDBACK.md).
+
 ---
 
 ## What it does
@@ -16,9 +30,13 @@ Built for one person, on purpose. It is not a general-purpose fitness app.
 | **Session**  | The live workout player: one set at a time, with rest timers and form cues    |
 | **Schedule** | Calendar of planned vs completed sessions, and where you are in the programme |
 | **Progress** | Weight trend, training volume, personal records                               |
-| **Library**  | Every exercise, with an animated demo and coaching notes                      |
 | **Journal**  | Free-text notes written during the week, stored exactly as you wrote them     |
 | **Settings** | Colour palette, profile, targets, how chatty the coach is, data export        |
+
+Four of those are the bottom navigation — Today, Schedule, Progress, Settings. The journal
+sits inside the shell and is reached from Today, because five targets across a phone is
+fiddly. **An exercise library is not built**; the animations are shown inside a session,
+where they are actually needed.
 
 ## Quick start
 
@@ -52,18 +70,20 @@ can test on the device you will actually use.
 
 Start here if you are picking this project up:
 
-| Document                                                   | Read it when                                                     |
-| ---------------------------------------------------------- | ---------------------------------------------------------------- |
-| [docs/PROGRESS.md](docs/PROGRESS.md)                       | **Always read first.** Where the project got to and what is next |
-| [CLAUDE.md](CLAUDE.md)                                     | You are an AI agent working in this repo                         |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)               | You need to know where code lives and why                        |
-| [docs/TRAINING_PROGRAM.md](docs/TRAINING_PROGRAM.md)       | You are touching exercises, programmes or progression            |
-| [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)             | You are writing any UI                                           |
-| [docs/DATA_MODEL.md](docs/DATA_MODEL.md)                   | You are reading or writing user data                             |
-| [docs/EXERCISE_MEDIA_SPEC.md](docs/EXERCISE_MEDIA_SPEC.md) | You are adding or changing an exercise animation                 |
-| [docs/SETUP_FIREBASE.md](docs/SETUP_FIREBASE.md)           | You are setting up the backend for the first time                |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)                   | You are shipping to GitHub Pages                                 |
-| [docs/ROADMAP.md](docs/ROADMAP.md)                         | You are wondering what to build next                             |
+| Document                                                   | Read it when                                                    |
+| ---------------------------------------------------------- | --------------------------------------------------------------- |
+| [docs/PROGRESS.md](docs/PROGRESS.md)                       | **Always read first.** Where the project is and what is next    |
+| [docs/FEEDBACK.md](docs/FEEDBACK.md)                       | You are wondering what to build next. This is the work queue    |
+| [CLAUDE.md](CLAUDE.md)                                     | You are an AI agent working in this repo                        |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)               | You need to know where code lives and why                       |
+| [docs/TRAINING_PROGRAM.md](docs/TRAINING_PROGRAM.md)       | You are touching exercises, programmes or progression           |
+| [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)             | You are writing any UI                                          |
+| [docs/DATA_MODEL.md](docs/DATA_MODEL.md)                   | You are reading or writing user data                            |
+| [docs/EXERCISE_MEDIA_SPEC.md](docs/EXERCISE_MEDIA_SPEC.md) | You are adding or changing an exercise animation                |
+| [docs/SETUP_FIREBASE.md](docs/SETUP_FIREBASE.md)           | You are setting up the backend for the first time               |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)                   | You are shipping to GitHub Pages                                |
+| [docs/ROADMAP.md](docs/ROADMAP.md)                         | You want ideas nobody has asked for yet, and what was ruled out |
+| [docs/SESSION_LOG.md](docs/SESSION_LOG.md)                 | You need to know **why** something ended up the way it is       |
 
 ## Tech
 

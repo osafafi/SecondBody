@@ -1,7 +1,12 @@
 # Instructions for AI agents working in this repository
 
 Read this before doing anything. Then read [docs/PROGRESS.md](docs/PROGRESS.md) to find out
-where the project actually got to.
+where the project actually is, and [docs/FEEDBACK.md](docs/FEEDBACK.md) to find out what is
+being worked on.
+
+**The app is live at https://osafafi.github.io/SecondBody/ and v0 is shipped.** Milestones M0
+to M10 are all done and that table is closed — new work is an item in FEEDBACK.md, not an
+M11.
 
 ---
 
@@ -13,11 +18,15 @@ where the project actually got to.
 2. **Never commit personal data.** No body weight, no measurements, no session logs, no real
    Firebase user IDs. That data belongs in Firestore. This repository is public.
 3. **Run `npm run verify` before every commit.** Type-check, lint and tests must all pass.
-4. **Update [docs/PROGRESS.md](docs/PROGRESS.md) at the end of every session.** It is the
-   handover contract between sessions and between different agents. An unrecorded session is
-   a session someone else has to reverse-engineer.
-5. **One milestone, one branch, one pull request.** Do not mix milestones. Branches are named
-   `feat/<milestone-slug>` — see the milestone table in `docs/PROGRESS.md`.
+4. **Write up every session before you finish.** Add an entry to
+   [docs/SESSION_LOG.md](docs/SESSION_LOG.md) and update the current state table in
+   [docs/PROGRESS.md](docs/PROGRESS.md). Together they are the handover contract between
+   sessions and between different agents. An unrecorded session is a session someone else has
+   to reverse-engineer.
+5. **One item, one branch, one pull request.** Do not mix two. Items come from
+   [docs/FEEDBACK.md](docs/FEEDBACK.md); branches are `feat/<slug>` for new behaviour,
+   `fix/<slug>` for a defect, `docs/<slug>` for paperwork. Move the item to Done, with the
+   branch name, in the session that finishes it.
 
 ## 2. Naming
 

@@ -1,9 +1,21 @@
 # Firebase Setup
 
+> ## Every step in this document is done.
+>
+> The project is `second-body-osi` (me-central1), Google Sign-In is on, Firestore exists, the
+> rules are deployed from CI, the authorised-domain list is correct, the
+> `FIREBASE_SERVICE_ACCOUNT` secret is set, and the service account carries both roles it
+> needs. Sign-in and onboarding have both been exercised against the live site.
+>
+> **Do not ask Omar to work through any of it again.** It is kept in full for two reasons:
+> it is how the backend is rebuilt if it ever has to be, and the
+> [troubleshooting section](#troubleshooting-the-rules-deploy) is still live reference for a
+> deploy that goes red.
+
 One-time setup. **Omar has to do most of this himself** — creating projects, enabling auth
 providers and clicking through consoles are not things an agent can or should do.
 
-Estimated time: 15 minutes.
+Estimated time: 15 minutes, if you are ever doing it again.
 
 ---
 
@@ -90,9 +102,8 @@ shipping a broken ruleset. A successful run ends with `released rules to cloud.f
 Then verify in the console under **Firestore -> Rules** that the published rules match the
 file. Until this succeeds the database is closed, which is the correct failure direction.
 
-**This is the only time you run that command by hand.** From M9 onwards every push to `main`
-redeploys the rules from CI, so that what is live and what is in the repository cannot drift
-apart — [DEPLOYMENT.md section 6](DEPLOYMENT.md#6-why-the-rules-deploy-from-ci-and-in-that-order).
+**This is the only time you run that command by hand.** Every push to `main` now redeploys
+the rules from CI, so that what is live and what is in the repository cannot drift apart — [DEPLOYMENT.md section 6](DEPLOYMENT.md#6-why-the-rules-deploy-from-ci-and-in-that-order).
 Step 8 sets that up. Deploying by hand afterwards is not forbidden, but it is pointless: the
 next push overwrites it.
 
@@ -100,18 +111,22 @@ next push overwrites it.
 
 This is the step people skip, and it is the one doing real security work.
 
-**Authentication -> Settings -> Authorised domains.** Add your GitHub Pages host:
+**Authentication -> Settings -> Authorised domains.** Add the GitHub Pages host:
 
-- `<your-github-username>.github.io`
+- `osafafi.github.io`
 
 The finished list has four entries, and that is correct:
 
-| Domain                         | Why it is there                                                                                                                                                    |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `localhost`                    | Local development                                                                                                                                                  |
-| `<username>.github.io`         | Where the app is actually served                                                                                                                                   |
-| `<project-id>.firebaseapp.com` | **Do not delete.** This is the `authDomain` in the config, and it hosts the OAuth redirect handler that Google Sign-In bounces through. Deleting it breaks sign-in |
-| `<project-id>.web.app`         | The Firebase Hosting alias. Unused here, and not removable separately                                                                                              |
+| Domain                            | Why it is there                                                                                                                                                    |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `localhost`                       | Local development                                                                                                                                                  |
+| `osafafi.github.io`               | Where the app is actually served                                                                                                                                   |
+| `second-body-osi.firebaseapp.com` | **Do not delete.** This is the `authDomain` in the config, and it hosts the OAuth redirect handler that Google Sign-In bounces through. Deleting it breaks sign-in |
+| `second-body-osi.web.app`         | The Firebase Hosting alias. Unused here, and not removable separately                                                                                              |
+
+**The host is the domain, not the path.** GitHub Pages serves every repository on this
+account from `osafafi.github.io`, so this one entry covers `/SecondBody/` and would cover any
+other project hosted there too. There is nothing per-repository to add.
 
 The console hides the delete icon on the last two on purpose. Neither is a hole: both are
 Google-controlled hosts belonging to **this project**, and serving a page from either one
@@ -169,6 +184,11 @@ with the `second-body-osi` project selected:
 > permissions at all, and the deploy fails with a 403 that names no permission. After
 > finishing, check the roles landed — see "Checking which roles are actually granted" in the
 > troubleshooting section. They appear on the IAM page, **not** on the Service Accounts page.
+>
+> **This is not hypothetical: it is what happened here.** The first deploy failed exactly
+> this way, and the fix was granting **Firebase Rules Admin** on the IAM page — no new
+> service account and no new key. If you are reading this while setting the project up again,
+> this is the step to be careful with.
 
 > **If you only granted Firebase Rules Admin**, the deploy fails with
 > `403, Permission denied to get service [firestore.googleapis.com]`. That is this exact
@@ -223,14 +243,14 @@ These are failures of the `deploy-firestore-rules` job in Actions, not of the ap
 and the host and path say which permission is short. `serviceusage.googleapis.com` is the
 API-enabled precheck; `firebaserules.googleapis.com` is the deploy itself.
 
-| Error in the job log                                                                              | What it means                                                                                                                                                                                                                                                                                                                                             |
-| ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `403, Permission denied to get service [firestore.googleapis.com]`                                | The service account is missing **Service Usage Viewer**. The CLI checks Firestore is enabled before deploying, and Firebase Rules Admin does not cover that read. Add the role — step 8a. Nothing needs recreating                                                                                                                                        |
-| `403, Permission denied to enable service [...]`                                                  | Different problem: the API genuinely is not switched on, and the account cannot switch it on. Enable it once yourself in the Google Cloud console. Do **not** grant Service Usage Admin to fix this                                                                                                                                                       |
-| `firebaserules.googleapis.com/v1/projects/...:test` -> `403, The caller does not have permission` | **Firebase Rules Admin is not on the account.** `:test` is the CLI compiling the rules before uploading, and it is the first call needing a `firebaserules` permission — so this is where a missing role shows up. Note it names no permission at all, which is what an IAM denial looks like here. See "Checking which roles are actually granted" below |
-| Any other `403` from `firebaserules.googleapis.com`                                               | Same cause: **Firebase Rules Admin** is missing, or was granted on a different project                                                                                                                                                                                                                                                                    |
-| `Failed to get Firebase project` / the project cannot be found                                    | The key belongs to a different project. The job prints the service account and the key's project id before deploying — check that project id reads `second-body-osi`                                                                                                                                                                                      |
-| The job fails immediately saying the secret is not set                                            | `FIREBASE_SERVICE_ACCOUNT` is missing or empty — step 8c                                                                                                                                                                                                                                                                                                  |
+| Error in the job log                                                                              | What it means                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `403, Permission denied to get service [firestore.googleapis.com]`                                | The service account is missing **Service Usage Viewer**. The CLI checks Firestore is enabled before deploying, and Firebase Rules Admin does not cover that read. Add the role — step 8a. Nothing needs recreating                                                                                                                                                                                                                                                                           |
+| `403, Permission denied to enable service [...]`                                                  | Different problem: the API genuinely is not switched on, and the account cannot switch it on. Enable it once yourself in the Google Cloud console. Do **not** grant Service Usage Admin to fix this                                                                                                                                                                                                                                                                                          |
+| `firebaserules.googleapis.com/v1/projects/...:test` -> `403, The caller does not have permission` | **Firebase Rules Admin is not on the account. Confirmed — this is the one that actually happened here, and granting the role on the IAM page fixed it.** `:test` is the CLI compiling the rules before uploading, and it is the first call needing a `firebaserules` permission, so this is where a missing role shows up. Note it names no permission at all, which is what an IAM denial looks like here. Nothing needs recreating — see "Checking which roles are actually granted" below |
+| Any other `403` from `firebaserules.googleapis.com`                                               | Same cause: **Firebase Rules Admin** is missing, or was granted on a different project                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Failed to get Firebase project` / the project cannot be found                                    | The key belongs to a different project. The job prints the service account and the key's project id before deploying — check that project id reads `second-body-osi`                                                                                                                                                                                                                                                                                                                         |
+| The job fails immediately saying the secret is not set                                            | `FIREBASE_SERVICE_ACCOUNT` is missing or empty — step 8c                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 The job prints which identity it is deploying as before it does anything:
 

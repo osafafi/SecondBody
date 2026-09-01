@@ -274,9 +274,17 @@ exists.
 | On a CI runner, for the length of one job            | Written to the runner's temporary disk from an environment variable, never onto a command line, and deleted afterwards    |
 | **Never in this repository**                         | `.gitignore` covers the filenames the Google console suggests, but the real defence is that nothing generates one locally |
 
-It is scoped to publishing rules — Firebase Rules Admin, and nothing else. It cannot read
-the database, and it cannot read the data (see section 3: there is nothing in Firestore but
-one user's training log, and the key does not grant access to it).
+It carries two roles and no more:
+
+| Role                                                               | What it allows                                                                                                                         |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Firebase Rules Admin** (`roles/firebaserules.admin`)             | Publishing a ruleset. The one doing the work                                                                                           |
+| **Service Usage Viewer** (`roles/serviceusage.serviceUsageViewer`) | Reading which Google APIs are enabled on the project. The Firebase CLI checks that Firestore is switched on before it deploys anything |
+
+The second one is not optional and is not a widening worth worrying about: it reads a list
+of which APIs are on, and grants nothing over any data. **Neither role can read the
+database** — see section 3, there is nothing in Firestore but one user's training log, and
+this key does not grant access to it.
 
 **If it ever leaks, revoke it.** Google Cloud console -> IAM & Admin -> Service Accounts ->
 Keys -> delete, then create a new one and update the GitHub secret. Nothing in the app

@@ -109,6 +109,20 @@ jobs:
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-service-account.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-service-account.json" >> "$GITHUB_ENV"
 
+      # Which identity is actually deploying. Both fields are identifiers rather
+      # than credentials — the same distinction DATA_MODEL section 5 draws about
+      # the Firebase config — and printing them turns "wrong account" and "wrong
+      # project" into something visible in the log rather than something to guess
+      # at. The private key in the same file is never touched.
+      - name: Show which identity is deploying
+        # Diagnostics must never be able to fail a release. `jq` is preinstalled on
+        # the GitHub-hosted Ubuntu runners, but if that ever stops being true this
+        # step should be a missing log line, not a blocked deploy.
+        continue-on-error: true
+        run: |
+          echo "Deploying as:   $(jq -r '.client_email' "$GOOGLE_APPLICATION_CREDENTIALS")"
+          echo "Key's project:  $(jq -r '.project_id' "$GOOGLE_APPLICATION_CREDENTIALS")"
+
       # The CLI compiles the rules before uploading, so a syntax error fails here
       # — which, because this job runs before the Pages deploy, means a broken
       # ruleset stops the whole release instead of half of it.

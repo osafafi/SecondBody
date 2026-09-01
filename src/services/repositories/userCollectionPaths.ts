@@ -30,6 +30,7 @@ export const USER_SUBCOLLECTION_NAMES = {
   bodyMetrics: 'bodyMetrics',
   dailyHabits: 'dailyHabits',
   personalRecords: 'personalRecords',
+  journalEntries: 'journalEntries',
 } as const;
 
 /**

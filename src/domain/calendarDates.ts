@@ -19,6 +19,25 @@
 
 const DAYS_PER_WEEK = 7;
 
+/**
+ * The days of the week, indexed by `Date.getDay()` — 0 is Sunday.
+ *
+ * Here rather than in a screen because two things now need it: the Schedule
+ * header, which says which days he trains, and the coaching bundle, which says
+ * the same thing to a reader who is not looking at the app. A second copy of a
+ * list this short is not a disaster, but a second copy that starts on Monday
+ * while this one starts on Sunday would be.
+ */
+export const WEEKDAY_NAMES = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+] as const;
+
 /** ISO `YYYY-MM-DD` in the local calendar — the day it was here, not in UTC. */
 export function formatIsoDate(date: Date): string {
   const year = date.getFullYear();

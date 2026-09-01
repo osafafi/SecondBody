@@ -31,6 +31,7 @@ import type { UserProfile } from '@/types/userAccountTypes';
 
 import { DailyCoachNote } from './components/DailyCoachNote';
 import { DailyHabitChecklistPanel } from './components/DailyHabitChecklistPanel';
+import { JournalPromptPanel } from './components/JournalPromptPanel';
 import { QuickWeightLogPanel } from './components/QuickWeightLogPanel';
 import { RestDayMobilityNote } from './components/RestDayMobilityNote';
 import { TodaySessionPanel } from './components/TodaySessionPanel';
@@ -278,6 +279,22 @@ function TodayBriefing({
         totalWeekCount={programTemplate.totalWeekCount}
         fallbackWeightKilograms={userProfile.startingWeightKilograms}
         configuredVerbosity={userSettings.coachVerbosity}
+      />
+
+      <JournalPromptPanel
+        coachLine={
+          selectCoachLine({
+            candidateLines: findCoachLinesByCategory('journalPrompt'),
+            configuredVerbosity: userSettings.coachVerbosity,
+            /*
+             * Rotates on the day of the month, like the habit line. The prompt
+             * is a standing invitation rather than a reaction to anything, so
+             * tying it to how training went would make it read as a verdict.
+             */
+            rotationIndex: now.getDate(),
+            mayUsePraise: false,
+          })?.text ?? null
+        }
       />
 
       <p className={styles.scheduleHint}>

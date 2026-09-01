@@ -3,6 +3,7 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ActiveSessionScreen } from '@/features/activeSession/ActiveSessionScreen';
 import { TodayScreen } from '@/features/dashboard/TodayScreen';
 import { ExerciseMediaReviewScreen } from '@/features/exerciseMediaReview/ExerciseMediaReviewScreen';
+import { JournalScreen } from '@/features/journal/JournalScreen';
 import { ProgressScreen } from '@/features/progress/ProgressScreen';
 import { ScheduleScreen } from '@/features/schedule/ScheduleScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
@@ -45,6 +46,7 @@ export function App() {
                     <Route path={APP_ROUTE_PATHS.today} element={<TodayScreen />} />
                     <Route path={APP_ROUTE_PATHS.schedule} element={<ScheduleScreen />} />
                     <Route path={APP_ROUTE_PATHS.progress} element={<ProgressScreen />} />
+                    <Route path={APP_ROUTE_PATHS.journal} element={<JournalScreen />} />
                     <Route path={APP_ROUTE_PATHS.settings} element={<SettingsScreen />} />
                   </Route>
 

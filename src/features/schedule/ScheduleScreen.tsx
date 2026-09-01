@@ -6,6 +6,7 @@ import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
 import { IconBadge } from '@/components/IconBadge/IconBadge';
 import { ScreenHeader } from '@/components/ScreenHeader/ScreenHeader';
+import { WEEKDAY_NAMES } from '@/domain/calendarDates';
 import { determineDailyTrainingStatus } from '@/domain/dailyTrainingStatus';
 import { findPhaseForWeekNumber, findSessionTemplate } from '@/domain/programPhases';
 import { summariseProgramProgress } from '@/domain/programProgressSummary';
@@ -95,13 +96,11 @@ export function ScheduleScreen() {
 
 /** "Monday, Wednesday, Friday", read off the profile rather than assumed. */
 function describeTrainingDays(userProfile: UserProfile | null): string {
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
   const trainingDayNames = (userProfile?.trainingDaysOfWeek ?? [])
     .slice()
     .sort((firstDay, secondDay) => firstDay - secondDay)
-    .map((dayOfWeek) => dayNames[dayOfWeek])
-    .filter((dayName): dayName is string => dayName !== undefined);
+    .map((dayOfWeek) => WEEKDAY_NAMES[dayOfWeek])
+    .filter((dayName): dayName is (typeof WEEKDAY_NAMES)[number] => dayName !== undefined);
 
   return trainingDayNames.length === 0 ? 'No training days set' : trainingDayNames.join(', ');
 }

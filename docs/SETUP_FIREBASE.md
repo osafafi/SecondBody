@@ -164,6 +164,12 @@ with the `second-body-osi` project selected:
    that is the whole job.
 5. Done.
 
+> **The "Grant this service account access to project" panel in the creation wizard is
+> optional and easy to click past.** If you skip it you get a valid service account with no
+> permissions at all, and the deploy fails with a 403 that names no permission. After
+> finishing, check the roles landed — see "Checking which roles are actually granted" in the
+> troubleshooting section. They appear on the IAM page, **not** on the Service Accounts page.
+
 > **If you only granted Firebase Rules Admin**, the deploy fails with
 > `403, Permission denied to get service [firestore.googleapis.com]`. That is this exact
 > missing role, and adding it is the whole fix — you do not need to recreate the service
@@ -211,19 +217,64 @@ upgrade your local CLI, bump the pin and the version at the top of this document
 
 ## Troubleshooting the rules deploy
 
-These are failures of the `deploy-firestore-rules` job in Actions, not of the app. Read the
-permission name in the error — it says precisely what is missing.
+These are failures of the `deploy-firestore-rules` job in Actions, not of the app.
 
-| Error in the job log                                               | What it means                                                                                                                                                                                                      |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `403, Permission denied to get service [firestore.googleapis.com]` | The service account is missing **Service Usage Viewer**. The CLI checks Firestore is enabled before deploying, and Firebase Rules Admin does not cover that read. Add the role — step 8a. Nothing needs recreating |
-| `403, Permission denied to enable service [...]`                   | Different problem: the API genuinely is not switched on, and the account cannot switch it on. Enable it once yourself in the Google Cloud console. Do **not** grant Service Usage Admin to fix this                |
-| `403` naming a `firebaserules.*` permission                        | **Firebase Rules Admin** is missing, or was granted on the wrong project                                                                                                                                           |
-| `Failed to get Firebase project` / the project cannot be found     | The key belongs to a different project. The job prints the service account and the key's project id before deploying — check that project id reads `second-body-osi`                                               |
-| The job fails immediately saying the secret is not set             | `FIREBASE_SERVICE_ACCOUNT` is missing or empty — step 8c                                                                                                                                                           |
+**Read which URL the error names, not just the status code.** Every one of these is a 403,
+and the host and path say which permission is short. `serviceusage.googleapis.com` is the
+API-enabled precheck; `firebaserules.googleapis.com` is the deploy itself.
 
-The job prints which identity it is deploying as before it does anything, so "wrong account"
-and "wrong project" are visible in the log rather than something to guess at.
+| Error in the job log                                                                              | What it means                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `403, Permission denied to get service [firestore.googleapis.com]`                                | The service account is missing **Service Usage Viewer**. The CLI checks Firestore is enabled before deploying, and Firebase Rules Admin does not cover that read. Add the role — step 8a. Nothing needs recreating                                                                                                                                        |
+| `403, Permission denied to enable service [...]`                                                  | Different problem: the API genuinely is not switched on, and the account cannot switch it on. Enable it once yourself in the Google Cloud console. Do **not** grant Service Usage Admin to fix this                                                                                                                                                       |
+| `firebaserules.googleapis.com/v1/projects/...:test` -> `403, The caller does not have permission` | **Firebase Rules Admin is not on the account.** `:test` is the CLI compiling the rules before uploading, and it is the first call needing a `firebaserules` permission — so this is where a missing role shows up. Note it names no permission at all, which is what an IAM denial looks like here. See "Checking which roles are actually granted" below |
+| Any other `403` from `firebaserules.googleapis.com`                                               | Same cause: **Firebase Rules Admin** is missing, or was granted on a different project                                                                                                                                                                                                                                                                    |
+| `Failed to get Firebase project` / the project cannot be found                                    | The key belongs to a different project. The job prints the service account and the key's project id before deploying — check that project id reads `second-body-osi`                                                                                                                                                                                      |
+| The job fails immediately saying the secret is not set                                            | `FIREBASE_SERVICE_ACCOUNT` is missing or empty — step 8c                                                                                                                                                                                                                                                                                                  |
+
+The job prints which identity it is deploying as before it does anything:
+
+```
+Deploying as:   github-actions-rules-deployer@second-body-osi.iam.gserviceaccount.com
+Key's project:  second-body-osi
+```
+
+If the project id there is not `second-body-osi`, the key belongs to another project and no
+amount of role-granting on this one will help.
+
+### Checking which roles are actually granted
+
+**Roles are not shown on the Service Accounts page.** That page proves the account exists,
+which is a different question, and it is the usual reason someone is certain they granted a
+role that is not there. The roles live on the IAM page:
+
+**Google Cloud console -> IAM & Admin -> [IAM](https://console.cloud.google.com/iam-admin/iam)**,
+with `second-body-osi` selected. Find the principal
+`github-actions-rules-deployer@second-body-osi.iam.gserviceaccount.com` and read its Role
+column. It should say **both**:
+
+- Firebase Rules Admin
+- Service Usage Viewer
+
+If either is missing, **Grant access** -> add the role to that principal. Nothing needs
+recreating: the key stays valid, and the change takes effect on the next run.
+
+The commonest way to end up one role short is the service account creation wizard. Its
+"Grant this service account access to project" panel is optional, it is easy to click
+straight past, and doing so creates a perfectly good service account with no permissions at
+all.
+
+<details>
+<summary>Or from the terminal, if you have the gcloud CLI</summary>
+
+```bash
+gcloud projects get-iam-policy second-body-osi   --flatten="bindings[].members"   --filter="bindings.members:github-actions-rules-deployer"   --format="value(bindings.role)"
+```
+
+Prints one role per line. Requires an account that can read the project's IAM policy — your
+own login, not the service account, which deliberately cannot read it.
+
+</details>
 
 ## What to do if the config leaks somewhere it should not
 

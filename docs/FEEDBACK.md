@@ -33,11 +33,19 @@ later.
 
 ## Open
 
-| #   | What                                             | Reported   | Notes                                                                                                                                                                                                                  |
-| --- | ------------------------------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| F6  | Firestore holds a session that was never trained | 2026-09-01 | Today said "you trained yesterday" on an app that had never been used. A walk through the session player during development reached the end and wrote a real `workoutSessions` document. **Omar's to run** — see below |
+| #   | What                                                    | Reported   | Notes                                                                                                                                                                                                                                                                               |
+| --- | ------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F6  | Firestore holds a session that was never trained        | 2026-09-01 | Today said "you trained yesterday" on an app that had never been used. A walk through the session player during development reached the end and wrote a real `workoutSessions` document. **Omar's to run** — see below                                                              |
+| F7  | The rest screen will not show you the next exercise     | 2026-09-02 | "when i finish an exercise, i need to be able to preview the next one while waiting. the waiting page seems pretty restrictive." A rest is ninety idle seconds and the screen spends them on a countdown and a movement's name                                                      |
+| F8  | You cannot look at an exercise without committing to it | 2026-09-02 | "i'd like to be able to go in each exercise to check it out, and be able to go back without marking it as skipped or fake completing it." Every way into an exercise today is a one-way door                                                                                        |
+| F9  | A busy machine can only be answered with a skip         | 2026-09-02 | "sometimes a machine is busy... today i had to skip an exercise because the machine was busy, and i had no mechanics to go to the next exercise without skipping it." A skip is a decision about the movement. This was a decision about the queue                                  |
+| F10 | The session's exercises are a bare list of names        | 2026-09-02 | "i'd like to see the session's exercises in grid mode, in big cards with the GIF and the key information for each. right now it's a simple list with no GIFs and it's hard to know what is it really about (i'm not fluent in gym terms)"                                           |
+| F11 | The warm-up is one block you cannot work through        | 2026-09-02 | "the warmup section was very hard to understand, i couldnt click on each step, and i didn't fully understand what each means. i'd like to be able to click on them and complete them not necessarily as a sequence (because sometimes the spots are busy or the machines are busy)" |
+| F12 | Two minutes on the bike is too short                    | 2026-09-02 | "i'd like to add more bike time, 2 minutes felt really short." Answered at four minutes, five before 10:00 — his call, asked and given                                                                                                                                              |
+| F13 | A machine his gym does not have is still prescribed     | 2026-09-02 | "some machines are not available in the gym. for example today's Low Row exercise. i replaced it with a machine. but i'd like to be able to flag an exercise as NOT available, so that the next session you can read that and we'll adapt the exercises."                           |
 
-_The first real session is 2026-09-02. Expect this table to grow after it._
+_All of F7 to F13 came out of the first real session, on 2026-09-02. F6 predates it and is
+still Omar's to run._
 
 ### F6, in full
 

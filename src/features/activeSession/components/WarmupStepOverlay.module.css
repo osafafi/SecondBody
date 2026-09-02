@@ -1,0 +1,134 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: calc(var(--safe-area-top) + var(--space-4)) var(--screen-horizontal-padding)
+    calc(var(--safe-area-bottom) + var(--space-5));
+  overflow-y: auto;
+  background:
+    radial-gradient(120% 60% at 12% 0%, rgba(var(--surface-tint-rgb), 0.24), transparent 62%),
+    var(--background-deep);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-1);
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(var(--surface-tint-rgb), 0.16);
+  transition: color var(--motion-fast) var(--motion-easing);
+}
+
+.backButton:hover {
+  color: var(--text-primary);
+}
+
+.standing {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: right;
+  color: var(--text-muted);
+}
+
+.headlineSurface {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+}
+
+.animation {
+  width: 148px;
+  height: 148px;
+}
+
+.name {
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.volume {
+  font-size: var(--text-heading-size);
+  font-weight: var(--text-heading-weight);
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.purpose {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+.cueGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.cueHeading {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.cueList,
+.mistakeList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: var(--space-5);
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+}
+
+.cueList {
+  list-style: decimal;
+}
+
+.mistakeList {
+  list-style: disc;
+  color: var(--text-secondary);
+}
+
+.reason {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
+}

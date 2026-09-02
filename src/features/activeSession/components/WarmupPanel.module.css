@@ -19,9 +19,15 @@
   color: var(--text-primary);
 }
 
+/*
+ * Primary rather than secondary, because this sits on an accent surface — a
+ * solid brand gradient. DESIGN_SYSTEM.md section 4 flags exactly this: muted
+ * text on the accent variant is fine for three words and not fine for a line
+ * somebody is meant to read before deciding whether they have time.
+ */
 .estimate {
   font-size: var(--text-label-size);
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .coachLine {
@@ -31,6 +37,27 @@
   color: var(--text-primary);
 }
 
+/* How far through, and the one sentence that says it is not a queue. */
+.progressRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.progressCount {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.progressNote {
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
 .stepList {
   display: flex;
   flex-direction: column;
@@ -38,14 +65,17 @@
   list-style: none;
 }
 
+/*
+ * Drawn as one card, operated as two controls: the tick and the rest of the
+ * row. The padding sits on the two buttons rather than here, so that each of
+ * them is a full-height target instead of a label with a dead margin round it.
+ */
 .step {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
+  align-items: stretch;
+  gap: 0;
   width: 100%;
   min-height: 44px;
-  padding: var(--space-3) var(--space-4);
-  text-align: left;
 
   border-radius: var(--radius-large);
   background: linear-gradient(
@@ -59,17 +89,52 @@
     transform var(--motion-fast) var(--motion-easing);
 }
 
-.step:active {
+.isCompleted {
+  opacity: 0.6;
+}
+
+.stepTickButton {
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
+}
+
+.stepOpenButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-2);
+  text-align: left;
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.stepOpenButton:active {
   transform: scale(0.99);
 }
 
-.step:focus-visible {
+.stepTickButton:focus-visible,
+.stepOpenButton:focus-visible {
   outline: 2px solid var(--brand-gradient-start);
-  outline-offset: 3px;
+  outline-offset: -2px;
+  border-radius: var(--radius-large);
 }
 
-.isCompleted {
-  opacity: 0.55;
+/*
+ * Small, because it is a thumbnail rather than the illustration. The drill's
+ * own screen draws the same animation at full size.
+ */
+.stepAnimation {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.stepChevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
 }
 
 .stepTick {
@@ -79,7 +144,7 @@
   flex-shrink: 0;
   width: 24px;
   height: 24px;
-  margin-top: 2px;
+  margin-top: var(--space-2);
 
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: var(--radius-small);
@@ -118,9 +183,22 @@
 
 .rampSet {
   display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.rampSetAnimation {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.rampSetText {
+  display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  padding: var(--space-4);
+  min-width: 0;
 }
 
 .rampSetLabel {

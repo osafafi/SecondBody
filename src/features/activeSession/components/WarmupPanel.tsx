@@ -1,15 +1,21 @@
 import { useState } from 'react';
-import { Check, Flame, Sunrise } from 'lucide-react';
+import { Check, ChevronRight, Flame, Sunrise } from 'lucide-react';
 
+import { ExerciseAnimation } from '@/components/ExerciseAnimation/ExerciseAnimation';
 import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
 import { IconBadge } from '@/components/IconBadge/IconBadge';
 import { findExerciseById } from '@/content/exercises/allExercises';
 import type { PlannedRampSet } from '@/domain/sessionPlanning';
-import type { PlannedWarmup } from '@/domain/warmupPlanning';
-import type { WarmupVolume } from '@/types/programTypes';
+import type { PlannedWarmup, PlannedWarmupStep } from '@/domain/warmupPlanning';
 
+import {
+  describeEstimatedWarmupDuration,
+  describeWarmupProgress,
+  describeWarmupVolume,
+} from '../warmupWording';
 import styles from './WarmupPanel.module.css';
+import { WarmupStepOverlay } from './WarmupStepOverlay';
 
 export type WarmupPanelProps = {
   warmup: PlannedWarmup;
@@ -19,42 +25,8 @@ export type WarmupPanelProps = {
 };
 
 /**
- * "About 8 minutes".
- *
- * Rounded up to a whole minute rather than shown as `7:49`, because this answers
- * "have I got time for this" and a stopwatch reading next to the session clock
- * in the header reads like a second timer.
- */
-function describeEstimatedDuration(estimatedDurationSeconds: number): string {
-  const minutes = Math.max(1, Math.ceil(estimatedDurationSeconds / 60));
-
-  return minutes === 1 ? 'About a minute' : `About ${String(minutes)} minutes`;
-}
-
-/** Two minutes and up reads better as minutes than as a count of seconds. */
-const SECONDS_ABOVE_WHICH_MINUTES_READ_BETTER = 120;
-
-/** "10 reps per side", "30 seconds", "3 minutes" — whichever the drill is counted in. */
-function describeWarmupVolume(volume: WarmupVolume): string {
-  const perSideSuffix = volume.isPerSide ? ' per side' : '';
-
-  if (volume.durationSeconds !== null) {
-    if (volume.durationSeconds >= SECONDS_ABOVE_WHICH_MINUTES_READ_BETTER) {
-      return `${String(Math.round(volume.durationSeconds / 60))} minutes${perSideSuffix}`;
-    }
-
-    return `${String(volume.durationSeconds)} seconds${perSideSuffix}`;
-  }
-
-  if (volume.reps !== null) {
-    return `${String(volume.reps)} reps${perSideSuffix}`;
-  }
-
-  return 'as prescribed';
-}
-
-/**
- * The warm-up drills and the ramp set, ticked off one at a time.
+ * The warm-up drills and the ramp set, worked through in whatever order the gym
+ * allows.
  *
  * The ticks are deliberately not stored anywhere. The warm-up is not logged —
  * `WorkoutSession` records working sets — so these exist purely so he can keep
@@ -62,10 +34,23 @@ function describeWarmupVolume(volume: WarmupVolume): string {
  * with the screen.
  *
  * The warm-up is training, not padding, which is why it is a step of its own
- * rather than a line of text above the first exercise.
+ * rather than a line of text above the first exercise. F11 is the consequence of
+ * that being true and the screen not acting like it: seven movements were listed
+ * as names, doses and a six-word purpose, with no picture and no way to find out
+ * what any of them actually was.
+ *
+ * **Every row is two controls, not one.** The tick marks it done; everything
+ * else on the row opens it. One target that did both is what "i couldnt click on
+ * each step" describes — tapping to find out what a movement was would have
+ * ticked it off instead.
+ *
+ * **Nothing here is a sequence.** It never was in the code, but it read like
+ * one, so it now says so: the order is a suggestion, and a busy corner is a
+ * reason to do the next one first.
  */
 export function WarmupPanel({ warmup, rampSet, coachLine, onWarmupFinished }: WarmupPanelProps) {
   const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
+  const [openedStepId, setOpenedStepId] = useState<string | null>(null);
 
   const toggleStep = (exerciseId: string) => {
     setCompletedStepIds((completedIds) =>
@@ -76,6 +61,11 @@ export function WarmupPanel({ warmup, rampSet, coachLine, onWarmupFinished }: Wa
   };
 
   const rampSetExercise = rampSet ? findExerciseById(rampSet.exerciseId) : null;
+  const openedStep = warmup.steps.find((step) => step.exerciseId === openedStepId) ?? null;
+
+  const completedStepCount = warmup.steps.filter((step) =>
+    completedStepIds.includes(step.exerciseId),
+  ).length;
 
   return (
     <div className={styles.panel}>
@@ -94,55 +84,53 @@ export function WarmupPanel({ warmup, rampSet, coachLine, onWarmupFinished }: Wa
 
         <h2 className={styles.title}>{warmup.displayName}</h2>
         <p className={styles.estimate}>
-          {describeEstimatedDuration(warmup.estimatedDurationSeconds)}
+          {describeEstimatedWarmupDuration(warmup.estimatedDurationSeconds)}
           {warmup.isMorningVersion ? ' · longer, because you have just got up' : ''}
         </p>
 
         {coachLine ? <p className={styles.coachLine}>{coachLine}</p> : null}
       </GradientSurface>
 
+      <div className={styles.progressRow}>
+        <p className={styles.progressCount}>
+          {describeWarmupProgress(completedStepCount, warmup.steps.length)}
+        </p>
+        <p className={styles.progressNote}>Any order. Tap one to see what it is.</p>
+      </div>
+
       <ul className={styles.stepList}>
-        {warmup.steps.map((step) => {
-          const exercise = findExerciseById(step.exerciseId);
-          const isCompleted = completedStepIds.includes(step.exerciseId);
-
-          return (
-            <li key={step.exerciseId}>
-              <button
-                type="button"
-                className={[styles.step, isCompleted ? styles.isCompleted : '']
-                  .filter(Boolean)
-                  .join(' ')}
-                onClick={() => {
-                  toggleStep(step.exerciseId);
-                }}
-                aria-pressed={isCompleted}
-              >
-                <span className={styles.stepTick} aria-hidden>
-                  {isCompleted ? <Check size={16} strokeWidth={3} /> : null}
-                </span>
-
-                <span className={styles.stepText}>
-                  <span className={styles.stepName}>
-                    {exercise?.displayName ?? step.exerciseId}
-                  </span>
-                  <span className={styles.stepVolume}>{describeWarmupVolume(step.volume)}</span>
-                  <span className={styles.stepPurpose}>{step.purpose}</span>
-                </span>
-              </button>
-            </li>
-          );
-        })}
+        {warmup.steps.map((step) => (
+          <WarmupStepRow
+            key={step.exerciseId}
+            step={step}
+            isCompleted={completedStepIds.includes(step.exerciseId)}
+            onCompletionToggled={() => {
+              toggleStep(step.exerciseId);
+            }}
+            onOpened={() => {
+              setOpenedStepId(step.exerciseId);
+            }}
+          />
+        ))}
       </ul>
 
       {rampSet ? (
         <GradientSurface variant="outlined" radius="large" className={styles.rampSet}>
-          <p className={styles.rampSetLabel}>Then one light set</p>
-          <p className={styles.rampSetDetail}>
-            {rampSetExercise?.displayName ?? rampSet.exerciseId} · {String(rampSet.weightKilograms)}{' '}
-            kg × {String(rampSet.reps)}
-          </p>
-          <p className={styles.rampSetNote}>Rehearsal, not work. It should feel like nothing.</p>
+          <ExerciseAnimation
+            exerciseId={rampSet.exerciseId}
+            displayName={rampSetExercise?.displayName ?? rampSet.exerciseId}
+            primaryMuscleGroups={rampSetExercise?.primaryMuscleGroups ?? []}
+            className={styles.rampSetAnimation ?? ''}
+          />
+
+          <div className={styles.rampSetText}>
+            <p className={styles.rampSetLabel}>Then one light set</p>
+            <p className={styles.rampSetDetail}>
+              {rampSetExercise?.displayName ?? rampSet.exerciseId} ·{' '}
+              {String(rampSet.weightKilograms)} kg × {String(rampSet.reps)}
+            </p>
+            <p className={styles.rampSetNote}>Rehearsal, not work. It should feel like nothing.</p>
+          </div>
         </GradientSurface>
       ) : null}
 
@@ -155,6 +143,74 @@ export function WarmupPanel({ warmup, rampSet, coachLine, onWarmupFinished }: Wa
       >
         I&rsquo;m warm
       </GradientButton>
+
+      {openedStep ? (
+        <WarmupStepOverlay
+          step={openedStep}
+          isCompleted={completedStepIds.includes(openedStep.exerciseId)}
+          onCompletionToggled={() => {
+            toggleStep(openedStep.exerciseId);
+          }}
+          onClosed={() => {
+            setOpenedStepId(null);
+          }}
+        />
+      ) : null}
     </div>
+  );
+}
+
+function WarmupStepRow({
+  step,
+  isCompleted,
+  onCompletionToggled,
+  onOpened,
+}: {
+  step: PlannedWarmupStep;
+  isCompleted: boolean;
+  onCompletionToggled: () => void;
+  onOpened: () => void;
+}) {
+  const exercise = findExerciseById(step.exerciseId);
+  const displayName = exercise?.displayName ?? step.exerciseId;
+
+  return (
+    <li className={[styles.step, isCompleted ? styles.isCompleted : ''].filter(Boolean).join(' ')}>
+      {/*
+       * Two siblings rather than a button inside a button, which is invalid and
+       * which browsers resolve by ignoring the inner one. The row is drawn as
+       * one card; it is operated as two.
+       */}
+      <button
+        type="button"
+        className={styles.stepTickButton}
+        onClick={onCompletionToggled}
+        aria-pressed={isCompleted}
+        aria-label={isCompleted ? `Mark ${displayName} as not done` : `Mark ${displayName} as done`}
+      >
+        <span className={styles.stepTick} aria-hidden>
+          {isCompleted ? <Check size={16} strokeWidth={3} /> : null}
+        </span>
+      </button>
+
+      <button type="button" className={styles.stepOpenButton} onClick={onOpened}>
+        <ExerciseAnimation
+          exerciseId={step.exerciseId}
+          displayName={displayName}
+          primaryMuscleGroups={exercise?.primaryMuscleGroups ?? []}
+          className={styles.stepAnimation ?? ''}
+        />
+
+        <span className={styles.stepText}>
+          <span className={styles.stepName}>{displayName}</span>
+          <span className={styles.stepVolume}>{describeWarmupVolume(step.volume)}</span>
+          <span className={styles.stepPurpose}>{step.purpose}</span>
+        </span>
+
+        <span className={styles.stepChevron} aria-hidden>
+          <ChevronRight size={18} strokeWidth={2.5} />
+        </span>
+      </button>
+    </li>
   );
 }

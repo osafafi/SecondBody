@@ -8,9 +8,10 @@ import type { WarmupRoutine } from '@/types/programTypes';
  * dose: a session that starts before 10:00 gets the longer version, because a
  * body that has just got out of bed is measurably stiffer.
  *
- * The morning volumes are exactly the table in docs/TRAINING_PROGRAM.md
- * section 3. The standard volumes are the same movements at a lighter dose,
- * which brings the routine from roughly ten minutes down to roughly six.
+ * The morning volumes are the table in docs/TRAINING_PROGRAM.md section 3, with
+ * the bike lengthened — see the note on the first step. The standard volumes are
+ * the same movements at a lighter dose, which brings the routine from roughly
+ * twelve minutes down to roughly eight.
  */
 export const fullBodyWarmupRoutine: WarmupRoutine = {
   warmupRoutineId: 'fullBodyWarmup',
@@ -21,9 +22,17 @@ export const fullBodyWarmupRoutine: WarmupRoutine = {
     {
       orderIndex: 1,
       exerciseId: 'stationaryBikeEasy',
-      morningVolume: { reps: null, durationSeconds: 180, isPerSide: false },
-      standardVolume: { reps: null, durationSeconds: 120, isPerSide: false },
-      purpose: 'Raise tissue temperature. Nothing more.',
+      /*
+       * Four minutes, five before 10:00. It was two and three, and F12 in
+       * docs/FEEDBACK.md is Omar after his first session: "2 minutes felt really
+       * short". Asked what he wanted instead, he said four. Two minutes is
+       * enough to raise tissue temperature on paper and is not enough to feel
+       * ready, and the second of those is the one that decides whether a warm-up
+       * gets done properly.
+       */
+      morningVolume: { reps: null, durationSeconds: 300, isPerSide: false },
+      standardVolume: { reps: null, durationSeconds: 240, isPerSide: false },
+      purpose: 'Raise tissue temperature and get the legs turning over.',
     },
     {
       orderIndex: 2,

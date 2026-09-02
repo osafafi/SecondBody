@@ -21,6 +21,8 @@ describe('resolveDueSessionOutline', () => {
       sessionLetter: 'B',
       activePainAreas: [],
       excludedExerciseIds: [],
+      unavailableExerciseIds: [],
+      resolveSubstituteExerciseIds: () => [],
     });
 
     expect(outline?.sessionLetter).toBe('B');
@@ -38,6 +40,8 @@ describe('resolveDueSessionOutline', () => {
       sessionLetter: 'A',
       activePainAreas: [],
       excludedExerciseIds: [],
+      unavailableExerciseIds: [],
+      resolveSubstituteExerciseIds: () => [],
     });
 
     expect(outline?.isCalibrationWeek).toBe(true);
@@ -55,6 +59,8 @@ describe('resolveDueSessionOutline', () => {
       sessionLetter: 'A',
       activePainAreas: [],
       excludedExerciseIds: [],
+      unavailableExerciseIds: [],
+      resolveSubstituteExerciseIds: () => [],
     });
 
     expect(outline?.isDeloadWeek).toBe(true);
@@ -67,6 +73,8 @@ describe('resolveDueSessionOutline', () => {
       sessionLetter: 'A',
       activePainAreas: [],
       excludedExerciseIds: [],
+      unavailableExerciseIds: [],
+      resolveSubstituteExerciseIds: () => [],
     });
 
     // Names rather than ids: nothing on the screen should read as camelCase.
@@ -81,6 +89,8 @@ describe('resolveDueSessionOutline', () => {
       sessionLetter: 'A',
       activePainAreas: [],
       excludedExerciseIds: ['gobletSquatToBox'],
+      unavailableExerciseIds: [],
+      resolveSubstituteExerciseIds: () => [],
     });
 
     expect(outline?.movementNames).not.toContain(findExerciseById('gobletSquatToBox')?.displayName);
@@ -94,6 +104,8 @@ describe('resolveDueSessionOutline', () => {
         sessionLetter: 'A',
         activePainAreas: [],
         excludedExerciseIds: [],
+        unavailableExerciseIds: [],
+        resolveSubstituteExerciseIds: () => [],
       }),
     ).toBeNull();
   });
@@ -120,6 +132,8 @@ describe('resolveDueSessionOutline agrees with the session that follows it', () 
         sessionLetter,
         activePainAreas: painAreas,
         excludedExerciseIds: [],
+        unavailableExerciseIds: [],
+        resolveSubstituteExerciseIds: () => [],
       });
 
       const plan = resolveSessionPlan({
@@ -130,6 +144,8 @@ describe('resolveDueSessionOutline agrees with the session that follows it', () 
         performanceHistoryByExerciseId: {},
         activePainAreas: painAreas,
         excludedExerciseIds: [],
+        unavailableExerciseIds: [],
+        resolveSubstituteExerciseIds: () => [],
         resolveLoadingStyleForExercise: (exerciseId) =>
           findExerciseById(exerciseId)?.loadingStyle ?? null,
         layoffLoadMultiplier: 1,

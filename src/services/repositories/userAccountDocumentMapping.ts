@@ -69,6 +69,13 @@ export function fromUserProfileDocument(documentData: unknown): UserProfile {
 
     painAreas: keepKnownMembers<PainArea>(reader.stringArray('painAreas'), PAIN_AREAS),
     excludedExerciseIds: reader.stringArray('excludedExerciseIds'),
+
+    /*
+     * Absent on every profile written before F13, and `stringArray` reads a
+     * missing field as an empty one — which is exactly right. A profile that has
+     * never said a machine is missing has not said any machine is missing.
+     */
+    unavailableExerciseIds: reader.stringArray('unavailableExerciseIds'),
     availableEquipmentIds: keepKnownMembers<EquipmentId>(
       reader.stringArray('availableEquipmentIds'),
       EQUIPMENT_IDS,
@@ -100,6 +107,7 @@ export function toUserProfileDocumentFields(
     targetWeightKilograms: profile.targetWeightKilograms,
     painAreas: [...profile.painAreas],
     excludedExerciseIds: [...profile.excludedExerciseIds],
+    unavailableExerciseIds: [...profile.unavailableExerciseIds],
     availableEquipmentIds: [...profile.availableEquipmentIds],
     trainingDaysOfWeek: [...profile.trainingDaysOfWeek],
     hasCompletedOnboarding: profile.hasCompletedOnboarding,

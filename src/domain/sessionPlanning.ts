@@ -9,6 +9,10 @@ import type {
 import type { ExerciseSlot, ProgramTemplate } from '@/types/programTypes';
 
 import {
+  resolveSessionSlotAvailability,
+  type ExerciseAvailabilityAdjustment,
+} from './exerciseAvailability';
+import {
   calculateNextPrescribedCarryWeight,
   calculateNextPrescribedRepRange,
   calculateNextPrescribedWeight,
@@ -76,6 +80,12 @@ export type PlannedExercise = {
 
   /** True when a set of this exercise caused sharp pain last time it was trained. */
   isFlaggedForPain: boolean;
+
+  /**
+   * Set when this slot's movement was flagged as not available at his gym.
+   * Null on every ordinary slot — see `./exerciseAvailability.ts`.
+   */
+  availabilityAdjustment: ExerciseAvailabilityAdjustment | null;
 };
 
 /** The single light set of the first exercise, done straight after the warm-up drills. */
@@ -132,11 +142,24 @@ export type SessionPlanRequest = {
   excludedExerciseIds: string[];
 
   /**
+   * Exercises whose machine his gym does not have. Unlike the blacklist above,
+   * this does not remove the slot — it swaps the movement. See
+   * `./exerciseAvailability.ts` for why the two lists are separate.
+   */
+  unavailableExerciseIds: string[];
+
+  /**
    * How an exercise is loaded, resolved from `src/content/exercises/` by the
    * caller. Passed in rather than imported, because `src/domain/` depends on
    * nothing.
    */
   resolveLoadingStyleForExercise: (exerciseId: string) => LoadingStyle | null;
+
+  /**
+   * Equivalent movements for an exercise, best first. Also from
+   * `src/content/exercises/`, and passed in for the same reason.
+   */
+  resolveSubstituteExerciseIds: (exerciseId: string) => string[];
 
   /**
    * From `determineLayoffAdjustment`. 1 in the normal case, 0.8 on the way back
@@ -170,8 +193,24 @@ export function isExerciseSlotAvailable(
   );
 }
 
+/**
+ * One slot, priced.
+ *
+ * The slot handed in has already been through `resolveSessionSlotAvailability`,
+ * so `slot.exerciseId` may not be the movement the programme wrote. Everything
+ * below reads that id and not the original: the history that decides the weight,
+ * and the loading style that decides what it rounds to, both belong to the
+ * movement actually being performed.
+ *
+ * The one thing that stays behind is `startingWeightKilograms`, which is the
+ * content's number for the movement that was replaced. It is a first guess and
+ * is knowingly approximate — a chest-supported row does not start where a cable
+ * row starts — and it only ever applies when the stand-in has never been
+ * trained. From the second session on, the effort ratings have taken over.
+ */
 function planExercise(
   slot: ExerciseSlot,
+  availabilityAdjustment: ExerciseAvailabilityAdjustment | null,
   request: SessionPlanRequest,
   combinedLoadMultiplier: number,
   weekWorkingSetCount: number,
@@ -187,6 +226,7 @@ function planExercise(
     exerciseId: slot.exerciseId,
     slotNote: slot.slotNote,
     restSecondsBetweenSets: slot.restSecondsBetweenSets,
+    availabilityAdjustment,
   };
 
   switch (slot.prescription.kind) {
@@ -377,13 +417,25 @@ export function resolveSessionPlan(request: SessionPlanRequest): PlannedSession 
 
   const combinedLoadMultiplier = week.loadMultiplier * request.layoffLoadMultiplier;
 
-  const exercises = sessionTemplate.exerciseSlots
-    .filter((slot) =>
-      isExerciseSlotAvailable(slot, request.activePainAreas, request.excludedExerciseIds),
-    )
-    .slice()
-    .sort((firstSlot, secondSlot) => firstSlot.orderIndex - secondSlot.orderIndex)
-    .map((slot) => planExercise(slot, request, combinedLoadMultiplier, week.workingSetCount));
+  const exercises = resolveSessionSlotAvailability({
+    slots: sessionTemplate.exerciseSlots
+      .filter((slot) =>
+        isExerciseSlotAvailable(slot, request.activePainAreas, request.excludedExerciseIds),
+      )
+      .slice()
+      .sort((firstSlot, secondSlot) => firstSlot.orderIndex - secondSlot.orderIndex),
+    unavailableExerciseIds: request.unavailableExerciseIds,
+    excludedExerciseIds: request.excludedExerciseIds,
+    resolveSubstituteExerciseIds: request.resolveSubstituteExerciseIds,
+  }).map(({ slot, availabilityAdjustment }) =>
+    planExercise(
+      slot,
+      availabilityAdjustment,
+      request,
+      combinedLoadMultiplier,
+      week.workingSetCount,
+    ),
+  );
 
   const firstExercise = exercises[0];
   const rampSetLoadingStyle = firstExercise

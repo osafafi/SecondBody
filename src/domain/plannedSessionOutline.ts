@@ -1,6 +1,10 @@
 import type { ExercisePrescription, ProgramTemplate } from '@/types/programTypes';
 import type { EffortTargetRange, PainArea, SessionLetter } from '@/types/trainingVocabulary';
 
+import {
+  resolveSessionSlotAvailability,
+  type ExerciseAvailabilityAdjustment,
+} from './exerciseAvailability';
 import { findPhaseForWeekNumber, findProgramWeek, findSessionTemplate } from './programPhases';
 import { isExerciseSlotAvailable } from './sessionPlanning';
 
@@ -14,10 +18,12 @@ import { isExerciseSlotAvailable } from './sessionPlanning';
  * time it was acted on. So this reads the programme content, says which
  * movements are in, how many sets and what rep range — and stops.
  *
- * The one thing it borrows from the planner is `isExerciseSlotAvailable`, so
- * that the movements listed here are exactly the movements the session will
- * contain. A slot the pain conditions drop must not appear on a preview and then
- * be missing from the session itself.
+ * Two things are borrowed from the planner, so that the movements listed here
+ * are exactly the movements the session will contain: `isExerciseSlotAvailable`,
+ * which drops what the pain conditions drop, and `resolveSessionSlotAvailability`,
+ * which swaps what his gym cannot provide. A preview that named a movement the
+ * session then replaced would be its own small lie, and there is a test in
+ * `plannedSessionOutline.test.ts` whose only job is to keep the two agreeing.
  *
  * It lives in `src/domain/` rather than in a feature because two features now
  * ask this question — Today, about the session due next, and Schedule, about any
@@ -45,6 +51,9 @@ export type PlannedSessionSlotOutline = {
 
   /** A note about this slot rather than about the exercise. Usually null. */
   slotNote: string | null;
+
+  /** Set when the programme's movement was swapped for one his gym has. */
+  availabilityAdjustment: ExerciseAvailabilityAdjustment | null;
 };
 
 export type PlannedSessionOutline = {
@@ -83,14 +92,27 @@ export type PlannedSessionOutlineInput = {
 
   /** From the profile. A hard blacklist that beats everything. */
   excludedExerciseIds: string[];
+
+  /** From the profile. Swaps the movement rather than dropping the slot. */
+  unavailableExerciseIds: string[];
+
+  /** Equivalent movements, best first, from `src/content/exercises/`. */
+  resolveSubstituteExerciseIds: (exerciseId: string) => string[];
 };
 
 /** Null when the week and letter name a session this programme does not have. */
 export function buildPlannedSessionOutline(
   input: PlannedSessionOutlineInput,
 ): PlannedSessionOutline | null {
-  const { programTemplate, weekNumber, sessionLetter, activePainAreas, excludedExerciseIds } =
-    input;
+  const {
+    programTemplate,
+    weekNumber,
+    sessionLetter,
+    activePainAreas,
+    excludedExerciseIds,
+    unavailableExerciseIds,
+    resolveSubstituteExerciseIds,
+  } = input;
 
   const phase = findPhaseForWeekNumber(programTemplate, weekNumber);
   const week = findProgramWeek(programTemplate, weekNumber);
@@ -100,17 +122,22 @@ export function buildPlannedSessionOutline(
     return null;
   }
 
-  const slots: PlannedSessionSlotOutline[] = sessionTemplate.exerciseSlots
-    .filter((slot) => isExerciseSlotAvailable(slot, activePainAreas, excludedExerciseIds))
-    .slice()
-    .sort((firstSlot, secondSlot) => firstSlot.orderIndex - secondSlot.orderIndex)
-    .map((slot) => ({
-      orderIndex: slot.orderIndex,
-      exerciseId: slot.exerciseId,
-      prescription: slot.prescription,
-      restSecondsBetweenSets: slot.restSecondsBetweenSets,
-      slotNote: slot.slotNote,
-    }));
+  const slots: PlannedSessionSlotOutline[] = resolveSessionSlotAvailability({
+    slots: sessionTemplate.exerciseSlots
+      .filter((slot) => isExerciseSlotAvailable(slot, activePainAreas, excludedExerciseIds))
+      .slice()
+      .sort((firstSlot, secondSlot) => firstSlot.orderIndex - secondSlot.orderIndex),
+    unavailableExerciseIds,
+    excludedExerciseIds,
+    resolveSubstituteExerciseIds,
+  }).map(({ slot, availabilityAdjustment }) => ({
+    orderIndex: slot.orderIndex,
+    exerciseId: slot.exerciseId,
+    prescription: slot.prescription,
+    restSecondsBetweenSets: slot.restSecondsBetweenSets,
+    slotNote: slot.slotNote,
+    availabilityAdjustment,
+  }));
 
   return {
     sessionLetter,

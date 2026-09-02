@@ -145,6 +145,7 @@ export function applyProfileEdits(
     targetWeightKilograms,
     painAreas: [...edits.painAreas],
     excludedExerciseIds: [...profile.excludedExerciseIds],
+    unavailableExerciseIds: [...profile.unavailableExerciseIds],
     availableEquipmentIds: [...profile.availableEquipmentIds],
     trainingDaysOfWeek: [...edits.trainingDaysOfWeek].sort((left, right) => left - right),
     hasCompletedOnboarding: profile.hasCompletedOnboarding,

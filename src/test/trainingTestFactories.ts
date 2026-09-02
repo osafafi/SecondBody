@@ -81,6 +81,7 @@ export function buildPlannedExercise(overrides: Partial<PlannedExercise> = {}): 
     restSecondsBetweenSets: 90,
     workingSetCount: 2,
     isFlaggedForPain: false,
+    availabilityAdjustment: null,
     prescription: {
       kind: 'weightAndReps',
       repRange: { minimumReps: 10, maximumReps: 12 },

@@ -138,6 +138,7 @@ describe('writing a profile', () => {
       targetWeightKilograms: 83,
       painAreas,
       excludedExerciseIds: [],
+      unavailableExerciseIds: [],
       availableEquipmentIds: [],
       trainingDaysOfWeek: [1, 3, 5],
       hasCompletedOnboarding: true,

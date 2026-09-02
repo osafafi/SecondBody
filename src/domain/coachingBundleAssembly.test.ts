@@ -23,6 +23,7 @@ function buildProfile(): UserProfile {
     targetWeightKilograms: 82,
     painAreas: [],
     excludedExerciseIds: [],
+    unavailableExerciseIds: [],
     availableEquipmentIds: [],
     trainingDaysOfWeek: [1, 3, 5],
     hasCompletedOnboarding: true,

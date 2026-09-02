@@ -90,3 +90,24 @@ export async function writeUserProfile(
     { merge: true },
   );
 }
+
+/**
+ * Writes only the "my gym has not got this" list.
+ *
+ * Its own function rather than a `writeUserProfile` call, because the caller is
+ * the session player and the session player holds a *snapshot* of the profile
+ * taken when the screen opened. Writing the whole document from that snapshot
+ * would quietly undo anything changed on the Settings screen in the meantime.
+ * One field, one write, and the subscription in `UserProfileProvider` brings
+ * the corrected profile back on its own.
+ */
+export async function writeUnavailableExerciseIds(
+  userId: string,
+  unavailableExerciseIds: string[],
+): Promise<void> {
+  await setDoc(
+    buildProfileReference(userId),
+    { unavailableExerciseIds: [...unavailableExerciseIds], updatedAt: serverTimestamp() },
+    { merge: true },
+  );
+}

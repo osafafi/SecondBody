@@ -61,3 +61,23 @@
 .boardLink:hover {
   color: var(--text-primary);
 }
+
+/*
+ * The one control here that changes future sessions rather than this one. It is
+ * a link because it should not read as a fourth thing to do right now.
+ */
+.unavailableLink {
+  align-self: center;
+  margin-top: var(--space-1);
+  padding: var(--space-2);
+  font-size: var(--text-caption-size);
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--motion-fast) var(--motion-easing);
+}
+
+.unavailableLink:hover {
+  color: var(--text-secondary);
+}

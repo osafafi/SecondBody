@@ -69,6 +69,7 @@ type UserProfile = {
   // Drives which exercises the programme is allowed to prescribe.
   painAreas: PainArea[]; // 'neck' | 'lowerBack' | 'shoulders' | 'knees' | 'hips' | 'ankles'
   excludedExerciseIds: string[]; // hard blacklist, e.g. from a physio
+  unavailableExerciseIds: string[]; // machines his gym has not got. Swapped, not dropped
   availableEquipmentIds: string[]; // what his gym actually has
 
   trainingDaysOfWeek: number[]; // 0 = Sunday. Default [1, 3, 5]

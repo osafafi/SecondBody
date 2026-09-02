@@ -4,6 +4,7 @@ import {
   Hourglass,
   LayoutGrid,
   Lightbulb,
+  Replace,
   SkipForward,
   TrendingUp,
 } from 'lucide-react';
@@ -11,6 +12,7 @@ import {
 import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
 import { IconBadge } from '@/components/IconBadge/IconBadge';
+import { findExerciseById } from '@/content/exercises/allExercises';
 import type { PlannedExercise } from '@/domain/sessionPlanning';
 
 import styles from './ExerciseBriefPanel.module.css';
@@ -38,6 +40,7 @@ export type ExerciseBriefPanelProps = {
   onExerciseStarted: () => void;
   onExerciseParked: () => void;
   onExerciseSkipped: () => void;
+  onMarkedUnavailable: () => void;
   onSessionBoardOpened: () => void;
 };
 
@@ -68,9 +71,16 @@ export function ExerciseBriefPanel({
   onExerciseStarted,
   onExerciseParked,
   onExerciseSkipped,
+  onMarkedUnavailable,
   onSessionBoardOpened,
 }: ExerciseBriefPanelProps) {
-  const hasSetsAlready = loggedSetCount > 0;
+  const { availabilityAdjustment } = plannedExercise;
+
+  const replacedExerciseName =
+    availabilityAdjustment?.kind === 'substituted'
+      ? (findExerciseById(availabilityAdjustment.unavailableExerciseId)?.displayName ??
+        availabilityAdjustment.unavailableExerciseId)
+      : null;
 
   return (
     <div className={styles.panel}>
@@ -91,6 +101,32 @@ export function ExerciseBriefPanel({
           <p>
             You put this one aside earlier. Everything else is done, so if the machine is free now,
             this is the last of it.
+          </p>
+        </GradientSurface>
+      ) : null}
+
+      {/*
+       * F13's "ask me first". The swap has already happened in the plan, because
+       * the weight and the history have to belong to the movement actually being
+       * performed — but it is never silent, and the two buttons below are the
+       * choice: start it, or skip it because that is not right either.
+       */}
+      {replacedExerciseName ? (
+        <GradientSurface variant="outlined" radius="large" className={styles.painNotice}>
+          <IconBadge icon={<Replace size={18} strokeWidth={2} />} size="small" />
+          <p>
+            You said your gym has not got the {replacedExerciseName}, so this is in its place.
+            Use it, or skip it if it is not right either.
+          </p>
+        </GradientSurface>
+      ) : null}
+
+      {availabilityAdjustment?.kind === 'noSubstituteFound' ? (
+        <GradientSurface variant="outlined" radius="large" className={styles.painNotice}>
+          <IconBadge icon={<Replace size={18} strokeWidth={2} />} tone="warning" size="small" />
+          <p>
+            You said your gym has not got this one, and there is nothing equivalent left to
+            offer. Skip it, or do it anyway if it has turned up.
           </p>
         </GradientSurface>
       ) : null}
@@ -139,9 +175,7 @@ export function ExerciseBriefPanel({
           onClick={onExerciseStarted}
           trailingIcon={<ChevronRight size={18} strokeWidth={2.5} aria-hidden />}
         >
-          {hasSetsAlready
-            ? `Start set ${String(loggedSetCount + 1)}`
-            : `Start ${plannedExercise.prescription.kind === 'steadyStateCardio' ? 'the finisher' : 'set 1'}`}
+          {resolveStartLabel(plannedExercise, loggedSetCount, replacedExerciseName !== null)}
         </GradientButton>
 
         <GradientButton
@@ -161,7 +195,40 @@ export function ExerciseBriefPanel({
         >
           Skip this exercise
         </GradientButton>
+
+        {/*
+         * A link rather than a fourth button, on purpose. This is the one
+         * control on the screen that changes future sessions rather than this
+         * one, and it should not look like the three that do not.
+         */}
+        <button type="button" className={styles.unavailableLink} onClick={onMarkedUnavailable}>
+          My gym has not got this machine
+        </button>
       </div>
     </div>
   );
+}
+
+/**
+ * The words on the primary button.
+ *
+ * "Use this instead" is F13's half of the choice — Omar asked to be told about a
+ * swap rather than have it happen quietly, and a button that says what it is
+ * agreeing to is a cleaner way to ask than a second dialog. It only appears
+ * before the first set: by set 2 the swap has been accepted and is old news.
+ */
+function resolveStartLabel(
+  plannedExercise: PlannedExercise,
+  loggedSetCount: number,
+  wasSubstituted: boolean,
+): string {
+  if (loggedSetCount > 0) {
+    return `Start set ${String(loggedSetCount + 1)}`;
+  }
+
+  if (wasSubstituted) {
+    return 'Use this instead';
+  }
+
+  return `Start ${plannedExercise.prescription.kind === 'steadyStateCardio' ? 'the finisher' : 'set 1'}`;
 }

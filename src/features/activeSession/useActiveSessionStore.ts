@@ -19,6 +19,7 @@ import {
   countCompletedSessions,
   findLastCompletedSessionAt,
 } from '@/domain/exercisePerformanceHistory';
+import { addUnavailableExerciseId } from '@/domain/exerciseAvailability';
 import { determineLayoffAdjustment, type LayoffAdjustment } from '@/domain/layoffRecovery';
 import { findPersonalRecordUpdates } from '@/domain/personalRecordProgress';
 import { findPhaseForWeekNumber, findSessionTemplate } from '@/domain/programPhases';
@@ -46,6 +47,7 @@ import {
   readActiveProgramAssignment,
   updateProgramAssignment,
 } from '@/services/repositories/programAssignmentRepository';
+import { writeUnavailableExerciseIds } from '@/services/repositories/userProfileRepository';
 import { describeRepositoryError } from '@/services/repositories/repositoryErrorMessages';
 import { readUserSettings } from '@/services/repositories/userSettingsRepository';
 import {
@@ -106,6 +108,17 @@ type ActiveSessionStore = {
   /** Completed sessions before this one. Rations the coach's praise. */
   completedSessionCount: number;
 
+  /**
+   * The profile's list of movements his gym has not got, as it stood when the
+   * session opened, plus anything flagged during it.
+   *
+   * Held here so that flagging a second movement in the same session does not
+   * overwrite the first. The profile subscription would eventually bring the
+   * server's copy back, but "eventually" is not a thing to rely on between two
+   * taps in a gym.
+   */
+  unavailableExerciseIds: string[];
+
   machineState: ActiveSessionState;
 
   /** The set currently being performed or recorded. Null outside those phases. */
@@ -122,12 +135,34 @@ type ActiveSessionStore = {
   updateSetLogDraft: (changes: Partial<SetLogDraft>) => void;
   logCurrentSet: () => void;
   finishSession: () => void;
+
+  /**
+   * Records that his gym has not got the machine for the exercise he is on, and
+   * moves the session past it.
+   */
+  markCurrentExerciseUnavailable: () => void;
+
   leaveSession: () => void;
 };
+
+/** Stored on the skipped exercise, so the session record says why. */
+const NOT_AVAILABLE_SKIP_REASON = 'The gym has not got this machine.';
 
 function resolveLoadingStyleForExercise(exerciseId: string): LoadingStyle | null {
   return findExerciseById(exerciseId)?.loadingStyle ?? null;
 }
+
+/**
+ * Equivalent movements for an exercise, best first.
+ *
+ * `src/domain/` may not read `src/content/`, so the planner and the outline
+ * both take this as a function. It is the same one-liner everywhere it is
+ * needed, which is the price of that rule and a fair one.
+ */
+function resolveSubstituteExerciseIds(exerciseId: string): string[] {
+  return findExerciseById(exerciseId)?.substituteExerciseIds ?? [];
+}
+
 
 /**
  * The rep range today's programme writes for each exercise in this session.
@@ -210,6 +245,7 @@ export const useActiveSessionStore = create<ActiveSessionStore>()((set, get) => 
   sessionFinishedAt: null,
   didResumeInterruptedSession: false,
   completedSessionCount: 0,
+  unavailableExerciseIds: [],
 
   machineState: createInitialActiveSessionState(),
   setLogDraft: null,
@@ -308,7 +344,9 @@ export const useActiveSessionStore = create<ActiveSessionStore>()((set, get) => 
         }),
         activePainAreas: userProfile.painAreas,
         excludedExerciseIds: userProfile.excludedExerciseIds,
+        unavailableExerciseIds: userProfile.unavailableExerciseIds,
         resolveLoadingStyleForExercise,
+        resolveSubstituteExerciseIds,
         layoffLoadMultiplier: layoffAdjustment.loadMultiplier,
       });
 
@@ -343,6 +381,7 @@ export const useActiveSessionStore = create<ActiveSessionStore>()((set, get) => 
         sessionStartedAt: interruptedSession?.startedAt ?? now,
         didResumeInterruptedSession: interruptedSession !== null,
         completedSessionCount: countCompletedSessions(recentSessions),
+        unavailableExerciseIds: userProfile.unavailableExerciseIds,
         machineState: interruptedSession
           ? resumeActiveSessionState(plannedSession, interruptedSession.performedExercises)
           : createInitialActiveSessionState(),
@@ -465,6 +504,47 @@ export const useActiveSessionStore = create<ActiveSessionStore>()((set, get) => 
     );
   },
 
+  /**
+   * The whole of F13's in-session half.
+   *
+   * Two things happen and they are deliberately different in kind. The exercise
+   * is skipped **today**, with a reason, because there is no machine to do it
+   * on. And the profile is told, which is what changes **next** session: the
+   * planner swaps in the best equivalent and the brief says so.
+   *
+   * The write is not awaited, like every other write in this file — see the note
+   * at the top. If it never lands, today's session is still correct and the flag
+   * simply was not set, which is a thing he can do again.
+   */
+  markCurrentExerciseUnavailable: () => {
+    const { userId, plannedSession, machineState, unavailableExerciseIds, sendEvent } = get();
+
+    if (userId === null || !plannedSession) {
+      return;
+    }
+
+    const plannedExercise = findCurrentPlannedExercise(machineState, plannedSession);
+
+    if (!plannedExercise) {
+      return;
+    }
+
+    const nextUnavailableExerciseIds = addUnavailableExerciseId(
+      unavailableExerciseIds,
+      plannedExercise.exerciseId,
+    );
+
+    set({ unavailableExerciseIds: nextUnavailableExerciseIds });
+
+    void writeUnavailableExerciseIds(userId, nextUnavailableExerciseIds).catch(
+      (error: unknown) => {
+        set({ saveErrorMessage: describeRepositoryError(error) });
+      },
+    );
+
+    sendEvent({ kind: 'exerciseSkipped', skipReason: NOT_AVAILABLE_SKIP_REASON });
+  },
+
   leaveSession: () => {
     set({
       preparationStatus: 'idle',
@@ -477,6 +557,7 @@ export const useActiveSessionStore = create<ActiveSessionStore>()((set, get) => 
       sessionStartedAt: null,
       sessionFinishedAt: null,
       didResumeInterruptedSession: false,
+      unavailableExerciseIds: [],
       machineState: createInitialActiveSessionState(),
       setLogDraft: null,
       lastLoggedSet: null,

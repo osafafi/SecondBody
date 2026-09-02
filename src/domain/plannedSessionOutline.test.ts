@@ -22,6 +22,8 @@ function buildInput(
     sessionLetter: 'A',
     activePainAreas: [],
     excludedExerciseIds: [],
+    unavailableExerciseIds: [],
+    resolveSubstituteExerciseIds: () => [],
     ...overrides,
   };
 }
@@ -84,6 +86,8 @@ describe('buildPlannedSessionOutline', () => {
       performanceHistoryByExerciseId: {},
       activePainAreas: shoulderSensitive.activePainAreas,
       excludedExerciseIds: [],
+      unavailableExerciseIds: [],
+      resolveSubstituteExerciseIds: () => [],
       resolveLoadingStyleForExercise: () => null,
       layoffLoadMultiplier: 1,
     });

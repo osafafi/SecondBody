@@ -12,33 +12,46 @@ it is.
 
 ## Current state
 
-|                           |                                                                                       |
-| ------------------------- | ------------------------------------------------------------------------------------- |
-| **Version**               | **v0 — shipped, in use, no training data yet**                                        |
-| **Milestones**            | M0 to M10, all done and all merged. The list is closed                                |
-| **Current branch**        | `feat/browse-sessions-and-library`, answering F2 to F5. Not pushed                    |
-| **Live at**               | **https://osafafi.github.io/SecondBody/** — installed to a home screen and signed in  |
-| **Deployed?**             | **Yes.** Every push to `main` builds, deploys the Firestore rules, then deploys Pages |
-| **App runs locally?**     | Yes — `npm run dev`. Sign in, onboard, then all four tabs plus the journal are real   |
-| **Backend wired?**        | Yes. Every collection in the data model has a caller both ways                        |
-| **Real training?**        | **None.** But Firestore holds one session nobody trained — F6, and Omar's to delete   |
-| **Where work comes from** | [FEEDBACK.md](FEEDBACK.md), not the milestone table                                   |
+|                           |                                                                                                      |
+| ------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Version**               | **v0 — shipped, and trained on once**                                                                |
+| **Milestones**            | M0 to M10, all done and all merged. The list is closed                                               |
+| **Current branches**      | Three, stacked, answering F7 to F13. See below. **None pushed**                                      |
+| **Live at**               | **https://osafafi.github.io/SecondBody/** — installed to a home screen and signed in                 |
+| **Deployed?**             | **Yes.** Every push to `main` builds, deploys the Firestore rules, then deploys Pages                |
+| **App runs locally?**     | Yes — `npm run dev`. Sign in, onboard, then all four tabs plus the journal are real                  |
+| **Backend wired?**        | Yes. Every collection in the data model has a caller both ways                                       |
+| **Real training?**        | **One session, on 2026-09-02.** Firestore also holds one nobody trained — F6, still Omar's to delete |
+| **Where work comes from** | [FEEDBACK.md](FEEDBACK.md), not the milestone table                                                  |
 
 > **Read session 6 in [SESSION_LOG.md](SESSION_LOG.md) before touching the exercise
 > animations.** The generated SVGs are gone. The media is now sourced from an open dataset,
 > and it is **not this project's to redistribute freely** — see
 > [EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md) section 2.
 
+### The three branches, and the order they merge in
+
+They are **stacked**: branch 2 is cut from branch 1, branch 3 from branch 2. Merging them
+out of order will conflict. Two of them touch `ExerciseBriefPanel` and `ActiveSessionScreen`
+and all three touch the docs, which is why they are stacked rather than parallel.
+
+| Order | Branch                             | Closes          |
+| ----- | ---------------------------------- | --------------- |
+| 1     | `feat/session-board-and-parking`   | F7, F8, F9, F10 |
+| 2     | `feat/warmup-you-can-work-through` | F11, F12        |
+| 3     | `feat/exercise-availability`       | F13             |
+
 ### What production has actually exercised
 
 "It is live" gets read as "all of it works". It does not, yet. Be precise about this.
 
-| Proven in production                                                        | Still unexercised                                                             |
-| --------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Build, rules deploy and Pages deploy, end to end                            | Everything downstream of starting a real session                              |
-| Google Sign-In from the Pages domain                                        | The session player against real Firestore: set logging, rest timer, wake lock |
-| Onboarding, written through to `users/{uid}` — profile and assignment exist | Journal capture on the phone, and `npm run coach:export` against real data    |
-| Installing to a home screen: manifest, icons, standalone launch             | Every screen that needs completed sessions to have anything to show           |
+| Proven in production                                                          | Still unexercised                                                           |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Build, rules deploy and Pages deploy, end to end                              | Everything added on the three branches above — none of it is deployed yet   |
+| Google Sign-In from the Pages domain                                          | Journal capture on the phone, and `npm run coach:export` against real data  |
+| Onboarding, written through to `users/{uid}` — profile and assignment exist   | Every screen that needs several completed sessions to have anything to show |
+| Installing to a home screen: manifest, icons, standalone launch               | The progression rules, which need a second session to have anything to do   |
+| **The session player, in a gym, on a phone** — one full session on 2026-09-02 |                                                                             |
 
 ### What to do next
 
@@ -46,19 +59,22 @@ it is.
 [FEEDBACK.md](FEEDBACK.md), and the procedure is
 [DATA_MODEL.md section 8](DATA_MODEL.md#8-starting-again-from-a-clean-slate). A walk through
 the session player during development wrote a real `workoutSessions` document, so the app
-believes it has been trained on. Everything downstream reads it as evidence — the Today
-screen, the calendar, and the progression that decides what weight goes on the bar. **This
-needs doing before the first real session, not after**, or week 1 starts on top of a session
-that never happened. Only Omar can do it; nothing in this repository has Firestore
-credentials.
+believes it was trained on a day nobody trained. Everything downstream reads it as evidence
+— the Today screen, the calendar, and the progression that decides what weight goes on the
+bar. **It was meant to be done before the first real session and was not**, so there is now
+a real session sitting next to a phantom one, and the phantom is the more recent of the two.
+Deleting `workoutSessions` wholesale would take the real one with it, so this now needs the
+phantom document deleted **by id** and the real one from 2026-09-02 kept. Only Omar can do
+it; nothing in this repository has Firestore credentials.
 
-**1. The first real session is on 2026-09-02.** This has been the top of this list since M5,
-and every milestone that stood in the way is now done. Nobody has logged a real set on a real
-phone with a real Firestore behind it. Everything below is downstream of it.
+**1. Push and merge the three branches, in the order in the table above.** They answer
+everything Omar reported after the first session except F14, and the next session is on
+2026-09-04.
 
 **2. Then read [FEEDBACK.md](FEEDBACK.md).** That is where what comes back from a real gym
 gets written down, and it is the planning surface now. Do not invent an M11 — the milestone
-table is a record of how v0 got built, not a plan.
+table is a record of how v0 got built, not a plan. F14 is open and nobody has asked for it
+yet: four warm-up drills have no animation.
 
 **3. `npm run coach:export` has still never been run against the real project.** Its pure
 parts are tested — argument parsing, assembly, determinism — but the half that talks to
@@ -95,6 +111,16 @@ so is now wrong wherever it survives. `features/exerciseLibrary/` owns `/library
 journal are both reached from the Today screen instead. Five targets across a phone is
 fiddly, which is the note on `BottomNavigation` and the reason two features have front doors
 rather than tabs.
+
+**`unavailableExerciseIds` is not `excludedExerciseIds`, and mixing them up would be bad.**
+The blacklist is about his body, is set by a physio's advice, removes the slot entirely, and
+is deliberately not editable from Settings. The unavailable list is about the room, is set
+one-handed in a gym, swaps the movement rather than dropping it, and is deliberately
+editable. Same shape of field, opposite reasons.
+
+**Parking an exercise is not persisted, and that is deliberate.** `parkedExerciseIds` lives
+in memory for the length of one session. A session resumed an hour later should not still
+believe a machine is occupied.
 
 **Two stored preferences are deliberately not editable**, and this is worth knowing before
 someone "finishes the settings screen": `defaultRestSeconds` is read by nothing (rest comes
@@ -196,6 +222,6 @@ change, raise it with him.
 
 ## The session log
 
-Seventeen sessions, in [SESSION_LOG.md](SESSION_LOG.md). **Add an entry there at the end of
+Eighteen sessions, in [SESSION_LOG.md](SESSION_LOG.md). **Add an entry there at the end of
 every session, and update the current state table above at the same time.** An unrecorded
 session is a session the next person has to reverse-engineer.

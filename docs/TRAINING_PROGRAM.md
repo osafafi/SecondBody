@@ -97,7 +97,7 @@ just got out of bed is measurably stiffer.
 
 | Movement                   | Volume       | What it is for                                         |
 | -------------------------- | ------------ | ------------------------------------------------------ |
-| Stationary bike, easy      | 3 min        | Raise tissue temperature. Nothing more                 |
+| Stationary bike, easy      | 5 min        | Raise tissue temperature, get the legs turning over    |
 | Ankle wall rocks           | 10 per side  | Ankle mobility — the root cause of most squat problems |
 | Cat-cow                    | 8 reps       | Segmental spine movement                               |
 | Band pull-aparts           | 15 reps      | Wakes up the mid-back and rear delts                   |
@@ -108,11 +108,15 @@ just got out of bed is measurably stiffer.
 
 **How "adaptive" works.** The volumes above are the morning dose. Later in the day every
 movement is still performed — dropping the shoulder work because it is the afternoon would be
-a strange way to treat a shoulder — but at a lighter dose: the bike drops to 2 minutes and
-each drill loses two or three reps. That brings the routine from roughly ten minutes to
-roughly six. Both doses are written out per movement in `src/content/programs/`, rather than
+a strange way to treat a shoulder — but at a lighter dose: the bike drops to 4 minutes and
+each drill loses two or three reps. That brings the routine from roughly twelve minutes to
+roughly eight. Both doses are written out per movement in `src/content/programs/`, rather than
 one being computed from the other, because the right afternoon dose is a judgement about a
 specific drill and not a percentage.
+
+**The bike was two minutes and three, and Omar changed it after his first session** — F12 in
+[FEEDBACK.md](FEEDBACK.md). Two minutes raises tissue temperature on paper and does not feel
+like enough, and how a warm-up feels is what decides whether it gets done properly.
 
 The ramp set is half the first exercise's working weight.
 

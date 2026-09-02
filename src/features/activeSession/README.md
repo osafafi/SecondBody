@@ -70,6 +70,28 @@ last when the machine looks for what to offer next, so the session carries on an
 back at the end. If the session closes without ever coming back to it, it is written down
 as a skip with the reason.
 
+## The warm-up
+
+F11 is the warm-up read back to us: "very hard to understand, i couldnt click on each step,
+and i didn't fully understand what each means."
+
+The middle clause was the surprising one, because the steps were already tappable. They did
+not look it, and tapping only ticked one off — so the one thing a tap could have done was
+the one thing it did not do. Each row is now **two controls drawn as one card**: the tick
+marks it done, everything else opens `WarmupStepOverlay`, which is the drill in full.
+
+The last clause was the real problem, and it was never a missing feature. Every drill has
+carried four form cues, its two common mistakes and a sentence on why it is in the
+programme since M2, in `src/content/exercises/`. None of it was on screen. The panel showed
+a name, a dose and a six-word purpose.
+
+Order was never enforced in the code, but the screen read like a queue, so it now says
+outright that it is not one — F11's reason for asking is that the corner with the mat in it
+is sometimes taken.
+
+**Four of the seven drills have no animation** and draw "No preview yet". That is F14, and
+it is the part of F11 that is not yet answered.
+
 ## The five behaviours worth knowing about
 
 1. **Sharp pain ends that exercise for the day.** A set logged with `didCauseSharpPain` moves
@@ -96,10 +118,12 @@ ActiveSessionScreen.tsx        the route-level component: which panel to draw
 useActiveSessionStore.ts       the Zustand store: preparation, events, persistence
 activeSessionCoachLines.ts     which of Harout's categories belongs to which moment
 prescriptionWording.ts         putting a prescription into words. Not coach copy
+warmupWording.ts               putting a warm-up dose and its progress into words
 restTimerChime.ts              two synthesised notes when the rest is up
 components/
   SessionHeaderBar             where he is, how far through, and the way out
-  WarmupPanel                  the drills and the ramp set
+  WarmupPanel                  the drills and the ramp set, in any order
+  WarmupStepOverlay            one drill, explained rather than only named
   ExerciseBriefPanel           the animation, the cues, and what goes wrong
   SetInProgressPanel           the weight, at arm's length
   SetLoggingPanel              reps, weight, effort, pain

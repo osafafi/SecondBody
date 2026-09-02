@@ -33,15 +33,15 @@ later.
 
 ## Open
 
-| #   | What                                                | Reported   | Notes                                                                                                                                                                                                                                                                               |
-| --- | --------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| F6  | Firestore holds a session that was never trained    | 2026-09-01 | Today said "you trained yesterday" on an app that had never been used. A walk through the session player during development reached the end and wrote a real `workoutSessions` document. **Omar's to run** — see below                                                              |
-| F11 | The warm-up is one block you cannot work through    | 2026-09-02 | "the warmup section was very hard to understand, i couldnt click on each step, and i didn't fully understand what each means. i'd like to be able to click on them and complete them not necessarily as a sequence (because sometimes the spots are busy or the machines are busy)" |
-| F12 | Two minutes on the bike is too short                | 2026-09-02 | "i'd like to add more bike time, 2 minutes felt really short." Answered at four minutes, five before 10:00 — his call, asked and given                                                                                                                                              |
-| F13 | A machine his gym does not have is still prescribed | 2026-09-02 | "some machines are not available in the gym. for example today's Low Row exercise. i replaced it with a machine. but i'd like to be able to flag an exercise as NOT available, so that the next session you can read that and we'll adapt the exercises."                           |
+| #   | What                                                | Reported   | Notes                                                                                                                                                                                                                                                             |
+| --- | --------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F6  | Firestore holds a session that was never trained    | 2026-09-01 | Today said "you trained yesterday" on an app that had never been used. A walk through the session player during development reached the end and wrote a real `workoutSessions` document. **Omar's to run** — see below                                            |
+| F13 | A machine his gym does not have is still prescribed | 2026-09-02 | "some machines are not available in the gym. for example today's Low Row exercise. i replaced it with a machine. but i'd like to be able to flag an exercise as NOT available, so that the next session you can read that and we'll adapt the exercises."         |
+| F14 | Four of the seven warm-up drills have no animation  | 2026-09-02 | Found while answering F11, not reported. Cat-cow, wall slides, chin tucks and the bodyweight hip hinge all draw "No preview yet". The cues carry them, but a picture is what F11 was asking for and these are the four movements least likely to be already known |
 
-_All of F7 to F13 came out of the first real session, on 2026-09-02. F6 predates it and is
-still Omar's to run._
+_F7 to F13 all came out of the first real session, on 2026-09-02. F6 predates it and is
+still Omar's to run. F14 is the one item here nobody reported — it was found while answering
+F11 and is written down rather than left as a surprise._
 
 ### F6, in full
 
@@ -77,6 +77,8 @@ item once it has been done and the app says week 1 with nothing completed.
 | F8  | You cannot look at an exercise without committing to it                                  | `feat/session-board-and-parking`   | `ExercisePreviewOverlay`. Closing it does nothing at all — the only control on it that reaches the state machine is "Do this one now"                      |
 | F9  | A busy machine can only be answered with a skip                                          | `feat/session-board-and-parking`   | "Machine is busy" parks it: the session carries on and hands it back at the end. Parked is not skipped, and only becomes one, with a reason, at the close  |
 | F10 | The session's exercises are a bare list of names                                         | `feat/session-board-and-parking`   | `SessionBoardOverlay` — a grid of cards with the animation on each, reachable from the header in every phase                                               |
+| F11 | The warm-up is one block you cannot work through                                         | `feat/warmup-you-can-work-through` | Every drill is a card with its animation and its own screen: how to do it, what goes wrong, why it is there. The tick and the card are two separate taps   |
+| F12 | Two minutes on the bike is too short                                                     | `feat/warmup-you-can-work-through` | Four minutes, five before 10:00. His number, asked for and given. TRAINING_PROGRAM.md section 3 updated to match                                           |
 
 ## Declined
 

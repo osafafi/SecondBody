@@ -6,20 +6,35 @@ import { fullBodyWarmupRoutine } from '@/content/programs/twelveWeekFoundation/w
 const SEVEN_THIRTY_IN_THE_MORNING = 7;
 const SIX_IN_THE_EVENING = 18;
 
+/**
+ * The bike, which is the one step written in seconds rather than reps.
+ *
+ * Read out of the routine rather than written down here. These assertions used
+ * to name the numbers — 180 and 120 — and F12 changing the bike to 5 and 4
+ * minutes broke a domain test that has nothing to do with how long the bike is.
+ * What is being tested is that the planner picks the right one of the two
+ * volumes, so the two volumes are what it should be compared against.
+ */
+const firstStep = fullBodyWarmupRoutine.steps[0];
+
 describe('resolveWarmupPlan', () => {
   it('uses the longer volumes for a session that starts before the cutoff', () => {
     const plan = resolveWarmupPlan(fullBodyWarmupRoutine, SEVEN_THIRTY_IN_THE_MORNING);
 
     expect(plan.isMorningVersion).toBe(true);
     expect(plan.steps[0]?.exerciseId).toBe('stationaryBikeEasy');
-    expect(plan.steps[0]?.volume.durationSeconds).toBe(180);
+    expect(plan.steps[0]?.volume).toEqual(firstStep?.morningVolume);
   });
 
   it('uses the shorter volumes later in the day', () => {
     const plan = resolveWarmupPlan(fullBodyWarmupRoutine, SIX_IN_THE_EVENING);
 
     expect(plan.isMorningVersion).toBe(false);
-    expect(plan.steps[0]?.volume.durationSeconds).toBe(120);
+    expect(plan.steps[0]?.volume).toEqual(firstStep?.standardVolume);
+  });
+
+  it('has two doses that actually differ, so the two tests above mean something', () => {
+    expect(firstStep?.morningVolume).not.toEqual(firstStep?.standardVolume);
   });
 
   it('performs every step at both times of day, so nothing is ever skipped', () => {

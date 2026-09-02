@@ -177,14 +177,15 @@ deployment history to manage.
 ## 10. Local checks before pushing
 
 ```bash
-npm run verify     # type-check + lint + test
-npm run build      # production build
+npm run verify     # everything the pipeline runs, in the same order
 npm run preview    # serve dist/ exactly as Pages will
 ```
 
-`npm run verify` covers the icons too: the test suite runs the same check
-`npm run icons:verify` does, so a regenerated-icon omission fails before the commit rather
-than in CI.
+**`npm run verify` is the pipeline, run locally.** It is the same seven steps in the same
+order — format check, type-check, lint, tests, media check, icon check, build — so a green
+verify means a green pipeline, and it takes about twenty seconds. It used to run three of
+the seven, which is how a formatting-only failure reached `main` after the F7 to F13 merges.
+If a step is ever added to the workflow, add it to `verify` in the same commit.
 
 `npm run preview` is worth doing before a deploy that touches routing or assets — it is the
 only local check that exercises the real relative-path setup.

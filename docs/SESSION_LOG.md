@@ -1517,3 +1517,24 @@ least likely to be already known. It is opened as F14 rather than left as a surp
   unavailability is the follow-up.
 - `JournalPromptPanel.module.css` still hard-codes `rgba(255, 255, 255, 0.14)`. Still not
   that item, still worth doing with `NavigationLink`.
+
+**Postscript: the three branches were merged and the build went red**
+
+On `fix/formatting-and-the-verify-gate`, immediately after.
+
+Eight files were not Prettier-formatted, and CI checks formatting as its first step, so
+nothing else in the pipeline even ran. The files were formatted; that part was thirty
+seconds.
+
+The interesting part is why it got through. `npm run verify` is named in CLAUDE.md rule 3 as
+_the_ pre-commit gate, and it ran `typecheck && lint && test` — three of the seven things CI
+runs. Formatting was not among them. I had been running `prettier --write` by hand on the
+files I happened to think of, which worked until it did not.
+
+`verify` now runs all seven, in CI's order, in about twenty seconds: `format:check`,
+`typecheck`, `lint`, `test`, `media:verify`, `icons:verify`, `build`. A gate that checks less
+than CI is a gate that lies, and this one had been lying since M0 — it was only ever
+survivable because every previous session happened to format everything.
+
+CLAUDE.md, README.md and DEPLOYMENT.md section 10 all described the old three steps and now
+describe the real seven.

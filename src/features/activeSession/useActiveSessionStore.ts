@@ -163,7 +163,6 @@ function resolveSubstituteExerciseIds(exerciseId: string): string[] {
   return findExerciseById(exerciseId)?.substituteExerciseIds ?? [];
 }
 
-
 /**
  * The rep range today's programme writes for each exercise in this session.
  *
@@ -536,11 +535,9 @@ export const useActiveSessionStore = create<ActiveSessionStore>()((set, get) => 
 
     set({ unavailableExerciseIds: nextUnavailableExerciseIds });
 
-    void writeUnavailableExerciseIds(userId, nextUnavailableExerciseIds).catch(
-      (error: unknown) => {
-        set({ saveErrorMessage: describeRepositoryError(error) });
-      },
-    );
+    void writeUnavailableExerciseIds(userId, nextUnavailableExerciseIds).catch((error: unknown) => {
+      set({ saveErrorMessage: describeRepositoryError(error) });
+    });
 
     sendEvent({ kind: 'exerciseSkipped', skipReason: NOT_AVAILABLE_SKIP_REASON });
   },

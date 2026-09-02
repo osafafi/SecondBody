@@ -20,7 +20,7 @@
     "icons:generate": "node tools/appIcon/generateAppIcons.mjs",
     "icons:verify": "node tools/appIcon/verifyAppIcons.mjs",
     "coach:export": "node tools/coaching/exportCoachingBundle.mjs",
-    "verify": "npm run typecheck && npm run lint && npm run test"
+    "verify": "npm run format:check && npm run typecheck && npm run lint && npm run test && npm run media:verify && npm run icons:verify && npm run build"
   },
   "dependencies": {
     "firebase": "^12.18.0",

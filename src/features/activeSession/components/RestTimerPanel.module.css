@@ -86,7 +86,7 @@
 .nextUp {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-3);
   padding: var(--space-4);
 }
 
@@ -97,10 +97,54 @@
   color: var(--text-muted);
 }
 
-.nextUpValue {
-  font-size: var(--text-body-size);
-  font-weight: 600;
+.nextUpBody {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.nextUpAnimation {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+}
+
+.nextUpText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.nextUpName {
+  font-size: var(--text-heading-size);
+  font-weight: var(--text-heading-weight);
+  line-height: var(--line-height-tight);
   color: var(--text-primary);
+}
+
+.nextUpPrescription {
+  font-size: var(--text-body-size);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.nextUpWeight {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* One cue, not all of them. The full set is one tap away. */
+.nextUpCue {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+}
+
+.nextUpActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 .actions {

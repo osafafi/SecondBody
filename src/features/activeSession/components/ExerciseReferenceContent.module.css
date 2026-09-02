@@ -1,0 +1,101 @@
+.headlineSurface {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+}
+
+.animation {
+  width: 148px;
+  height: 148px;
+}
+
+.name {
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.headline {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.headlineValue {
+  font-size: var(--text-display-size);
+  font-weight: var(--text-display-weight);
+  line-height: var(--line-height-tight);
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.headlineUnit {
+  font-size: var(--text-label-size);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.headlineDetail {
+  font-size: var(--text-body-size);
+  color: var(--text-secondary);
+}
+
+.loadChange {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent-gradient-start) 22%, transparent);
+}
+
+.cueGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.cueHeading {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.cueList,
+.mistakeList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: var(--space-5);
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+}
+
+.cueList {
+  list-style: decimal;
+}
+
+.mistakeList {
+  list-style: disc;
+  color: var(--text-secondary);
+}
+
+.reason {
+  font-size: var(--text-body-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}

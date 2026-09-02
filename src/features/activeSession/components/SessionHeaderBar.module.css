@@ -52,7 +52,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-.leaveButton {
+.headerButton {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,11 +68,11 @@
   background: rgba(var(--surface-tint-rgb), 0.14);
 }
 
-.leaveButton:active {
+.headerButton:active {
   color: var(--text-primary);
 }
 
-.leaveButton:focus-visible {
+.headerButton:focus-visible {
   outline: 2px solid var(--brand-gradient-start);
   outline-offset: 3px;
 }

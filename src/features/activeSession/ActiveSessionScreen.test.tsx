@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -376,5 +376,121 @@ describe('the calibration week', () => {
     await screen.findByRole('heading', { name: /goblet squat/i });
 
     expect(screen.queryByText(/we.re finding your starting line/i)).not.toBeInTheDocument();
+  });
+});
+
+describe('looking around the session without committing to anything', () => {
+  it('lists every movement in the session, with its numbers', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(await screen.findByRole('button', { name: /see all the exercises/i }));
+
+    const board = await screen.findByRole('dialog', { name: /all exercises/i });
+
+    expect(within(board).getByText(/goblet squat/i)).toBeInTheDocument();
+    expect(within(board).getByText(/low row/i)).toBeInTheDocument();
+  });
+
+  it('opens a movement, and closing it logs nothing at all', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await finishTheWarmup(user);
+    await user.click(screen.getByRole('button', { name: /see all the exercises/i }));
+
+    const board = await screen.findByRole('dialog', { name: /all exercises/i });
+
+    await user.click(within(board).getByRole('button', { name: /goblet squat/i }));
+
+    const preview = await screen.findByRole('dialog', { name: /exercise preview/i });
+    expect(within(preview).getByText(/how to do it/i)).toBeInTheDocument();
+
+    await user.click(within(preview).getByRole('button', { name: /all exercises/i }));
+
+    // Back on the board, and the session is where it was.
+    expect(await screen.findByRole('dialog', { name: /all exercises/i })).toBeInTheDocument();
+    expect(backend.createdSessions).toHaveLength(0);
+    expect(backend.savedSessions).toHaveLength(0);
+  });
+
+  it('sends the session to a movement chosen from the board', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await finishTheWarmup(user);
+    await user.click(screen.getByRole('button', { name: /see all the exercises/i }));
+
+    const board = await screen.findByRole('dialog', { name: /all exercises/i });
+
+    // The low row is second in Session A. The session opened on the squat.
+    await user.click(within(board).getByRole('button', { name: /low row/i }));
+    await user.click(await screen.findByRole('button', { name: /do this one now/i }));
+
+    expect(await screen.findByRole('button', { name: /start set 1/i })).toBeInTheDocument();
+    expect(screen.getByText(/exercise 2 of/i)).toBeInTheDocument();
+  });
+});
+
+describe('a machine that somebody else is on', () => {
+  it('moves to the next exercise without recording a skip', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await finishTheWarmup(user);
+    expect(await screen.findByRole('heading', { name: /goblet squat/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /machine is busy/i }));
+
+    expect(screen.getByText(/exercise 2 of/i)).toBeInTheDocument();
+
+    // Nothing was written, because nothing happened.
+    expect(backend.createdSessions).toHaveLength(0);
+  });
+
+  it('shows the parked movement as waiting on the board', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await finishTheWarmup(user);
+    await user.click(screen.getByRole('button', { name: /machine is busy/i }));
+    await user.click(screen.getByRole('button', { name: /see all the exercises/i }));
+
+    const board = await screen.findByRole('dialog', { name: /all exercises/i });
+
+    expect(within(board).getByText(/waiting on the machine/i)).toBeInTheDocument();
+  });
+});
+
+describe('the rest between two sets', () => {
+  it('shows what is coming next rather than only naming it', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await finishTheWarmup(user);
+    await user.click(await screen.findByRole('button', { name: /start set 1/i }));
+    await user.click(screen.getByRole('button', { name: /set done/i }));
+    await user.click(screen.getByRole('button', { name: /log it/i }));
+
+    expect(await screen.findByText(/rest left/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /look at it properly/i })).toBeInTheDocument();
+  });
+
+  it('opens the next movement in full, and comes back to the rest', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await finishTheWarmup(user);
+    await user.click(await screen.findByRole('button', { name: /start set 1/i }));
+    await user.click(screen.getByRole('button', { name: /set done/i }));
+    await user.click(screen.getByRole('button', { name: /log it/i }));
+    await user.click(await screen.findByRole('button', { name: /look at it properly/i }));
+
+    const preview = await screen.findByRole('dialog', { name: /exercise preview/i });
+    expect(within(preview).getByText(/what goes wrong/i)).toBeInTheDocument();
+
+    await user.click(within(preview).getByRole('button', { name: /back to it/i }));
+
+    expect(await screen.findByText(/rest left/i)).toBeInTheDocument();
   });
 });

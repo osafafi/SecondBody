@@ -1,0 +1,190 @@
+/*
+ * A full screen rather than a sheet. Six cards with animations on them do not
+ * fit in the bottom half of a phone, and half a grid is worse than no grid.
+ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: calc(var(--safe-area-top) + var(--space-4)) var(--screen-horizontal-padding)
+    calc(var(--safe-area-bottom) + var(--space-5));
+  overflow-y: auto;
+  background:
+    radial-gradient(120% 60% at 12% 0%, rgba(var(--surface-tint-rgb), 0.24), transparent 62%),
+    var(--background-deep);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.subtitle {
+  font-size: var(--text-label-size);
+  color: var(--text-secondary);
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  background: rgba(var(--surface-tint-rgb), 0.16);
+  transition: color var(--motion-fast) var(--motion-easing);
+}
+
+.closeButton:hover {
+  color: var(--text-primary);
+}
+
+/*
+ * Two columns on a phone. One would be a list again, which is the thing F10 is
+ * about; three would put the animation below the size at which a machine is
+ * recognisable.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (min-width: 560px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.card {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-align: left;
+}
+
+.cardSurface {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  height: 100%;
+  padding: var(--space-3);
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.card:active .cardSurface {
+  transform: scale(0.98);
+}
+
+.cardAnimation {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+.cardPosition {
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.isCurrent .cardPosition {
+  color: var(--text-primary);
+}
+
+.cardName {
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+.cardPrescription {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+.isCurrent .cardPrescription {
+  color: var(--text-primary);
+}
+
+.cardStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: auto;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(var(--surface-tint-rgb), 0.2);
+}
+
+/*
+ * The current card is an accent surface — a solid brand gradient — so the
+ * quiet tinted chip that reads well on every other card disappears into it.
+ * A neutral black scrim is the palette-safe way to punch a hole in a gradient,
+ * and DESIGN_SYSTEM.md section 3 allows exactly that.
+ */
+.isCurrent .cardStatus {
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.statusInProgress {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent-gradient-start) 26%, transparent);
+}
+
+.statusDone {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--success-gradient-start) 30%, transparent);
+}
+
+.statusWaiting {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--warning-gradient-start) 30%, transparent);
+}
+
+.statusSkipped {
+  color: var(--text-muted);
+}
+
+.cardChevron {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  color: var(--text-muted);
+}
+
+.footnote {
+  font-size: var(--text-caption-size);
+  line-height: var(--line-height-normal);
+  text-align: center;
+  color: var(--text-muted);
+}

@@ -92,6 +92,21 @@ is sometimes taken.
 **Four of the seven drills have no animation** and draw "No preview yet". That is F14, and
 it is the part of F11 that is not yet answered.
 
+## A machine the gym has not got
+
+F13, and a different question from a busy one. Parking says "come back in ten minutes";
+this says "there is no such machine here".
+
+"My gym has not got this machine" sits under the three buttons on the brief as a link,
+because it is the only control in the session that changes what happens **next** time
+rather than this time. Confirming it does two things: the movement comes out of today with
+a reason on the record, and `unavailableExerciseIds` on the profile gets it.
+
+From the next session on, `src/domain/exerciseAvailability.ts` swaps the slot for the best
+equivalent his gym does have — and the brief says so, with "Use this instead" on the button.
+Omar asked to be told rather than have it happen quietly. Undoing it is in Settings, under
+"What your gym has not got".
+
 ## The five behaviours worth knowing about
 
 1. **Sharp pain ends that exercise for the day.** A set logged with `didCauseSharpPain` moves
@@ -137,11 +152,12 @@ components/
 
 ## What it does not do yet
 
-- **Exercise substitution.** "Someone is on the leg extension" is now answered by parking it
-  rather than by skipping it, which covers the common case. Swapping to a different movement
-  entirely is a different question, and it is F13's.
-- **Filtering on available equipment.** The profile records what the gym has, and the planner
-  does not read it.
+- **Substituting for one session only.** A movement can be swapped permanently, by saying
+  the gym has not got it, but "the low row is taken for the next twenty minutes" is answered
+  by parking rather than by a one-off swap.
+- **Filtering on available equipment.** `availableEquipmentIds` is on the profile and the
+  planner still does not read it. F13 works on exercises rather than on kit, which is what
+  Omar asked for — but "we have no cable station at all" is currently seven separate flags.
 - **A skip reason he chooses.** One reason is now written down on its own — a machine parked
   and never returned to — but a skip taken deliberately is still stored with
   `skipReason: null`.

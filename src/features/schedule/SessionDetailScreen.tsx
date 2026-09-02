@@ -8,6 +8,7 @@ import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
 import { NavigationLink } from '@/components/NavigationLink/NavigationLink';
 import { ScreenHeader } from '@/components/ScreenHeader/ScreenHeader';
+import { findExerciseById } from '@/content/exercises/allExercises';
 import { parseIsoDate } from '@/domain/calendarDates';
 import { buildPlannedSessionOutline } from '@/domain/plannedSessionOutline';
 import {
@@ -169,6 +170,9 @@ function DayContent({
       sessionLetter: calendarDay.sessionLetter,
       activePainAreas: userProfile.painAreas,
       excludedExerciseIds: userProfile.excludedExerciseIds,
+      unavailableExerciseIds: userProfile.unavailableExerciseIds,
+      resolveSubstituteExerciseIds: (exerciseId) =>
+        findExerciseById(exerciseId)?.substituteExerciseIds ?? [],
     });
 
     if (plannedSession) {

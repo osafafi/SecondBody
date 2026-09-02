@@ -140,6 +140,7 @@ export function UserProfileProvider({ children }: UserProfileProviderProps) {
         targetWeightKilograms,
         painAreas: draft.painAreas,
         excludedExerciseIds: [],
+        unavailableExerciseIds: [],
         availableEquipmentIds: draft.availableEquipmentIds,
         trainingDaysOfWeek: draft.trainingDaysOfWeek,
         hasCompletedOnboarding: true,

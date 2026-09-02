@@ -4,7 +4,11 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { buildLoggedExercise, buildLoggedSet } from '@/test/trainingTestFactories';
-import type { ProgramAssignment, WorkoutSession } from '@/types/trainingHistoryTypes';
+import type {
+  PerformedExercise,
+  ProgramAssignment,
+  WorkoutSession,
+} from '@/types/trainingHistoryTypes';
 import { DEFAULT_USER_SETTINGS, type UserProfile } from '@/types/userAccountTypes';
 
 /**
@@ -27,6 +31,15 @@ const backend = vi.hoisted(() => ({
   createdSessions: [] as unknown[],
   savedSessions: [] as unknown[],
   updatedAssignments: [] as unknown[],
+  writtenUnavailableExerciseIds: [] as string[][],
+}));
+
+vi.mock('@/services/repositories/userProfileRepository', () => ({
+  writeUnavailableExerciseIds: (_userId: string, unavailableExerciseIds: string[]) => {
+    backend.writtenUnavailableExerciseIds.push(unavailableExerciseIds);
+
+    return Promise.resolve();
+  },
 }));
 
 vi.mock('@/services/repositories/programAssignmentRepository', () => ({
@@ -87,6 +100,7 @@ function buildProfile(): UserProfile {
     targetWeightKilograms: 83,
     painAreas: [],
     excludedExerciseIds: [],
+    unavailableExerciseIds: [],
     availableEquipmentIds: ['dumbbells'],
     trainingDaysOfWeek: [1, 3, 5],
     hasCompletedOnboarding: true,
@@ -133,6 +147,14 @@ beforeEach(() => {
   backend.createdSessions = [];
   backend.savedSessions = [];
   backend.updatedAssignments = [];
+  backend.writtenUnavailableExerciseIds = [];
+
+  /*
+   * One profile object for the whole file — see the note on the mock — so a
+   * test that flags a machine has to put it back, or the next test starts with
+   * a gym that is missing a low row.
+   */
+  signedInProfile.unavailableExerciseIds = [];
 
   useActiveSessionStore.getState().leaveSession();
 });
@@ -492,5 +514,73 @@ describe('the rest between two sets', () => {
     await user.click(within(preview).getByRole('button', { name: /back to it/i }));
 
     expect(await screen.findByText(/rest left/i)).toBeInTheDocument();
+  });
+});
+
+describe('a machine the gym has not got', () => {
+  it('takes it out of today and tells the profile, once confirmed', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await finishTheWarmup(user);
+    expect(await screen.findByRole('heading', { name: /goblet squat/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /my gym has not got this machine/i }));
+    await user.click(await screen.findByRole('button', { name: /yes, we have not got one/i }));
+
+    expect(backend.writtenUnavailableExerciseIds).toEqual([['gobletSquatToBox']]);
+    expect(screen.getByText(/exercise 2 of/i)).toBeInTheDocument();
+  });
+
+  it('changes nothing when the answer is that it is there after all', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await finishTheWarmup(user);
+    await user.click(screen.getByRole('button', { name: /my gym has not got this machine/i }));
+    await user.click(await screen.findByRole('button', { name: /no, it is there/i }));
+
+    expect(backend.writtenUnavailableExerciseIds).toEqual([]);
+    expect(screen.getByText(/exercise 1 of/i)).toBeInTheDocument();
+  });
+
+  it('records why it was skipped, rather than skipping it silently', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await finishTheWarmup(user);
+    await user.click(screen.getByRole('button', { name: /my gym has not got this machine/i }));
+    await user.click(await screen.findByRole('button', { name: /yes, we have not got one/i }));
+
+    await waitFor(() => {
+      expect(backend.createdSessions).toHaveLength(1);
+    });
+
+    const [session] = backend.createdSessions as { performedExercises: PerformedExercise[] }[];
+    const squat = session?.performedExercises.find(
+      (exercise) => exercise.exerciseId === 'gobletSquatToBox',
+    );
+
+    expect(squat?.wasSkipped).toBe(true);
+    expect(squat?.skipReason).toMatch(/has not got this machine/i);
+  });
+});
+
+describe('the session after a machine has been flagged', () => {
+  it('swaps in the closest thing and says what it replaced', async () => {
+    signedInProfile.unavailableExerciseIds = ['seatedCableRow'];
+
+    const user = userEvent.setup();
+    renderScreen();
+
+    await finishTheWarmup(user);
+    // Past the squat, which is untouched, and on to the slot the low row had.
+    await user.click(await screen.findByRole('button', { name: /skip this exercise/i }));
+
+    expect(
+      await screen.findByRole('heading', { name: /chest-supported dumbbell row/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/has not got the low row/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /use this instead/i })).toBeInTheDocument();
   });
 });

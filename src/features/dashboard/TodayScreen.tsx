@@ -5,6 +5,7 @@ import { useAuthentication } from '@/app/useAuthentication';
 import { useUserProfile } from '@/app/useUserProfile';
 import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
+import { findExerciseById } from '@/content/exercises/allExercises';
 import { IconBadge } from '@/components/IconBadge/IconBadge';
 import { NavigationLink } from '@/components/NavigationLink/NavigationLink';
 import { ScreenHeader } from '@/components/ScreenHeader/ScreenHeader';
@@ -190,6 +191,9 @@ function TodayBriefing({
     sessionLetter: startPosition.sessionLetter,
     activePainAreas: userProfile.painAreas,
     excludedExerciseIds: userProfile.excludedExerciseIds,
+    unavailableExerciseIds: userProfile.unavailableExerciseIds,
+    resolveSubstituteExerciseIds: (exerciseId) =>
+      findExerciseById(exerciseId)?.substituteExerciseIds ?? [],
   });
 
   /*

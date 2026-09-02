@@ -1,4 +1,5 @@
 import {
+  Dumbbell,
   Info,
   LogIn,
   MessageSquare,
@@ -20,8 +21,10 @@ import { CoachingPreferencesPanel } from './components/CoachingPreferencesPanel'
 import { ColorPalettePicker } from './components/ColorPalettePicker';
 import { ProfileDetailsPanel } from './components/ProfileDetailsPanel';
 import { SignedInAccountPanel } from './components/SignedInAccountPanel';
+import { UnavailableExercisesPanel } from './components/UnavailableExercisesPanel';
 import styles from './SettingsScreen.module.css';
 import { useEditableProfile } from './useEditableProfile';
+import { useEditableUnavailableExercises } from './useEditableUnavailableExercises';
 import { useCoachingBundleDownload } from './useCoachingBundleDownload';
 import { useEditableUserSettings } from './useEditableUserSettings';
 
@@ -58,6 +61,13 @@ export function SettingsScreen() {
     saveProfileEdits,
     forgetSaveResult,
   } = useEditableProfile();
+
+  const {
+    unavailableExerciseIds,
+    isSaving: isSavingUnavailableExercises,
+    saveErrorMessage: unavailableExercisesErrorMessage,
+    restoreExercise,
+  } = useEditableUnavailableExercises();
 
   const { downloadStatus, downloadErrorMessage, downloadedFileName, downloadCoachingBundle } =
     useCoachingBundleDownload(signedInUser?.userId ?? null, userProfile);
@@ -157,6 +167,25 @@ export function SettingsScreen() {
             onEditStarted={forgetSaveResult}
           />
         ) : null}
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionHeading}>
+          <Dumbbell size={14} strokeWidth={2} aria-hidden />
+          What your gym has not got
+        </h2>
+
+        <p className={styles.sectionDescription}>
+          Movements you have said your gym cannot do. Each one is swapped for the closest thing
+          it can, from the next session on.
+        </p>
+
+        <UnavailableExercisesPanel
+          unavailableExerciseIds={unavailableExerciseIds}
+          isSaving={isSavingUnavailableExercises}
+          saveErrorMessage={unavailableExercisesErrorMessage}
+          onExerciseRestored={restoreExercise}
+        />
       </section>
 
       <section className={styles.section}>

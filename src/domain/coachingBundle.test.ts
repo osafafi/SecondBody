@@ -48,6 +48,7 @@ function buildProfile(changes: Partial<UserProfile> = {}): UserProfile {
     targetWeightKilograms: 82,
     painAreas: ['lowerBack'],
     excludedExerciseIds: [],
+    unavailableExerciseIds: [],
     availableEquipmentIds: ['legExtensionMachine'],
     trainingDaysOfWeek: [5, 1, 3],
     hasCompletedOnboarding: true,

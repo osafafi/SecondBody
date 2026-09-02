@@ -26,6 +26,17 @@ export type UserProfile = {
   /** Hard blacklist, e.g. something a physio ruled out. Beats everything else. */
   excludedExerciseIds: string[];
 
+  /**
+   * Movements his gym cannot actually provide — the machine is not there, or is
+   * permanently occupied by something else.
+   *
+   * Deliberately not the same list as `excludedExerciseIds`. That one is about
+   * his body and removes the slot; this one is about the room and swaps the
+   * movement, so the session keeps its shape. See
+   * `src/domain/exerciseAvailability.ts`, and F13 in docs/FEEDBACK.md.
+   */
+  unavailableExerciseIds: string[];
+
   /** What the gym he is actually standing in has. */
   availableEquipmentIds: EquipmentId[];
 

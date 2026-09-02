@@ -95,9 +95,13 @@ export function ActiveSessionScreen() {
   const updateSetLogDraft = useActiveSessionStore((store) => store.updateSetLogDraft);
   const logCurrentSet = useActiveSessionStore((store) => store.logCurrentSet);
   const finishSession = useActiveSessionStore((store) => store.finishSession);
+  const markCurrentExerciseUnavailable = useActiveSessionStore(
+    (store) => store.markCurrentExerciseUnavailable,
+  );
   const leaveSession = useActiveSessionStore((store) => store.leaveSession);
 
   const [isLeaveSheetOpen, setIsLeaveSheetOpen] = useState(false);
+  const [isUnavailableSheetOpen, setIsUnavailableSheetOpen] = useState(false);
   const [sessionOverlay, setSessionOverlay] = useState<SessionOverlayState>({ kind: 'none' });
 
   const signedInUserId = signedInUser?.userId ?? null;
@@ -281,6 +285,9 @@ export function ActiveSessionScreen() {
             }}
             onExerciseParked={handleExerciseParked}
             onExerciseSkipped={handleExerciseSkipped}
+            onMarkedUnavailable={() => {
+              setIsUnavailableSheetOpen(true);
+            }}
             onSessionBoardOpened={openSessionBoard}
           />
         ) : null;
@@ -444,6 +451,47 @@ export function ActiveSessionScreen() {
             );
           }}
         />
+      ) : null}
+
+      {/*
+       * Confirmed rather than done on one tap, because it is the only control in
+       * the session that changes what happens *next* time. Everything else here
+       * is undone by the next tap; this one is undone in Settings, days later,
+       * by somebody who has forgotten they set it.
+       */}
+      {isUnavailableSheetOpen && plannedExercise ? (
+        <div className={styles.leaveOverlay} role="dialog" aria-modal="true">
+          <GradientSurface variant="glass" radius="xlarge" className={styles.leaveSheet}>
+            <h2 className={styles.leaveTitle}>Your gym has not got this?</h2>
+            <p className={styles.leaveMessage}>
+              {findExerciseById(plannedExercise.exerciseId)?.displayName ??
+                plannedExercise.exerciseId}{' '}
+              comes out of today&rsquo;s session, and from the next one on you will be offered
+              the closest thing your gym does have. You can undo this in Settings.
+            </p>
+
+            <GradientButton
+              tone="secondary"
+              isFullWidth
+              onClick={() => {
+                setIsUnavailableSheetOpen(false);
+              }}
+            >
+              No, it is there
+            </GradientButton>
+
+            <GradientButton
+              tone="primary"
+              isFullWidth
+              onClick={() => {
+                setIsUnavailableSheetOpen(false);
+                markCurrentExerciseUnavailable();
+              }}
+            >
+              Yes, we have not got one
+            </GradientButton>
+          </GradientSurface>
+        </div>
       ) : null}
 
       {isLeaveSheetOpen ? (

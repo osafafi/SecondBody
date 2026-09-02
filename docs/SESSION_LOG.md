@@ -1386,3 +1386,134 @@ option. So:
 - **The bottom navigation is still four items.** Two features now have front doors on Today
   instead — the journal and the library. A third would be a reason to reopen the question,
   not a reason to add a fifth tab quietly.
+
+---
+
+### Session 18 - 2026-09-02 - The first real session, and the seven things it turned up
+
+**Agent:** Claude (Opus 5)
+**Branches:** `feat/session-board-and-parking`, then `feat/warmup-you-can-work-through`,
+then `feat/exercise-availability` — **stacked, and they merge in that order.**
+
+Omar trained for the first time and came back with seven separate things. This is the first
+session in the project's history where the work came from the app being used rather than
+from a plan, and it shows: four of the seven are the same complaint from different angles.
+
+**Why three branches and not seven, or one**
+
+FEEDBACK.md rule 2 says one item, one branch. The practised version of that rule is one
+_coherent change_ per branch — `feat/browse-sessions-and-library` closed F2 to F5 — and
+these seven group into three changes cleanly:
+
+| Branch                             | Items           | What it is                                |
+| ---------------------------------- | --------------- | ----------------------------------------- |
+| `feat/session-board-and-parking`   | F7, F8, F9, F10 | The session player stops being a corridor |
+| `feat/warmup-you-can-work-through` | F11, F12        | The warm-up, and the bike                 |
+| `feat/exercise-availability`       | F13             | A machine the gym has not got             |
+
+They are **stacked** rather than cut from `main` separately, because two of them touch
+`ExerciseBriefPanel` and `ActiveSessionScreen` and all three touch the docs. Three parallel
+branches would have been three conflicts to resolve by hand at merge time. Merged in order,
+there are none.
+
+**Asked before building, because the answers changed the work**
+
+Three of the seven had more than one sensible reading, so Omar picked:
+
+- **The bike:** four minutes, five before 10:00. It was two and three.
+- **A busy machine:** park it, get on with the session, and offer it again at the end.
+- **A machine the gym has not got:** swap in the closest thing, **but say so** rather than
+  doing it quietly.
+
+**Done — `feat/session-board-and-parking` (F7 to F10)**
+
+The state machine used to advance with `currentExerciseIndex + 1`. That single line is why a
+busy machine could only be answered with a skip: there was no way to leave something and
+come back to it. Advancing is now a search for the next thing still owed, with parked
+movements last in that search.
+
+- **Parking is not skipping**, and keeping them apart is the whole of F9. A skip is a
+  decision about the movement and is stored on the session; parking is a decision about the
+  queue and lives in `parkedExerciseIds`, in memory only. A session resumed an hour later
+  should not still believe a machine is occupied. It becomes a skip, with a reason, only if
+  the session closes without ever coming back to it.
+- `isPlannedExerciseStillOwed` and `canSessionReturnToExercise` came out of
+  `resumeActiveSessionState`, which already had the first of them inline. The second is the
+  same question ignoring skips — a skip should be reversible while the session is running,
+  three sets should not be.
+- **The rest now records where it leads** rather than inferring it. "Set 1 means a new
+  exercise" was true until a movement could be parked halfway through and come back at set 3,
+  at which point it would have dropped him into a set of something he had not been shown.
+- `domain/sessionBoard.ts` is what the grid renders: each movement's state and whether the
+  session may go back to it.
+- `SessionBoardOverlay` is the session as a grid of cards with the animation on each,
+  reachable from the header in every phase. `ExercisePreviewOverlay` is one movement, read
+  rather than performed — closing it does nothing at all, which is F8 exactly. The rest
+  screen shows the next movement instead of naming it.
+- `ExerciseReferenceContent` came out of `ExerciseBriefPanel` when the preview became its
+  second reader.
+
+**Done — `feat/warmup-you-can-work-through` (F11, F12)**
+
+"i couldnt click on each step" was the surprising clause, because the steps were already
+tappable. They did not look it, and a tap only ticked one off — so the one thing a tap could
+have done was the one thing it did not do. Each row is now two controls drawn as one card.
+
+"i didn't fully understand what each means" needed no new content at all. Every drill has
+carried four form cues, its two common mistakes and a sentence on why it is in the programme
+since M2. None of it was on screen. `WarmupStepOverlay` puts it there.
+
+The bike went to 4 minutes / 5 morning, and `TRAINING_PROGRAM.md` section 3 was updated to
+agree. `warmupPlanning.test.ts` broke, because it asserted the literal `180` and `120`; it
+now compares against the routine's own two volumes, which is what that test was always for.
+
+**Done — `feat/exercise-availability` (F13)**
+
+`unavailableExerciseIds` is a new profile field and is deliberately **not**
+`excludedExerciseIds`. That one is about his body, is a hard blacklist, and removes the slot.
+This one is about a room: the exercise is fine, the machine is not there, and the slot still
+has a job to do.
+
+- `domain/exerciseAvailability.ts` swaps each unavailable slot for the best equivalent that
+  is not itself unavailable, not blacklisted, and not already in this session. Resolved for
+  the whole session at once, because a substitute already in the session is not a substitute.
+- The swap is never silent: the brief names what it replaced and the primary button says
+  "Use this instead". That is the "ask me first" Omar chose.
+- `plannedSessionOutline.ts` learned about it too, or Today and the Schedule day would have
+  named a movement the session then replaced. There is a test whose only job is to keep those
+  two agreeing, and it is the test that caught this.
+- Undoing it is a new Settings section. `excludedExerciseIds` is deliberately not editable
+  and this deliberately is: it is set in a gym, one-handed, on a screen built to be quick, so
+  it has to be undoable.
+- `writeUnavailableExerciseIds` writes one field rather than the whole profile, because the
+  caller holds a snapshot taken when the session opened and a full write would undo anything
+  changed in Settings since.
+
+**How it was verified**
+
+Everything is behind Google Sign-In, and signing in as Omar was not an option. So the same
+approach as session 17: `npm run verify` green at every commit (1224 tests), and the visuals
+checked by temporarily pointing the existing dev-only `/exercise-media` route at a scratch
+component, screenshotting at 375x812, then deleting the scratch and reverting `App.tsx`.
+Every board state was checked — done, part way, waiting on the machine, skipped, current —
+along with the preview, the rest screen, the warm-up, a drill's own screen, and a substituted
+brief.
+
+**One thing found rather than reported: F14**
+
+Four of the seven warm-up drills have no animation and draw "No preview yet" — cat-cow, wall
+slides, chin tucks and the bodyweight hip hinge. The cues carry them, and F11 is answered
+without pictures, but a picture is what F11 was asking for and those four are the movements
+least likely to be already known. It is opened as F14 rather than left as a surprise.
+
+**Notes for the next session**
+
+- **F6 is still Omar's to run**, and it is still the thing that should happen before week 1
+  is trusted. It has now been outstanding across two sessions.
+- **The bottom navigation is still four items.** Nothing here added a tab.
+- `availableEquipmentIds` is still read by nothing. F13 works on exercises rather than on
+  kit, which is what was asked for — but "we have no cable station at all" is seven separate
+  flags, and if that turns out to be the real shape of the problem, equipment-level
+  unavailability is the follow-up.
+- `JournalPromptPanel.module.css` still hard-codes `rgba(255, 255, 255, 0.14)`. Still not
+  that item, still worth doing with `NavigationLink`.

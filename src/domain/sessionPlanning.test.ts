@@ -31,6 +31,9 @@ function buildRequest(overrides: Partial<SessionPlanRequest> = {}): SessionPlanR
     performanceHistoryByExerciseId: {},
     activePainAreas: [],
     excludedExerciseIds: [],
+    unavailableExerciseIds: [],
+    resolveSubstituteExerciseIds: (exerciseId) =>
+      findExerciseById(exerciseId)?.substituteExerciseIds ?? [],
     resolveLoadingStyleForExercise: (exerciseId) =>
       findExerciseById(exerciseId)?.loadingStyle ?? null,
     layoffLoadMultiplier: 1,

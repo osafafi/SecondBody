@@ -6,16 +6,17 @@ Everything the user can change about the app, plus the answers the programme is 
 
 ## What is here
 
-| Section                   | What it changes                                                                    |
-| ------------------------- | ---------------------------------------------------------------------------------- |
-| **Appearance**            | `selectedPaletteId`. Applies instantly, everywhere, and follows the account        |
-| **Coaching and sessions** | `coachVerbosity`, `shouldPlayRestTimerSound`, `shouldKeepScreenAwakeDuringSession` |
-| **Profile**               | Name, height, target weight, training days, pain areas                             |
-| **Coaching export**       | The whole training history as one file, for a conversation outside the app         |
-| **Account**               | Who is signed in, and signing out                                                  |
-| **Credits**               | The animation attribution. Required, not decorative                                |
+| Section                       | What it changes                                                                    |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| **Appearance**                | `selectedPaletteId`. Applies instantly, everywhere, and follows the account        |
+| **Coaching and sessions**     | `coachVerbosity`, `shouldPlayRestTimerSound`, `shouldKeepScreenAwakeDuringSession` |
+| **Profile**                   | Name, height, target weight, training days, pain areas                             |
+| **What your gym has not got** | `unavailableExerciseIds`. The undo for a machine flagged mid-session               |
+| **Coaching export**           | The whole training history as one file, for a conversation outside the app         |
+| **Account**                   | Who is signed in, and signing out                                                  |
+| **Credits**                   | The animation attribution. Required, not decorative                                |
 
-## The two writes, and why they behave differently
+## The three writes, and why they behave differently
 
 - **Preferences** (`useEditableUserSettings`) are written a field at a time and applied
   optimistically. They are switches, and a switch that waits for a round trip before it moves
@@ -25,8 +26,25 @@ Everything the user can change about the app, plus the answers the programme is 
   way to a whole one. Nothing is saved until it is asked for and `findProfileEditProblems`
   has nothing to say about it.
 
+- **The unavailable list** (`useEditableUnavailableExercises`) is neither. It is a list you
+  remove things from — one row, one action, written immediately, no save button. Waiting for
+  a form submission before a machine the gym bought last week counts as bought would be the
+  wrong shape for it, and it writes one field rather than the whole document so it cannot
+  undo a profile edit made on this same screen a moment earlier.
+
 There is no profile _read_ here. `UserProfileProvider` already watches `profile/current` for
 the life of the app, so the form is handed the new values back through context after a save.
+
+## Why the unavailable list is editable and the blacklist is not
+
+`excludedExerciseIds` is deliberately absent from this screen, and
+`src/domain/profileEditing.ts` says why: it exists for something a physio ruled out, and
+that should not be one mis-tap away from being switched back on.
+
+`unavailableExerciseIds` is the opposite case and needs exactly the opposite treatment. It
+is set in a gym, one-handed, on a screen built to be quick — so it _has_ to be undoable, or
+a mis-tap silently changes every future session with no way back. Same shape of field, two
+different reasons, two different answers.
 
 ## What may be edited, and what may not
 

@@ -42,8 +42,8 @@ export function UnavailableExercisesPanel({
       <GradientSurface variant="recessed" radius="large" className={styles.emptyPanel}>
         <IconBadge icon={<Dumbbell size={18} strokeWidth={2} />} size="small" />
         <p className={styles.emptyMessage}>
-          Nothing flagged. When a machine turns out not to exist, say so on the exercise and it
-          will show up here.
+          Nothing flagged. When a machine turns out not to exist, say so on the exercise and it will
+          show up here.
         </p>
       </GradientSurface>
     );

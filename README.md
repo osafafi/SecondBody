@@ -50,21 +50,21 @@ can test on the device you will actually use.
 
 ## Scripts
 
-| Command                           | What it does                                               |
-| --------------------------------- | ---------------------------------------------------------- |
-| `npm run dev`                     | Dev server, accessible from your phone on the same wifi    |
-| `npm run build`                   | Type-check then produce a production build in `dist/`      |
-| `npm run preview`                 | Serve the production build locally                         |
-| `npm run verify`                  | Type-check + lint + test. **Run this before every commit** |
-| `npm run test`                    | Unit tests once                                            |
-| `npm run test:watch`              | Unit tests in watch mode                                   |
-| `npm run lint` / `lint:fix`       | ESLint                                                     |
-| `npm run format` / `format:check` | Prettier                                                   |
-| `npm run media:copy`              | Copy matched exercise animations out of the cloned dataset |
-| `npm run media:verify`            | Check the committed animations against the match table     |
-| `npm run icons:generate`          | Redraw the app icons in `public/icons/` from the artwork   |
-| `npm run icons:verify`            | Check the committed app icons still match the artwork      |
-| `npm run coach:export`            | Write your training history to `.coaching/` for a review   |
+| Command                           | What it does                                                        |
+| --------------------------------- | ------------------------------------------------------------------- |
+| `npm run dev`                     | Dev server, accessible from your phone on the same wifi             |
+| `npm run build`                   | Type-check then produce a production build in `dist/`               |
+| `npm run preview`                 | Serve the production build locally                                  |
+| `npm run verify`                  | Everything CI runs, in CI's order. **Run this before every commit** |
+| `npm run test`                    | Unit tests once                                                     |
+| `npm run test:watch`              | Unit tests in watch mode                                            |
+| `npm run lint` / `lint:fix`       | ESLint                                                              |
+| `npm run format` / `format:check` | Prettier                                                            |
+| `npm run media:copy`              | Copy matched exercise animations out of the cloned dataset          |
+| `npm run media:verify`            | Check the committed animations against the match table              |
+| `npm run icons:generate`          | Redraw the app icons in `public/icons/` from the artwork            |
+| `npm run icons:verify`            | Check the committed app icons still match the artwork               |
+| `npm run coach:export`            | Write your training history to `.coaching/` for a review            |
 
 ## Documentation
 

@@ -175,7 +175,7 @@ describe('the profile that gets written', () => {
       targetWeightKilograms: 80,
       painAreas: ['knees'],
       excludedExerciseIds: ['barbellBackSquat'],
-    unavailableExerciseIds: [],
+      unavailableExerciseIds: [],
       availableEquipmentIds: ['barbell', 'dumbbells'],
       trainingDaysOfWeek: [1, 2, 5],
       hasCompletedOnboarding: true,

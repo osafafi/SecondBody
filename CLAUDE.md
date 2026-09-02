@@ -17,7 +17,10 @@ M11.
    there. When you are done, tell him the branch name and stop.
 2. **Never commit personal data.** No body weight, no measurements, no session logs, no real
    Firebase user IDs. That data belongs in Firestore. This repository is public.
-3. **Run `npm run verify` before every commit.** Type-check, lint and tests must all pass.
+3. **Run `npm run verify` before every commit.** It runs exactly what CI runs, in the same
+   order: format check, type-check, lint, tests, the media and icon checks, and the
+   production build. If it passes locally the pipeline passes, and if you ever add a step to
+   the workflow, add it here too — a gate that checks less than CI is a gate that lies.
 4. **Write up every session before you finish.** Add an entry to
    [docs/SESSION_LOG.md](docs/SESSION_LOG.md) and update the current state table in
    [docs/PROGRESS.md](docs/PROGRESS.md). Together they are the handover contract between

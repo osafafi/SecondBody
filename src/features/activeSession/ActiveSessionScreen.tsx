@@ -466,8 +466,8 @@ export function ActiveSessionScreen() {
             <p className={styles.leaveMessage}>
               {findExerciseById(plannedExercise.exerciseId)?.displayName ??
                 plannedExercise.exerciseId}{' '}
-              comes out of today&rsquo;s session, and from the next one on you will be offered
-              the closest thing your gym does have. You can undo this in Settings.
+              comes out of today&rsquo;s session, and from the next one on you will be offered the
+              closest thing your gym does have. You can undo this in Settings.
             </p>
 
             <GradientButton

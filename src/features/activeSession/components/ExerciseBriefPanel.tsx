@@ -115,8 +115,8 @@ export function ExerciseBriefPanel({
         <GradientSurface variant="outlined" radius="large" className={styles.painNotice}>
           <IconBadge icon={<Replace size={18} strokeWidth={2} />} size="small" />
           <p>
-            You said your gym has not got the {replacedExerciseName}, so this is in its place.
-            Use it, or skip it if it is not right either.
+            You said your gym has not got the {replacedExerciseName}, so this is in its place. Use
+            it, or skip it if it is not right either.
           </p>
         </GradientSurface>
       ) : null}
@@ -125,8 +125,8 @@ export function ExerciseBriefPanel({
         <GradientSurface variant="outlined" radius="large" className={styles.painNotice}>
           <IconBadge icon={<Replace size={18} strokeWidth={2} />} tone="warning" size="small" />
           <p>
-            You said your gym has not got this one, and there is nothing equivalent left to
-            offer. Skip it, or do it anyway if it has turned up.
+            You said your gym has not got this one, and there is nothing equivalent left to offer.
+            Skip it, or do it anyway if it has turned up.
           </p>
         </GradientSurface>
       ) : null}

@@ -93,9 +93,11 @@ describe('a machine his gym does not have', () => {
   });
 
   it('passes over a substitute the blacklist rules out', () => {
-    const resolved = resolve([buildSlot('seatedCableRow', 1)], ['seatedCableRow'], [
-      'chestSupportedDumbbellRow',
-    ]);
+    const resolved = resolve(
+      [buildSlot('seatedCableRow', 1)],
+      ['seatedCableRow'],
+      ['chestSupportedDumbbellRow'],
+    );
 
     expect(resolved[0]?.slot.exerciseId).toBe('latPulldown');
   });

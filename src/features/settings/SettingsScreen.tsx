@@ -176,8 +176,8 @@ export function SettingsScreen() {
         </h2>
 
         <p className={styles.sectionDescription}>
-          Movements you have said your gym cannot do. Each one is swapped for the closest thing
-          it can, from the next session on.
+          Movements you have said your gym cannot do. Each one is swapped for the closest thing it
+          can, from the next session on.
         </p>
 
         <UnavailableExercisesPanel

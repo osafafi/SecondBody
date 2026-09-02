@@ -12,6 +12,7 @@ import {
   applyActiveSessionEvent,
   createInitialActiveSessionState,
   findCurrentPlannedExercise,
+  findLoggedExercise,
   resumeActiveSessionState,
   type ActiveSessionEvent,
   type ActiveSessionState,
@@ -483,5 +484,272 @@ describe('resuming a session the phone interrupted', () => {
     const state = resumeActiveSessionState(buildTwoExerciseSession(), loggedExercises);
 
     expect(state.loggedExercises).toEqual(loggedExercises);
+  });
+});
+
+describe('putting an exercise aside because the machine is busy', () => {
+  /** Three exercises of one set each, so the queue has somewhere to go. */
+  function buildThreeExerciseSession(): PlannedSession {
+    return buildPlannedSession({
+      exercises: [
+        buildPlannedExercise({ orderIndex: 1, exerciseId: 'gobletSquatToBox', workingSetCount: 1 }),
+        buildPlannedExercise({ orderIndex: 2, exerciseId: 'seatedCableRow', workingSetCount: 1 }),
+        buildPlannedExercise({ orderIndex: 3, exerciseId: 'legExtension', workingSetCount: 1 }),
+      ],
+    });
+  }
+
+  it('moves on to the next exercise without recording anything', () => {
+    const state = replay(buildThreeExerciseSession(), [
+      { kind: 'warmupFinished' },
+      { kind: 'exerciseParked' },
+    ]);
+
+    expect(state.phase).toBe('exerciseBrief');
+    expect(state.currentExerciseIndex).toBe(1);
+    expect(state.loggedExercises).toEqual([]);
+  });
+
+  it('remembers what is waiting on a machine', () => {
+    const state = replay(buildThreeExerciseSession(), [
+      { kind: 'warmupFinished' },
+      { kind: 'exerciseParked' },
+    ]);
+
+    expect(state.parkedExerciseIds).toEqual(['gobletSquatToBox']);
+  });
+
+  it('offers the parked exercise again once everything else is done', () => {
+    const state = replay(buildThreeExerciseSession(), [
+      { kind: 'warmupFinished' },
+      // The squat machine is busy, so the row and the leg extension happen first.
+      { kind: 'exerciseParked' },
+      { kind: 'exerciseStarted' },
+      { kind: 'setFinished' },
+      { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+      { kind: 'restFinished', occurredAt: NINE_OH_TWO },
+      { kind: 'exerciseStarted' },
+      { kind: 'setFinished' },
+      { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+      { kind: 'restFinished', occurredAt: NINE_OH_TWO },
+    ]);
+
+    expect(state.phase).toBe('exerciseBrief');
+    expect(state.currentExerciseIndex).toBe(0);
+  });
+
+  it('does not hand the same exercise straight back when it is the only one left', () => {
+    const state = replay(buildThreeExerciseSession(), [
+      { kind: 'warmupFinished' },
+      { kind: 'exerciseSkipped', skipReason: null },
+      { kind: 'exerciseSkipped', skipReason: null },
+      { kind: 'exerciseParked' },
+    ]);
+
+    expect(state.phase).toBe('sessionReview');
+  });
+
+  it('records a machine that never freed up as a skip, with the reason', () => {
+    const state = replay(buildThreeExerciseSession(), [
+      { kind: 'warmupFinished' },
+      { kind: 'exerciseParked' },
+      { kind: 'exerciseSkipped', skipReason: null },
+      { kind: 'exerciseSkipped', skipReason: null },
+      // Offered again at the end, and it is still occupied. That ends the session.
+      { kind: 'exerciseParked' },
+      { kind: 'sessionFinished' },
+    ]);
+
+    expect(state.phase).toBe('completed');
+
+    const squat = findLoggedExercise(state, 'gobletSquatToBox');
+
+    expect(squat?.wasSkipped).toBe(true);
+    expect(squat?.skipReason).toContain('machine was busy');
+  });
+
+  it('leaves a parked exercise alone once it has been come back to and finished', () => {
+    const state = replay(buildThreeExerciseSession(), [
+      { kind: 'warmupFinished' },
+      { kind: 'exerciseParked' },
+      { kind: 'exerciseSelected', exerciseIndex: 0 },
+      { kind: 'exerciseStarted' },
+      { kind: 'setFinished' },
+      { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+      { kind: 'restFinished', occurredAt: NINE_OH_TWO },
+      { kind: 'exerciseSkipped', skipReason: null },
+      { kind: 'exerciseSkipped', skipReason: null },
+      { kind: 'sessionFinished' },
+    ]);
+
+    const squat = findLoggedExercise(state, 'gobletSquatToBox');
+
+    expect(squat?.wasSkipped).toBe(false);
+    expect(squat?.performedSets).toHaveLength(1);
+  });
+
+  it('ignores parking while a set is being written down', () => {
+    const plannedSession = buildThreeExerciseSession();
+    const beforeParking = replay(plannedSession, WARMUP_THEN_FIRST_SET);
+
+    expect(replay(plannedSession, [{ kind: 'exerciseParked' }], beforeParking)).toBe(beforeParking);
+  });
+});
+
+describe('choosing an exercise from the session board', () => {
+  function buildThreeExerciseSession(): PlannedSession {
+    return buildPlannedSession({
+      exercises: [
+        buildPlannedExercise({ orderIndex: 1, exerciseId: 'gobletSquatToBox' }),
+        buildPlannedExercise({ orderIndex: 2, exerciseId: 'seatedCableRow' }),
+        buildPlannedExercise({ orderIndex: 3, exerciseId: 'legExtension' }),
+      ],
+    });
+  }
+
+  it('jumps to the chosen movement and shows its brief', () => {
+    const state = replay(buildThreeExerciseSession(), [
+      { kind: 'warmupFinished' },
+      { kind: 'exerciseSelected', exerciseIndex: 2 },
+    ]);
+
+    expect(state.phase).toBe('exerciseBrief');
+    expect(state.currentExerciseIndex).toBe(2);
+    expect(state.currentSetNumber).toBe(1);
+  });
+
+  it('picks up at the set that is actually owed, not back at set 1', () => {
+    const state = replay(buildThreeExerciseSession(), [
+      ...WARMUP_THEN_FIRST_SET,
+      { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+      { kind: 'restFinished', occurredAt: NINE_OH_TWO },
+      // Off to the leg extension mid-exercise, then back to the squat.
+      { kind: 'exerciseSelected', exerciseIndex: 2 },
+      { kind: 'exerciseSelected', exerciseIndex: 0 },
+    ]);
+
+    expect(state.currentExerciseIndex).toBe(0);
+    expect(state.currentSetNumber).toBe(2);
+  });
+
+  it('reverses a skip, because walking back over to it is the decision', () => {
+    const state = replay(buildThreeExerciseSession(), [
+      { kind: 'warmupFinished' },
+      { kind: 'exerciseSkipped', skipReason: null },
+      { kind: 'exerciseSelected', exerciseIndex: 0 },
+    ]);
+
+    expect(findLoggedExercise(state, 'gobletSquatToBox')?.wasSkipped).toBe(false);
+    expect(state.currentExerciseIndex).toBe(0);
+  });
+
+  it('refuses an exercise that is already finished', () => {
+    const plannedSession = buildPlannedSession({
+      exercises: [
+        buildPlannedExercise({ orderIndex: 1, exerciseId: 'gobletSquatToBox', workingSetCount: 1 }),
+        buildPlannedExercise({ orderIndex: 2, exerciseId: 'seatedCableRow', workingSetCount: 1 }),
+      ],
+    });
+
+    const afterFirstExercise = replay(plannedSession, [
+      ...WARMUP_THEN_FIRST_SET,
+      { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+      { kind: 'restFinished', occurredAt: NINE_OH_TWO },
+    ]);
+
+    expect(
+      replay(plannedSession, [{ kind: 'exerciseSelected', exerciseIndex: 0 }], afterFirstExercise),
+    ).toBe(afterFirstExercise);
+  });
+
+  it('refuses an exercise that was stopped for sharp pain', () => {
+    const plannedSession = buildThreeExerciseSession();
+
+    const afterPain = replay(plannedSession, [
+      ...WARMUP_THEN_FIRST_SET,
+      {
+        kind: 'setLogged',
+        performedSet: buildSet({ didCauseSharpPain: true }),
+        occurredAt: NINE_IN_THE_MORNING,
+      },
+      { kind: 'restFinished', occurredAt: NINE_OH_TWO },
+    ]);
+
+    expect(
+      replay(plannedSession, [{ kind: 'exerciseSelected', exerciseIndex: 0 }], afterPain),
+    ).toBe(afterPain);
+  });
+
+  it('is ignored during the warm-up, which is training rather than a menu', () => {
+    const plannedSession = buildThreeExerciseSession();
+    const atTheWarmup = createInitialActiveSessionState();
+
+    expect(
+      replay(plannedSession, [{ kind: 'exerciseSelected', exerciseIndex: 1 }], atTheWarmup),
+    ).toBe(atTheWarmup);
+  });
+
+  it('sends the session back out of the review when a machine finally frees up', () => {
+    const plannedSession = buildThreeExerciseSession();
+
+    const atTheReview = replay(plannedSession, [
+      { kind: 'warmupFinished' },
+      { kind: 'exerciseSkipped', skipReason: null },
+      { kind: 'exerciseSkipped', skipReason: null },
+      { kind: 'exerciseSkipped', skipReason: null },
+    ]);
+
+    expect(atTheReview.phase).toBe('sessionReview');
+
+    const state = replay(
+      plannedSession,
+      [{ kind: 'exerciseSelected', exerciseIndex: 1 }],
+      atTheReview,
+    );
+
+    expect(state.phase).toBe('exerciseBrief');
+    expect(state.currentExerciseIndex).toBe(1);
+  });
+});
+
+describe('where a rest leads', () => {
+  it('ends at the next set of the same movement', () => {
+    const state = replay(buildTwoExerciseSession(), [
+      ...WARMUP_THEN_FIRST_SET,
+      { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+      { kind: 'restFinished', occurredAt: NINE_OH_TWO },
+    ]);
+
+    expect(state.phase).toBe('setInProgress');
+  });
+
+  it('ends at the brief of a half-finished movement it has come back to', () => {
+    const plannedSession = buildPlannedSession({
+      exercises: [
+        buildPlannedExercise({ orderIndex: 1, exerciseId: 'gobletSquatToBox', workingSetCount: 2 }),
+        buildPlannedExercise({ orderIndex: 2, exerciseId: 'seatedCableRow', workingSetCount: 1 }),
+      ],
+    });
+
+    const state = replay(plannedSession, [
+      // One set of the squat, then park it and finish the row.
+      ...WARMUP_THEN_FIRST_SET,
+      { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+      { kind: 'restFinished', occurredAt: NINE_OH_TWO },
+      { kind: 'exerciseParked' },
+      { kind: 'exerciseStarted' },
+      { kind: 'setFinished' },
+      { kind: 'setLogged', performedSet: buildSet(), occurredAt: NINE_IN_THE_MORNING },
+      { kind: 'restFinished', occurredAt: NINE_OH_TWO },
+    ]);
+
+    /*
+     * The squat is owed its second set, so the set number is 2 — which is what
+     * the old "set 1 means a new exercise" rule read as "carry on mid-exercise",
+     * dropping him into a set of a movement he had not been shown.
+     */
+    expect(state.currentExerciseIndex).toBe(0);
+    expect(state.currentSetNumber).toBe(2);
+    expect(state.phase).toBe('exerciseBrief');
   });
 });

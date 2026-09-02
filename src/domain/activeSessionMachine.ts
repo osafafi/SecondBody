@@ -86,6 +86,32 @@ export type ActiveSessionState = {
    */
   restSecondsBeforeCurrentSet: number | null;
 
+  /**
+   * True when the rest now running ends at a different movement's brief rather
+   * than at the next set of the one just performed.
+   *
+   * The set number used to answer this — "set 1 can only mean a new exercise",
+   * because a set number never resets within an exercise. That stopped being
+   * true the moment an exercise could be parked half-finished and come back at
+   * set 3, so the rest now says where it leads instead of it being inferred.
+   */
+  doesRestLeadToANewExercise: boolean;
+
+  /**
+   * Exercises put aside because someone was on the machine, in the order they
+   * were parked.
+   *
+   * **Parking is not skipping.** A skip is a decision about the movement — it is
+   * not being trained today — and it is stored on the session document. This is
+   * a decision about the queue: someone is on it, come back to it. So it lives
+   * here and is deliberately *not* persisted. A session resumed an hour later
+   * should not still believe a machine is occupied.
+   *
+   * It becomes a skip, with a reason, only if the session is closed off without
+   * ever coming back to it.
+   */
+  parkedExerciseIds: string[];
+
   overallFeeling: OverallSessionFeeling | null;
   sessionNotes: string | null;
 };
@@ -113,6 +139,18 @@ export type ActiveSessionEvent =
   | { kind: 'exerciseSkipped'; skipReason: string | null }
 
   /**
+   * Someone is on the machine. Put this one aside, get on with the session, and
+   * offer it again at the end.
+   */
+  | { kind: 'exerciseParked' }
+
+  /**
+   * Chosen from the session board rather than arrived at in order. The session
+   * moves to that movement's brief, un-parking and un-skipping it on the way.
+   */
+  | { kind: 'exerciseSelected'; exerciseIndex: number }
+
+  /**
    * Out of time, cutting it short. Everything done so far still counts and the
    * session still finishes properly — four exercises out of six is a session,
    * not a failure, and it should be recorded as one.
@@ -134,6 +172,8 @@ export function createInitialActiveSessionState(): ActiveSessionState {
     restStartedAt: null,
     restTargetSeconds: 0,
     restSecondsBeforeCurrentSet: null,
+    doesRestLeadToANewExercise: false,
+    parkedExerciseIds: [],
     overallFeeling: null,
     sessionNotes: null,
   };
@@ -155,6 +195,113 @@ export function findLoggedExercise(
   return (
     state.loggedExercises.find((loggedExercise) => loggedExercise.exerciseId === exerciseId) ?? null
   );
+}
+
+/** How many sets of one movement are already in the log. */
+export function countSetsLoggedAgainstExercise(
+  loggedExercises: PerformedExercise[],
+  exerciseId: string,
+): number {
+  return (
+    loggedExercises.find((loggedExercise) => loggedExercise.exerciseId === exerciseId)
+      ?.performedSets.length ?? 0
+  );
+}
+
+/**
+ * Whether the session is still allowed to put this movement in front of him.
+ *
+ * Two things close an exercise for the day and neither can be undone from the
+ * board: its sets are all in, or a set of it caused sharp pain. Being *skipped*
+ * is not one of them — a skip is a decision, and a decision made by mistake, or
+ * made because a machine was busy, should be reversible while the session is
+ * still running.
+ */
+export function canSessionReturnToExercise(
+  plannedExercise: PlannedExercise,
+  loggedExercises: PerformedExercise[],
+): boolean {
+  const loggedExercise = loggedExercises.find(
+    (candidate) => candidate.exerciseId === plannedExercise.exerciseId,
+  );
+
+  if (!loggedExercise) {
+    return true;
+  }
+
+  /*
+   * A set that caused sharp pain ends that exercise for the day, so an exercise
+   * short of its set count is only owed more work when the last set logged
+   * against it was pain-free.
+   */
+  if (loggedExercise.performedSets.at(-1)?.didCauseSharpPain === true) {
+    return false;
+  }
+
+  return loggedExercise.performedSets.length < plannedExercise.workingSetCount;
+}
+
+/**
+ * Whether an exercise still owes work, left to itself.
+ *
+ * One rule, three callers: what the session offers next, where an interrupted
+ * session picks up, and what the board draws on each card. A skipped movement
+ * owes nothing — it can still be returned to deliberately, which is what
+ * `canSessionReturnToExercise` answers, but nothing will steer him back to it.
+ */
+export function isPlannedExerciseStillOwed(
+  plannedExercise: PlannedExercise,
+  loggedExercises: PerformedExercise[],
+): boolean {
+  const loggedExercise = loggedExercises.find(
+    (candidate) => candidate.exerciseId === plannedExercise.exerciseId,
+  );
+
+  if (loggedExercise?.wasSkipped === true) {
+    return false;
+  }
+
+  return canSessionReturnToExercise(plannedExercise, loggedExercises);
+}
+
+/**
+ * Which exercise the session should put in front of him next, or null when
+ * there is nothing left and the session is over.
+ *
+ * Session order, first thing still owed — and parked movements come last.
+ * "Someone is on the leg extension" means get on with the rest of the session
+ * and try it again at the end, by which time it is usually free. That last part
+ * is F9 in docs/FEEDBACK.md, and it is why this is a search rather than
+ * `currentExerciseIndex + 1`.
+ *
+ * `mayOfferParked` is false in exactly one place: the moment something is
+ * parked. Handing it straight back would be a loop, and would also be rude.
+ */
+function findNextExerciseIndexToOffer(
+  plannedSession: PlannedSession,
+  loggedExercises: PerformedExercise[],
+  parkedExerciseIds: string[],
+  mayOfferParked: boolean,
+): number | null {
+  const isStillOwed = (plannedExercise: PlannedExercise): boolean =>
+    isPlannedExerciseStillOwed(plannedExercise, loggedExercises);
+
+  const unparkedIndex = plannedSession.exercises.findIndex(
+    (plannedExercise) =>
+      isStillOwed(plannedExercise) && !parkedExerciseIds.includes(plannedExercise.exerciseId),
+  );
+
+  if (unparkedIndex >= 0) {
+    return unparkedIndex;
+  }
+
+  if (!mayOfferParked) {
+    return null;
+  }
+
+  const parkedIndex = plannedSession.exercises.findIndex(isStillOwed);
+
+  return parkedIndex >= 0 ? parkedIndex : null;
 }
 
 /**
@@ -199,29 +346,46 @@ function updateLogEntry(
 }
 
 /**
- * Leaves the current exercise behind and points at the next one.
+ * Leaves the current exercise behind and points at whatever is owed next.
  *
- * The phase becomes `sessionReview` once there is no next one, which is the only
- * way a session finishes — running out of exercises, rather than a separate "am
- * I done yet" check somewhere in the UI.
+ * The phase becomes `sessionReview` once nothing is owed, which is the only way
+ * a session finishes — running out of work, rather than a separate "am I done
+ * yet" check somewhere in the UI.
+ *
+ * The set number is read back out of the log rather than reset to 1, because
+ * what is offered next may be a movement that was parked halfway through and is
+ * owed its third set, not its first.
  */
 function moveToNextExercise(
   state: ActiveSessionState,
   plannedSession: PlannedSession,
   loggedExercises: PerformedExercise[],
+  parkedExerciseIds: string[],
+  mayOfferParked: boolean,
 ): ActiveSessionState {
-  const nextExerciseIndex = state.currentExerciseIndex + 1;
-  const hasAnotherExercise = nextExerciseIndex < plannedSession.exercises.length;
+  const nextExerciseIndex = findNextExerciseIndexToOffer(
+    plannedSession,
+    loggedExercises,
+    parkedExerciseIds,
+    mayOfferParked,
+  );
+
+  const nextExercise =
+    nextExerciseIndex === null ? null : plannedSession.exercises[nextExerciseIndex];
 
   return {
     ...state,
-    phase: hasAnotherExercise ? 'exerciseBrief' : 'sessionReview',
-    currentExerciseIndex: nextExerciseIndex,
-    currentSetNumber: 1,
+    phase: nextExercise ? 'exerciseBrief' : 'sessionReview',
+    currentExerciseIndex: nextExerciseIndex ?? plannedSession.exercises.length,
+    currentSetNumber: nextExercise
+      ? countSetsLoggedAgainstExercise(loggedExercises, nextExercise.exerciseId) + 1
+      : 1,
     loggedExercises,
+    parkedExerciseIds,
     restStartedAt: null,
     restTargetSeconds: 0,
     restSecondsBeforeCurrentSet: null,
+    doesRestLeadToANewExercise: false,
   };
 }
 
@@ -260,29 +424,56 @@ function applyLoggedSet(
   const hasAnotherSet =
     !performedSet.didCauseSharpPain && state.currentSetNumber < plannedExercise.workingSetCount;
 
-  const isLastExercise = state.currentExerciseIndex === plannedSession.exercises.length - 1;
-
-  if (!hasAnotherSet && isLastExercise) {
-    return moveToNextExercise(state, plannedSession, loggedExercises);
-  }
-
   /*
    * Rest happens between two sets of one exercise AND between two exercises.
    * Walking straight from a set of squats into the brief for the next movement
    * is how a session turns into a circuit, which is not what this programme is.
    */
-  return {
-    ...state,
-    phase: 'resting',
-    currentExerciseIndex: hasAnotherSet
-      ? state.currentExerciseIndex
-      : state.currentExerciseIndex + 1,
-    currentSetNumber: hasAnotherSet ? state.currentSetNumber + 1 : 1,
+  const restStarting = {
+    phase: 'resting' as const,
     loggedExercises,
     restStartedAt: occurredAt,
     restTargetSeconds: plannedExercise.restSecondsBetweenSets,
     // The rest that has just begun belongs to the set that follows it.
     restSecondsBeforeCurrentSet: null,
+  };
+
+  if (hasAnotherSet) {
+    return {
+      ...state,
+      ...restStarting,
+      currentSetNumber: state.currentSetNumber + 1,
+      doesRestLeadToANewExercise: false,
+    };
+  }
+
+  const nextExerciseIndex = findNextExerciseIndexToOffer(
+    plannedSession,
+    loggedExercises,
+    state.parkedExerciseIds,
+    true,
+  );
+
+  const nextExercise =
+    nextExerciseIndex === null ? null : plannedSession.exercises[nextExerciseIndex];
+
+  // Nothing left to rest for. The session goes straight to its review.
+  if (nextExerciseIndex === null || !nextExercise) {
+    return moveToNextExercise(
+      state,
+      plannedSession,
+      loggedExercises,
+      state.parkedExerciseIds,
+      true,
+    );
+  }
+
+  return {
+    ...state,
+    ...restStarting,
+    currentExerciseIndex: nextExerciseIndex,
+    currentSetNumber: countSetsLoggedAgainstExercise(loggedExercises, nextExercise.exerciseId) + 1,
+    doesRestLeadToANewExercise: true,
   };
 }
 
@@ -303,7 +494,90 @@ function applySkippedExercise(
     (entry) => ({ ...entry, wasSkipped: true, skipReason }),
   );
 
-  return moveToNextExercise(state, plannedSession, loggedExercises);
+  /*
+   * A skipped movement leaves the parked list. Parking says "not yet" and
+   * skipping says "not today"; the second answer replaces the first, and
+   * leaving it parked would have it counted twice at the end of the session.
+   */
+  return moveToNextExercise(
+    state,
+    plannedSession,
+    loggedExercises,
+    state.parkedExerciseIds.filter(
+      (parkedExerciseId) => parkedExerciseId !== plannedExercise.exerciseId,
+    ),
+    true,
+  );
+}
+
+/**
+ * Someone is on the machine.
+ *
+ * Nothing is written to the log — nothing happened — so this does not touch
+ * Firestore. It moves the session on and remembers to come back.
+ *
+ * Parked movements are not offered again straight away, which is what stops
+ * parking the last remaining exercise from handing it back and looping. When
+ * there is genuinely nothing else left, the session goes to its review and the
+ * board is still there to send him back if the machine frees up.
+ */
+function applyParkedExercise(
+  state: ActiveSessionState,
+  plannedSession: PlannedSession,
+): ActiveSessionState {
+  const plannedExercise = findCurrentPlannedExercise(state, plannedSession);
+
+  if (!plannedExercise) {
+    return state;
+  }
+
+  const parkedExerciseIds = state.parkedExerciseIds.includes(plannedExercise.exerciseId)
+    ? state.parkedExerciseIds
+    : [...state.parkedExerciseIds, plannedExercise.exerciseId];
+
+  return moveToNextExercise(state, plannedSession, state.loggedExercises, parkedExerciseIds, false);
+}
+
+/**
+ * The reason stored against an exercise parked and never returned to.
+ *
+ * A plain sentence rather than a code, because `skipReason` is free text that is
+ * read by a person and by the coaching bundle, and "machineBusy" would have to
+ * be translated back into English by both.
+ */
+const MACHINE_BUSY_SKIP_REASON = 'The machine was busy and never freed up.';
+
+/**
+ * Parked exercises that were never come back to, written down as skips.
+ *
+ * A parked movement means "not yet" for as long as the session is running. The
+ * moment the session is closed off, "not yet" has become "not today", and the
+ * record should say why — which is the whole of F9 in docs/FEEDBACK.md. Before
+ * it, the only thing the session could record about a busy machine was a skip
+ * with no reason at all.
+ *
+ * An exercise that was parked but has sets against it keeps them. It is stored
+ * as skipped from the point it was parked, which is what happened.
+ */
+function recordUnvisitedParkedExercisesAsSkipped(
+  state: ActiveSessionState,
+  plannedSession: PlannedSession,
+): PerformedExercise[] {
+  return state.parkedExerciseIds.reduce<PerformedExercise[]>((loggedExercises, parkedId) => {
+    const plannedExercise = plannedSession.exercises.find(
+      (candidate) => candidate.exerciseId === parkedId,
+    );
+
+    if (!plannedExercise || !isPlannedExerciseStillOwed(plannedExercise, loggedExercises)) {
+      return loggedExercises;
+    }
+
+    return updateLogEntry(
+      findOrCreateLogEntry(loggedExercises, plannedExercise),
+      parkedId,
+      (entry) => ({ ...entry, wasSkipped: true, skipReason: MACHINE_BUSY_SKIP_REASON }),
+    );
+  }, state.loggedExercises);
 }
 
 /**
@@ -384,14 +658,14 @@ export function applyActiveSessionEvent(
       }
 
       /*
-       * Set 1 can only mean the rest moved the session on to a new exercise,
-       * because a set number never resets within one. So the brief is shown for
-       * the new movement, and the same rest leads straight back into the next
-       * set when it has not moved on.
+       * A rest between two exercises ends at the new movement's brief; a rest
+       * between two sets of one exercise leads straight back into the next set.
+       * Which of the two this was is recorded when the rest starts rather than
+       * inferred from the set number here — see `doesRestLeadToANewExercise`.
        */
       return {
         ...state,
-        phase: state.currentSetNumber === 1 ? 'exerciseBrief' : 'setInProgress',
+        phase: state.doesRestLeadToANewExercise ? 'exerciseBrief' : 'setInProgress',
         restStartedAt: null,
         restSecondsBeforeCurrentSet: measureRestSecondsTaken(state.restStartedAt, event.occurredAt),
       };
@@ -408,6 +682,73 @@ export function applyActiveSessionEvent(
       }
 
       return applySkippedExercise(state, plannedSession, event.skipReason);
+    }
+
+    case 'exerciseParked': {
+      /*
+       * Not from `loggingSet`. A set has been performed and is halfway through
+       * being written down; the machine is not the thing in the way any more.
+       */
+      const isInsideAnExercise = state.phase === 'exerciseBrief' || state.phase === 'setInProgress';
+
+      if (!isInsideAnExercise) {
+        return state;
+      }
+
+      return applyParkedExercise(state, plannedSession);
+    }
+
+    case 'exerciseSelected': {
+      /*
+       * Allowed from the review as well as from inside the session, which is how
+       * a machine that frees up at the very end still gets used. Not allowed
+       * from the warm-up — the warm-up is training, not a menu — and not from
+       * `loggingSet`, where a set is midway through being recorded.
+       */
+      const canChooseAnExercise =
+        state.phase === 'exerciseBrief' ||
+        state.phase === 'setInProgress' ||
+        state.phase === 'resting' ||
+        state.phase === 'sessionReview';
+
+      if (!canChooseAnExercise) {
+        return state;
+      }
+
+      const chosenExercise = plannedSession.exercises[event.exerciseIndex];
+
+      if (!chosenExercise || !canSessionReturnToExercise(chosenExercise, state.loggedExercises)) {
+        return state;
+      }
+
+      /*
+       * Choosing a movement undoes both of the reasons it might have been set
+       * aside. It is no longer waiting on a machine, and a skip decided earlier
+       * is being reversed by the act of walking back over to it.
+       */
+      return {
+        ...state,
+        phase: 'exerciseBrief',
+        currentExerciseIndex: event.exerciseIndex,
+        currentSetNumber:
+          countSetsLoggedAgainstExercise(state.loggedExercises, chosenExercise.exerciseId) + 1,
+        loggedExercises: updateLogEntry(
+          state.loggedExercises,
+          chosenExercise.exerciseId,
+          (entry) => ({
+            ...entry,
+            wasSkipped: false,
+            skipReason: null,
+          }),
+        ),
+        parkedExerciseIds: state.parkedExerciseIds.filter(
+          (parkedExerciseId) => parkedExerciseId !== chosenExercise.exerciseId,
+        ),
+        restStartedAt: null,
+        restTargetSeconds: 0,
+        restSecondsBeforeCurrentSet: null,
+        doesRestLeadToANewExercise: false,
+      };
     }
 
     case 'sessionEndedEarly': {
@@ -427,6 +768,7 @@ export function applyActiveSessionEvent(
         restStartedAt: null,
         restTargetSeconds: 0,
         restSecondsBeforeCurrentSet: null,
+        doesRestLeadToANewExercise: false,
       };
     }
 
@@ -447,7 +789,15 @@ export function applyActiveSessionEvent(
     }
 
     case 'sessionFinished': {
-      return state.phase === 'sessionReview' ? { ...state, phase: 'completed' } : state;
+      if (state.phase !== 'sessionReview') {
+        return state;
+      }
+
+      return {
+        ...state,
+        phase: 'completed',
+        loggedExercises: recordUnvisitedParkedExercisesAsSkipped(state, plannedSession),
+      };
     }
   }
 }
@@ -469,43 +819,23 @@ export function resumeActiveSessionState(
   plannedSession: PlannedSession,
   loggedExercises: PerformedExercise[],
 ): ActiveSessionState {
-  const isExerciseStillOwed = (plannedExercise: PlannedExercise): boolean => {
-    const loggedExercise = loggedExercises.find(
-      (candidate) => candidate.exerciseId === plannedExercise.exerciseId,
-    );
-
-    if (!loggedExercise) {
-      return true;
-    }
-
-    if (loggedExercise.wasSkipped) {
-      return false;
-    }
-
-    /*
-     * A set that caused sharp pain ends that exercise for the day, so an
-     * exercise short of its set count is only owed more work when the last set
-     * logged against it was pain-free.
-     */
-    const lastPerformedSet = loggedExercise.performedSets.at(-1);
-
-    if (lastPerformedSet?.didCauseSharpPain === true) {
-      return false;
-    }
-
-    return loggedExercise.performedSets.length < plannedExercise.workingSetCount;
-  };
-
-  const unfinishedExerciseIndex = plannedSession.exercises.findIndex(isExerciseStillOwed);
+  const unfinishedExerciseIndex = plannedSession.exercises.findIndex((plannedExercise) =>
+    isPlannedExerciseStillOwed(plannedExercise, loggedExercises),
+  );
   const hasUnfinishedExercise = unfinishedExerciseIndex >= 0;
 
   const setsAlreadyLogged = hasUnfinishedExercise
-    ? (loggedExercises.find(
-        (candidate) =>
-          candidate.exerciseId === plannedSession.exercises[unfinishedExerciseIndex]?.exerciseId,
-      )?.performedSets.length ?? 0)
+    ? countSetsLoggedAgainstExercise(
+        loggedExercises,
+        plannedSession.exercises[unfinishedExerciseIndex]?.exerciseId ?? '',
+      )
     : 0;
 
+  /*
+   * Nothing comes back parked. Parking is a fact about a machine at a moment,
+   * and the thing being recovered from here is a locked phone or a dropped
+   * connection — by the time the session is open again the queue has moved on.
+   */
   return {
     ...createInitialActiveSessionState(),
     /*

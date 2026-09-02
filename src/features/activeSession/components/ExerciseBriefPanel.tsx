@@ -1,34 +1,20 @@
-import { createElement } from 'react';
 import {
   AlertTriangle,
   ChevronRight,
+  Hourglass,
+  LayoutGrid,
   Lightbulb,
-  Sparkles,
   SkipForward,
-  TrendingDown,
   TrendingUp,
-  type LucideIcon,
 } from 'lucide-react';
 
-import { ExerciseAnimation } from '@/components/ExerciseAnimation/ExerciseAnimation';
 import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
 import { IconBadge } from '@/components/IconBadge/IconBadge';
-import { findExerciseById } from '@/content/exercises/allExercises';
 import type { PlannedExercise } from '@/domain/sessionPlanning';
 
-import {
-  describeLoadChange,
-  describePrescriptionHeadline,
-  type LoadChangeDescription,
-} from '../prescriptionWording';
 import styles from './ExerciseBriefPanel.module.css';
-
-const ICON_BY_LOAD_CHANGE_DIRECTION: Record<LoadChangeDescription['direction'], LucideIcon> = {
-  up: TrendingUp,
-  down: TrendingDown,
-  firstTime: Sparkles,
-};
+import { ExerciseReferenceContent } from './ExerciseReferenceContent';
 
 export type ExerciseBriefPanelProps = {
   plannedExercise: PlannedExercise;
@@ -43,11 +29,16 @@ export type ExerciseBriefPanelProps = {
   /** Week 1 has no prescription to trust yet, so it explains itself instead. */
   isCalibrationWeek: boolean;
 
+  /** True when this movement was set aside earlier and has come back around. */
+  wasWaitingOnAMachine: boolean;
+
   loadChangeCoachLine: string | null;
   calibrationCoachLine: string | null;
 
   onExerciseStarted: () => void;
+  onExerciseParked: () => void;
   onExerciseSkipped: () => void;
+  onSessionBoardOpened: () => void;
 };
 
 /**
@@ -58,6 +49,12 @@ export type ExerciseBriefPanelProps = {
  * cues throughout rather than only the first time — see the locked decisions
  * table in docs/PROGRESS.md — and a brief that scrolls away the moment the set
  * starts is not showing them.
+ *
+ * The three ways out are deliberately three different weights. Starting is the
+ * primary button. "Someone is on it" is a real secondary action, because after
+ * F9 it is the answer to the most common reason a session goes off-plan.
+ * Skipping is a ghost button, because it is the only one of the three that
+ * gives up on the movement for the day.
  */
 export function ExerciseBriefPanel({
   plannedExercise,
@@ -65,56 +62,40 @@ export function ExerciseBriefPanel({
   exerciseCount,
   loggedSetCount,
   isCalibrationWeek,
+  wasWaitingOnAMachine,
   loadChangeCoachLine,
   calibrationCoachLine,
   onExerciseStarted,
+  onExerciseParked,
   onExerciseSkipped,
+  onSessionBoardOpened,
 }: ExerciseBriefPanelProps) {
-  const exercise = findExerciseById(plannedExercise.exerciseId);
-  const headline = describePrescriptionHeadline(plannedExercise);
-  const loadChange = describeLoadChange(plannedExercise.prescription);
-
   const hasSetsAlready = loggedSetCount > 0;
 
   return (
     <div className={styles.panel}>
-      <p className={styles.position}>
-        Exercise {String(exercisePosition)} of {String(exerciseCount)}
-      </p>
-
-      <GradientSurface variant="elevated" radius="xlarge" className={styles.headlineSurface}>
-        <ExerciseAnimation
-          exerciseId={plannedExercise.exerciseId}
-          displayName={exercise?.displayName ?? plannedExercise.exerciseId}
-          primaryMuscleGroups={exercise?.primaryMuscleGroups ?? []}
-          className={styles.animation ?? ''}
-        />
-
-        <h2 className={styles.name}>{exercise?.displayName ?? plannedExercise.exerciseId}</h2>
-
-        <p className={styles.headline}>
-          <span className={styles.headlineValue}>{headline.value}</span>
-          {headline.unit ? <span className={styles.headlineUnit}>{headline.unit}</span> : null}
+      <div className={styles.positionRow}>
+        <p className={styles.position}>
+          Exercise {String(exercisePosition)} of {String(exerciseCount)}
         </p>
 
-        <p className={styles.headlineDetail}>{headline.detail}</p>
+        <button type="button" className={styles.boardLink} onClick={onSessionBoardOpened}>
+          <LayoutGrid size={14} strokeWidth={2} aria-hidden />
+          All exercises
+        </button>
+      </div>
 
-        {loadChange ? (
-          <p className={styles.loadChange}>
-            {/*
-             * createElement rather than JSX: the icon is chosen from a table at
-             * render time, and the linter reads `<Icon />` as a component being
-             * defined during render.
-             */}
-            {createElement(ICON_BY_LOAD_CHANGE_DIRECTION[loadChange.direction], {
-              size: 14,
-              strokeWidth: 2,
-              'aria-hidden': true,
-            })}
-            {loadChange.text}
+      {wasWaitingOnAMachine ? (
+        <GradientSurface variant="outlined" radius="large" className={styles.painNotice}>
+          <IconBadge icon={<Hourglass size={18} strokeWidth={2} />} size="small" />
+          <p>
+            You put this one aside earlier. Everything else is done, so if the machine is free now,
+            this is the last of it.
           </p>
-        ) : null}
-      </GradientSurface>
+        </GradientSurface>
+      ) : null}
+
+      <ExerciseReferenceContent plannedExercise={plannedExercise} />
 
       {plannedExercise.isFlaggedForPain ? (
         <GradientSurface variant="outlined" radius="large" className={styles.painNotice}>
@@ -150,33 +131,6 @@ export function ExerciseBriefPanel({
         </GradientSurface>
       ) : null}
 
-      {exercise ? (
-        <>
-          <GradientSurface variant="recessed" radius="large" className={styles.cueGroup}>
-            <h3 className={styles.cueHeading}>How to do it</h3>
-            <ol className={styles.cueList}>
-              {exercise.formCues.map((formCue) => (
-                <li key={formCue}>{formCue}</li>
-              ))}
-            </ol>
-          </GradientSurface>
-
-          <GradientSurface variant="recessed" radius="large" className={styles.cueGroup}>
-            <h3 className={styles.cueHeading}>What goes wrong</h3>
-            <ul className={styles.mistakeList}>
-              {exercise.commonMistakes.map((commonMistake) => (
-                <li key={commonMistake}>{commonMistake}</li>
-              ))}
-            </ul>
-          </GradientSurface>
-
-          <GradientSurface variant="recessed" radius="large" className={styles.cueGroup}>
-            <h3 className={styles.cueHeading}>Why it is in your programme</h3>
-            <p className={styles.reason}>{exercise.whyItIsInTheProgramme}</p>
-          </GradientSurface>
-        </>
-      ) : null}
-
       <div className={styles.actions}>
         <GradientButton
           tone="primary"
@@ -188,6 +142,15 @@ export function ExerciseBriefPanel({
           {hasSetsAlready
             ? `Start set ${String(loggedSetCount + 1)}`
             : `Start ${plannedExercise.prescription.kind === 'steadyStateCardio' ? 'the finisher' : 'set 1'}`}
+        </GradientButton>
+
+        <GradientButton
+          tone="secondary"
+          isFullWidth
+          onClick={onExerciseParked}
+          leadingIcon={<Hourglass size={16} strokeWidth={2} aria-hidden />}
+        >
+          Machine is busy
         </GradientButton>
 
         <GradientButton

@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { LayoutGrid, X } from 'lucide-react';
 
 import { formatDurationAsMinutesAndSeconds } from '@/domain/restTimer';
 import { useCurrentTime } from '@/hooks/useCurrentTime';
@@ -16,6 +16,7 @@ export type SessionHeaderBarProps = {
 
   sessionStartedAt: Date;
 
+  onSessionBoardOpened: () => void;
   onLeavePressed: () => void;
 };
 
@@ -48,6 +49,7 @@ export function SessionHeaderBar({
   loggedSetCount,
   plannedSetCount,
   sessionStartedAt,
+  onSessionBoardOpened,
   onLeavePressed,
 }: SessionHeaderBarProps) {
   const completedFraction =
@@ -64,9 +66,23 @@ export function SessionHeaderBar({
         <div className={styles.trailingGroup}>
           <ElapsedSessionTime sessionStartedAt={sessionStartedAt} />
 
+          {/*
+           * The board is reachable from every phase, including the warm-up and
+           * the review. It is the one control that is never a commitment, so it
+           * is the one that can afford to be always there.
+           */}
           <button
             type="button"
-            className={styles.leaveButton}
+            className={styles.headerButton}
+            onClick={onSessionBoardOpened}
+            aria-label="See all the exercises"
+          >
+            <LayoutGrid size={18} strokeWidth={2} aria-hidden />
+          </button>
+
+          <button
+            type="button"
+            className={styles.headerButton}
             onClick={onLeavePressed}
             aria-label="Leave this session"
           >

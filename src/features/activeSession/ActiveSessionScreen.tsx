@@ -11,6 +11,7 @@ import { findExerciseById } from '@/content/exercises/allExercises';
 import { findCurrentPlannedExercise } from '@/domain/activeSessionMachine';
 import { shouldSuggestImmediateLoadIncrease } from '@/domain/exercisePrescription';
 import { resolveSmallestLoadIncrementKilograms } from '@/domain/loadIncrements';
+import { buildSessionBoard, type SessionBoardEntry } from '@/domain/sessionBoard';
 import { countLoggedSets, countPlannedSets } from '@/domain/sessionLogging';
 import type { PlannedExercise } from '@/domain/sessionPlanning';
 import { useScreenWakeLock } from '@/hooks/useScreenWakeLock';
@@ -29,7 +30,9 @@ import {
 } from './activeSessionCoachLines';
 import styles from './ActiveSessionScreen.module.css';
 import { ExerciseBriefPanel } from './components/ExerciseBriefPanel';
+import { ExercisePreviewOverlay } from './components/ExercisePreviewOverlay';
 import { RestTimerPanel } from './components/RestTimerPanel';
+import { SessionBoardOverlay } from './components/SessionBoardOverlay';
 import { SessionHeaderBar } from './components/SessionHeaderBar';
 import { SessionReviewPanel } from './components/SessionReviewPanel';
 import { SessionSummaryPanel } from './components/SessionSummaryPanel';
@@ -37,6 +40,19 @@ import { SetInProgressPanel } from './components/SetInProgressPanel';
 import { SetLoggingPanel } from './components/SetLoggingPanel';
 import { WarmupPanel } from './components/WarmupPanel';
 import { useActiveSessionStore } from './useActiveSessionStore';
+
+/**
+ * What is on top of the session, if anything.
+ *
+ * One value rather than two booleans, because "the board is open and so is the
+ * preview" and "the preview is open on its own" are genuinely different — the
+ * back button goes somewhere different — and two booleans would let a third,
+ * meaningless combination exist.
+ */
+type SessionOverlayState =
+  | { kind: 'none' }
+  | { kind: 'board' }
+  | { kind: 'exercisePreview'; exerciseIndex: number; returnsToTheBoard: boolean };
 
 /**
  * The live workout player, and the heart of the app.
@@ -82,6 +98,7 @@ export function ActiveSessionScreen() {
   const leaveSession = useActiveSessionStore((store) => store.leaveSession);
 
   const [isLeaveSheetOpen, setIsLeaveSheetOpen] = useState(false);
+  const [sessionOverlay, setSessionOverlay] = useState<SessionOverlayState>({ kind: 'none' });
 
   const signedInUserId = signedInUser?.userId ?? null;
 
@@ -183,6 +200,37 @@ export function ActiveSessionScreen() {
     sendEvent({ kind: 'exerciseSkipped', skipReason: null });
   };
 
+  const handleExerciseParked = () => {
+    sendEvent({ kind: 'exerciseParked' });
+  };
+
+  const sessionBoardEntries = buildSessionBoard(machineState, plannedSession);
+
+  const closeSessionOverlay = () => {
+    setSessionOverlay({ kind: 'none' });
+  };
+
+  const openSessionBoard = () => {
+    setSessionOverlay({ kind: 'board' });
+  };
+
+  /**
+   * Sends the session to a movement chosen from the board.
+   *
+   * The overlay closes first so that what is underneath when it goes is the
+   * brief for the exercise he picked, rather than the panel he was on a moment
+   * ago and is about to leave.
+   */
+  const handleExerciseChosen = (exerciseIndex: number) => {
+    closeSessionOverlay();
+    sendEvent({ kind: 'exerciseSelected', exerciseIndex });
+  };
+
+  const previewedBoardEntry: SessionBoardEntry | null =
+    sessionOverlay.kind === 'exercisePreview'
+      ? (sessionBoardEntries[sessionOverlay.exerciseIndex] ?? null)
+      : null;
+
   /*
    * The two things worth saying before a session that is not a normal one. Both
    * are said once, at the warm-up, and both are null the rest of the time —
@@ -215,6 +263,9 @@ export function ActiveSessionScreen() {
             exerciseCount={plannedSession.exercises.length}
             loggedSetCount={machineState.currentSetNumber - 1}
             isCalibrationWeek={plannedSession.isCalibrationWeek}
+            wasWaitingOnAMachine={machineState.parkedExerciseIds.includes(
+              plannedExercise.exerciseId,
+            )}
             calibrationCoachLine={selectCalibrationInstructionLine(coachContext)}
             loadChangeCoachLine={
               plannedExercise.prescription.kind === 'weightAndReps' ||
@@ -228,7 +279,9 @@ export function ActiveSessionScreen() {
             onExerciseStarted={() => {
               sendEvent({ kind: 'exerciseStarted' });
             }}
+            onExerciseParked={handleExerciseParked}
             onExerciseSkipped={handleExerciseSkipped}
+            onSessionBoardOpened={openSessionBoard}
           />
         ) : null;
 
@@ -266,11 +319,9 @@ export function ActiveSessionScreen() {
           <RestTimerPanel
             restStartedAt={machineState.restStartedAt}
             restTargetSeconds={machineState.restTargetSeconds}
-            nextUpLabel={describeWhatIsNext(
-              plannedExercise,
-              machineState.currentSetNumber,
-              plannedSession.exercises.length,
-            )}
+            nextExercise={plannedExercise}
+            isNextExerciseANewOne={machineState.doesRestLeadToANewExercise}
+            nextSetNumber={machineState.currentSetNumber}
             coachLine={
               lastLoggedSet
                 ? selectSetFeedbackLine(
@@ -287,6 +338,14 @@ export function ActiveSessionScreen() {
             onRestFinished={() => {
               sendEvent({ kind: 'restFinished', occurredAt: new Date() });
             }}
+            onNextExercisePreviewed={() => {
+              setSessionOverlay({
+                kind: 'exercisePreview',
+                exerciseIndex: machineState.currentExerciseIndex,
+                returnsToTheBoard: false,
+              });
+            }}
+            onSessionBoardOpened={openSessionBoard}
           />
         ) : null;
 
@@ -327,6 +386,7 @@ export function ActiveSessionScreen() {
         loggedSetCount={loggedSetCount}
         plannedSetCount={plannedSetCount}
         sessionStartedAt={sessionStartedAt}
+        onSessionBoardOpened={openSessionBoard}
         onLeavePressed={() => {
           setIsLeaveSheetOpen(true);
         }}
@@ -357,6 +417,34 @@ export function ActiveSessionScreen() {
 
         {renderCurrentPhase()}
       </div>
+
+      {sessionOverlay.kind === 'board' ? (
+        <SessionBoardOverlay
+          sessionDisplayName={plannedSession.displayName}
+          entries={sessionBoardEntries}
+          onExercisePreviewed={(exerciseIndex) => {
+            setSessionOverlay({
+              kind: 'exercisePreview',
+              exerciseIndex,
+              returnsToTheBoard: true,
+            });
+          }}
+          onClosed={closeSessionOverlay}
+        />
+      ) : null}
+
+      {previewedBoardEntry && sessionOverlay.kind === 'exercisePreview' ? (
+        <ExercisePreviewOverlay
+          entry={previewedBoardEntry}
+          backLabel={sessionOverlay.returnsToTheBoard ? 'All exercises' : 'Back to the rest'}
+          onExerciseChosen={handleExerciseChosen}
+          onClosed={() => {
+            setSessionOverlay(
+              sessionOverlay.returnsToTheBoard ? { kind: 'board' } : { kind: 'none' },
+            );
+          }}
+        />
+      ) : null}
 
       {isLeaveSheetOpen ? (
         <div className={styles.leaveOverlay} role="dialog" aria-modal="true">
@@ -442,22 +530,4 @@ function shouldSuggestGoingUpForThisExercise(
     loggedExercise.performedSets,
     plannedExercise.prescription.repRange,
   );
-}
-
-/** "Set 2 of the goblet squat", or "the seated cable row" once the exercise changes. */
-function describeWhatIsNext(
-  plannedExercise: PlannedExercise | null,
-  currentSetNumber: number,
-  exerciseCount: number,
-): string {
-  if (!plannedExercise) {
-    return exerciseCount === 0 ? 'Wrapping up' : 'The last of it';
-  }
-
-  const exerciseName =
-    findExerciseById(plannedExercise.exerciseId)?.displayName ?? plannedExercise.exerciseId;
-
-  return currentSetNumber === 1
-    ? exerciseName
-    : `${exerciseName} · set ${String(currentSetNumber)}`;
 }

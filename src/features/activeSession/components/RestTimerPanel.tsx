@@ -1,11 +1,15 @@
 import { useEffect, useRef } from 'react';
-import { ChevronRight, Plus, Timer } from 'lucide-react';
+import { ChevronRight, Eye, LayoutGrid, Plus, Timer } from 'lucide-react';
 
+import { ExerciseAnimation } from '@/components/ExerciseAnimation/ExerciseAnimation';
 import { GradientButton } from '@/components/GradientButton/GradientButton';
 import { GradientSurface } from '@/components/GradientSurface/GradientSurface';
+import { findExerciseById } from '@/content/exercises/allExercises';
 import { formatDurationAsMinutesAndSeconds, readRestTimer } from '@/domain/restTimer';
+import type { PlannedExercise } from '@/domain/sessionPlanning';
 import { useCurrentTime } from '@/hooks/useCurrentTime';
 
+import { describePrescriptionHeadline, describeSetTarget } from '../prescriptionWording';
 import { playRestFinishedChime } from '../restTimerChime';
 import styles from './RestTimerPanel.module.css';
 
@@ -13,8 +17,14 @@ export type RestTimerPanelProps = {
   restStartedAt: Date;
   restTargetSeconds: number;
 
-  /** What is coming after the rest, so it is worth staying on the screen for. */
-  nextUpLabel: string;
+  /** What the rest ends at. Null only if the plan lost it, which it should not. */
+  nextExercise: PlannedExercise | null;
+
+  /** False when the rest ends at another set of the movement just performed. */
+  isNextExerciseANewOne: boolean;
+
+  /** 1-based, and only meaningful when the rest leads back into the same movement. */
+  nextSetNumber: number;
 
   coachLine: string | null;
 
@@ -22,6 +32,8 @@ export type RestTimerPanelProps = {
 
   onRestExtended: (extraSeconds: number) => void;
   onRestFinished: () => void;
+  onNextExercisePreviewed: () => void;
+  onSessionBoardOpened: () => void;
 };
 
 /** One tap adds half a minute, which is what a hard set actually needs. */
@@ -41,15 +53,26 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
  * prescription rather than a starting pistol, and being dragged into the next
  * set by a countdown is a worse experience than tapping a button — so it goes on
  * counting, shows the overrun, and waits.
+ *
+ * **What is coming next is shown, not named.** F7: "the waiting page seems
+ * pretty restrictive". A rest is a minute and a half of standing still, and it
+ * used to spend them on a countdown and one line of gym English. Now the next
+ * movement is on the screen with its animation and its numbers, and the two
+ * quiet buttons underneath open it in full or open the whole session — which is
+ * exactly the reading anyone would want to be doing during a rest.
  */
 export function RestTimerPanel({
   restStartedAt,
   restTargetSeconds,
-  nextUpLabel,
+  nextExercise,
+  isNextExerciseANewOne,
+  nextSetNumber,
   coachLine,
   shouldPlaySound,
   onRestExtended,
   onRestFinished,
+  onNextExercisePreviewed,
+  onSessionBoardOpened,
 }: RestTimerPanelProps) {
   const now = useCurrentTime();
   const reading = readRestTimer(restStartedAt, restTargetSeconds, now);
@@ -64,6 +87,11 @@ export function RestTimerPanel({
     hasPlayedChime.current = true;
     playRestFinishedChime();
   }, [shouldPlaySound, reading.hasReachedTarget]);
+
+  const nextExerciseDefinition = nextExercise ? findExerciseById(nextExercise.exerciseId) : null;
+  const nextExerciseName =
+    nextExerciseDefinition?.displayName ?? nextExercise?.exerciseId ?? 'The last of it';
+  const nextHeadline = nextExercise ? describePrescriptionHeadline(nextExercise) : null;
 
   return (
     <div className={styles.panel}>
@@ -101,10 +129,57 @@ export function RestTimerPanel({
         {coachLine ? <p className={styles.coachLine}>{coachLine}</p> : null}
       </GradientSurface>
 
-      <GradientSurface variant="outlined" radius="large" className={styles.nextUp}>
-        <p className={styles.nextUpLabel}>Next up</p>
-        <p className={styles.nextUpValue}>{nextUpLabel}</p>
-      </GradientSurface>
+      {nextExercise ? (
+        <GradientSurface variant="elevated" radius="large" className={styles.nextUp}>
+          <p className={styles.nextUpLabel}>
+            {isNextExerciseANewOne ? 'Next up' : `Next up · set ${String(nextSetNumber)}`}
+          </p>
+
+          <div className={styles.nextUpBody}>
+            <ExerciseAnimation
+              exerciseId={nextExercise.exerciseId}
+              displayName={nextExerciseName}
+              primaryMuscleGroups={nextExerciseDefinition?.primaryMuscleGroups ?? []}
+              className={styles.nextUpAnimation ?? ''}
+            />
+
+            <div className={styles.nextUpText}>
+              <p className={styles.nextUpName}>{nextExerciseName}</p>
+
+              {nextHeadline ? (
+                <p className={styles.nextUpPrescription}>
+                  <span className={styles.nextUpWeight}>{nextHeadline.value}</span>
+                  {nextHeadline.unit ? ` ${nextHeadline.unit}` : ''}
+                  {' · '}
+                  {describeSetTarget(nextExercise)}
+                </p>
+              ) : null}
+
+              {nextExerciseDefinition ? (
+                <p className={styles.nextUpCue}>{nextExerciseDefinition.formCues[0]}</p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className={styles.nextUpActions}>
+            <GradientButton
+              tone="ghost"
+              onClick={onNextExercisePreviewed}
+              leadingIcon={<Eye size={16} strokeWidth={2} aria-hidden />}
+            >
+              Look at it properly
+            </GradientButton>
+
+            <GradientButton
+              tone="ghost"
+              onClick={onSessionBoardOpened}
+              leadingIcon={<LayoutGrid size={16} strokeWidth={2} aria-hidden />}
+            >
+              All exercises
+            </GradientButton>
+          </div>
+        </GradientSurface>
+      ) : null}
 
       <div className={styles.actions}>
         <GradientButton

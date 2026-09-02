@@ -19,18 +19,33 @@ import { findExerciseMediaProblems } from './verifyExerciseMedia.mjs';
  */
 function consistentRepository() {
   return {
-    exercises: [{ exerciseId: 'gobletSquat' }, { exerciseId: 'catCow' }],
+    exercises: [
+      { exerciseId: 'gobletSquat' },
+      { exerciseId: 'catCow' },
+      { exerciseId: 'ninetyNinetyHipSwitch' },
+    ],
     matches: [
       {
         exerciseId: 'gobletSquat',
+        mediaSource: 'gymVisualDataset',
         datasetExerciseId: '1760',
         datasetExerciseName: 'dumbbell goblet squat',
         matchQuality: 'exact',
         differenceFromOurVersion: '',
       },
+      {
+        exerciseId: 'catCow',
+        mediaSource: 'generatedForThisApp',
+        whatTheAnimationShows: 'The spine rounded to the ceiling, then dropped into extension.',
+      },
     ],
-    misses: [{ exerciseId: 'catCow', whyThereIsNoMatch: 'Nothing on all fours in the dataset.' }],
-    committedFileNames: new Set(['gobletSquat.gif']),
+    misses: [
+      {
+        exerciseId: 'ninetyNinetyHipSwitch',
+        whyThereIsNoMatch: 'Nothing seated in a 90/90 position in the dataset.',
+      },
+    ],
+    committedFileNames: new Set(['gobletSquat.gif', 'catCow.gif']),
   };
 }
 
@@ -92,13 +107,34 @@ describe('findExerciseMediaProblems', () => {
 
   it('catches a file committed for an exercise that is meant to have none', async () => {
     const repository = consistentRepository();
-    repository.committedFileNames.add('catCow.gif');
+    repository.committedFileNames.add('ninetyNinetyHipSwitch.gif');
 
     // Both complaints are true and both are worth saying: the file contradicts
     // the table, and nothing in the table asks for it.
     expect(await findExerciseMediaProblems(repository)).toEqual([
-      expect.stringContaining('catCow.gif is committed'),
-      expect.stringContaining('catCow.gif is committed but nothing'),
+      expect.stringContaining('ninetyNinetyHipSwitch.gif is committed'),
+      expect.stringContaining('ninetyNinetyHipSwitch.gif is committed but nothing'),
+    ]);
+  });
+
+  it('catches a generated animation whose file was never committed', async () => {
+    const repository = consistentRepository();
+    repository.committedFileNames.delete('catCow.gif');
+
+    const [problem] = await findExerciseMediaProblems(repository);
+
+    // Not "run media:copy": there is no dataset record behind a generated file,
+    // so the copier would only refuse whoever this sends.
+    expect(problem).toContain('catCow.gif is not committed');
+    expect(problem).toContain('added by hand');
+  });
+
+  it('catches a generated animation with no note saying what it shows', async () => {
+    const repository = consistentRepository();
+    repository.matches[1].whatTheAnimationShows = '   ';
+
+    expect(await findExerciseMediaProblems(repository)).toEqual([
+      expect.stringContaining('no note saying what its frames show'),
     ]);
   });
 

@@ -1,22 +1,29 @@
 import type { ExerciseMediaMatch, ExerciseWithoutMediaMatch } from './exerciseMediaTypes';
 
 /**
- * Which dataset animation belongs to which exercise.
+ * Which animation belongs to which exercise, and where it came from.
  *
  * **This table was built by looking at the drawings, not by comparing strings.**
- * Every entry below was chosen by opening the dataset's thumbnail for the
- * candidate and checking that the movement in the picture is the movement in
- * the exercise brief. That is why it is committed content rather than something
- * a script recomputes: a fuzzy name match would happily pair "Seated Leg Curl"
- * with "biceps leg concentration curl", and nobody would notice until a gym.
+ * Every `gymVisualDataset` entry below was chosen by opening the dataset's
+ * thumbnail for the candidate and checking that the movement in the picture is
+ * the movement in the exercise brief. That is why it is committed content rather
+ * than something a script recomputes: a fuzzy name match would happily pair
+ * "Seated Leg Curl" with "biceps leg concentration curl", and nobody would
+ * notice until a gym.
  *
  * The rule for accepting a match is that the animation must not teach anything
  * false. A different grip is a note; a different movement is a rejection, and a
  * rejection goes in `exercisesWithoutMediaMatch` below, where it shows up in the
  * app as "No preview yet" rather than being quietly wrong.
  *
- * Adding a match is three steps: put the row here, run `npm run media:copy`,
- * and commit the `.gif` it writes.
+ * The `generatedForThisApp` entries are the movements the dataset had nothing
+ * honest for, drawn for this app instead of matched. They are checked the same
+ * way — by looking at the frames — but against the brief rather than against a
+ * record, so each one says what its frames show.
+ *
+ * Adding a dataset match is three steps: put the row here, run
+ * `npm run media:copy`, and commit the `.gif` it writes. A generated one is two:
+ * put the row here and commit the file, which `media:copy` will not touch.
  */
 export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   // ---------------------------------------------------------------------------
@@ -24,6 +31,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   // ---------------------------------------------------------------------------
   {
     exerciseId: 'legExtension',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0585',
     datasetExerciseName: 'lever leg extension',
     matchQuality: 'exact',
@@ -31,6 +39,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'seatedLegCurl',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0599',
     datasetExerciseName: 'lever seated leg curl',
     matchQuality: 'exact',
@@ -38,6 +47,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'seatedHipAbduction',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0597',
     datasetExerciseName: 'lever seated hip abduction',
     matchQuality: 'exact',
@@ -45,6 +55,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'seatedHipAdduction',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0598',
     datasetExerciseName: 'lever seated hip adduction',
     matchQuality: 'exact',
@@ -52,6 +63,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'gobletSquat',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '1760',
     datasetExerciseName: 'dumbbell goblet squat',
     matchQuality: 'exact',
@@ -59,6 +71,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'gobletSquatToBox',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '1760',
     datasetExerciseName: 'dumbbell goblet squat',
     matchQuality: 'close',
@@ -67,6 +80,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'splitSquat',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '2368',
     datasetExerciseName: 'split squats',
     matchQuality: 'exact',
@@ -74,6 +88,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'dumbbellSplitSquat',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0410',
     datasetExerciseName: 'dumbbell single leg split squat',
     matchQuality: 'exact',
@@ -81,6 +96,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'dumbbellHipThrust',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '1409',
     datasetExerciseName: 'barbell glute bridge',
     matchQuality: 'close',
@@ -89,6 +105,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'dumbbellRomanianDeadlift',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '1459',
     datasetExerciseName: 'dumbbell romanian deadlift',
     matchQuality: 'exact',
@@ -96,6 +113,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'barbellRomanianDeadlift',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0085',
     datasetExerciseName: 'barbell romanian deadlift',
     matchQuality: 'exact',
@@ -107,6 +125,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   // ---------------------------------------------------------------------------
   {
     exerciseId: 'seatedCableRow',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0180',
     datasetExerciseName: 'cable low seated row',
     matchQuality: 'close',
@@ -115,6 +134,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'latPulldown',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0818',
     datasetExerciseName: 'twin handle parallel grip lat pulldown',
     matchQuality: 'exact',
@@ -122,6 +142,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'chestSupportedDumbbellRow',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '1331',
     datasetExerciseName: 'dumbbell reverse grip incline bench two arm row',
     matchQuality: 'close',
@@ -130,6 +151,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'cableFacePull',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0203',
     datasetExerciseName: 'cable rear delt row (with rope)',
     matchQuality: 'close',
@@ -142,6 +164,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   // ---------------------------------------------------------------------------
   {
     exerciseId: 'chestPressMachine',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0577',
     datasetExerciseName: 'lever chest press',
     matchQuality: 'exact',
@@ -149,6 +172,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'inclineDumbbellPress',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0314',
     datasetExerciseName: 'dumbbell incline bench press',
     matchQuality: 'exact',
@@ -156,6 +180,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'shoulderPressMachine',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '2318',
     datasetExerciseName: 'lever shoulder press v. 3',
     matchQuality: 'exact',
@@ -167,6 +192,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   // ---------------------------------------------------------------------------
   {
     exerciseId: 'pallofPress',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0979',
     datasetExerciseName: 'band horizontal pallof press',
     matchQuality: 'close',
@@ -175,6 +201,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'deadBug',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0276',
     datasetExerciseName: 'dead bug',
     matchQuality: 'exact',
@@ -182,6 +209,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'farmersCarry',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '2133',
     datasetExerciseName: 'farmers walk',
     matchQuality: 'exact',
@@ -193,6 +221,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   // ---------------------------------------------------------------------------
   {
     exerciseId: 'inclineTreadmillWalk',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '3666',
     datasetExerciseName: 'walking on incline treadmill',
     matchQuality: 'exact',
@@ -200,6 +229,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'stationaryBikeEasy',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0798',
     datasetExerciseName: 'stationary bike walk',
     matchQuality: 'exact',
@@ -207,10 +237,17 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'ellipticalEasy',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '2141',
     datasetExerciseName: 'walk elliptical cross trainer',
     matchQuality: 'exact',
     differenceFromOurVersion: '',
+  },
+  {
+    exerciseId: 'rowingMachineEasy',
+    mediaSource: 'generatedForThisApp',
+    whatTheAnimationShows:
+      'Four frames on an air rower: the catch with the shins vertical, the leg drive, the finish with the handle at the ribs, and the recovery back up the slide. The dataset has no rowing ergometer at all.',
   },
 
   // ---------------------------------------------------------------------------
@@ -218,6 +255,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   // ---------------------------------------------------------------------------
   {
     exerciseId: 'bandPullApart',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '0993',
     datasetExerciseName: 'band reverse fly',
     matchQuality: 'close',
@@ -226,6 +264,7 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'foamRollThoracicSpine',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '2208',
     datasetExerciseName: 'roller back stretch',
     matchQuality: 'exact',
@@ -233,11 +272,54 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
   },
   {
     exerciseId: 'ankleWallRocks',
+    mediaSource: 'gymVisualDataset',
     datasetExerciseId: '1407',
     datasetExerciseName: 'calf push stretch with hands against wall',
     matchQuality: 'close',
     differenceFromOurVersion:
       'A held calf stretch rather than a rocking one, but it is the same split stance at the same wall driving the same ankle into dorsiflexion.',
+  },
+  {
+    exerciseId: 'catCow',
+    mediaSource: 'generatedForThisApp',
+    whatTheAnimationShows:
+      'Two frames on all fours: the spine rounded to the ceiling with the head tucked, then dropped into extension with the chest open and the tailbone up.',
+  },
+  {
+    exerciseId: 'threadTheNeedle',
+    mediaSource: 'generatedForThisApp',
+    whatTheAnimationShows:
+      'Two frames from all fours: the arm threaded under the body with the shoulder down on the mat, then opened to a reach at the ceiling.',
+  },
+  {
+    exerciseId: 'wallSlides',
+    mediaSource: 'generatedForThisApp',
+    whatTheAnimationShows:
+      'Two frames with the back against a wall: the forearm at shoulder height, then slid overhead with the contact kept the whole way.',
+  },
+  {
+    exerciseId: 'chinTucks',
+    mediaSource: 'generatedForThisApp',
+    whatTheAnimationShows:
+      'Two frames of the neck in profile: the head drifted forward, then drawn back over the shoulders, with the cervical spine picked out.',
+  },
+  {
+    exerciseId: 'bodyweightHipHinge',
+    mediaSource: 'generatedForThisApp',
+    whatTheAnimationShows:
+      'Two frames from the side: standing tall, then hinged over with a flat back and the hands sliding down the thighs, glutes and hamstrings loaded.',
+  },
+  {
+    exerciseId: 'couchStretch',
+    mediaSource: 'generatedForThisApp',
+    whatTheAnimationShows:
+      'Two frames of the half-kneeling position with the rear shin up a wall and the knee on a pad, sinking into the position that loads the hip flexor and quad.',
+  },
+  {
+    exerciseId: 'doorwayPecStretch',
+    mediaSource: 'generatedForThisApp',
+    whatTheAnimationShows:
+      'Two frames with the forearm on a doorframe at shoulder height: square to the door, then turned away from the arm so the chest lengthens.',
   },
 ];
 
@@ -251,47 +333,8 @@ export const exerciseMediaMatches: ExerciseMediaMatch[] = [
  */
 export const exercisesWithoutMediaMatch: ExerciseWithoutMediaMatch[] = [
   {
-    exerciseId: 'rowingMachineEasy',
-    whyThereIsNoMatch:
-      'The dataset has no rowing ergometer. Its cardio machines are the treadmill, the upright bike, the elliptical, the stepmill, a SkiErg and an arm bike. Nothing rows.',
-  },
-  {
-    exerciseId: 'catCow',
-    whyThereIsNoMatch:
-      'No quadruped spinal flexion and extension anywhere in the set. The nearest things filed under the spine are a standing pelvic tilt and a seated spine stretch, neither of which is on all fours.',
-  },
-  {
-    exerciseId: 'wallSlides',
-    whyThereIsNoMatch:
-      'Nothing performed with the back and arms against a wall. The closest shoulder drill is a standing band Y-raise, which loses the wall — and the wall is the exercise.',
-  },
-  {
-    exerciseId: 'chinTucks',
-    whyThereIsNoMatch:
-      'The dataset has two neck entries and both are side stretches. There is no cervical retraction.',
-  },
-  {
-    exerciseId: 'bodyweightHipHinge',
-    whyThereIsNoMatch:
-      'Every hinge in the set is loaded — a barbell good morning, a band straight-leg deadlift. The unloaded pattern drill, which is the point of this one, is not there.',
-  },
-  {
-    exerciseId: 'threadTheNeedle',
-    whyThereIsNoMatch: 'No thoracic rotation from a quadruped position in the set at all.',
-  },
-  {
     exerciseId: 'ninetyNinetyHipSwitch',
     whyThereIsNoMatch:
       'No seated 90/90 position, and nothing that switches between two hip positions. The seated hip work in the dataset is all static stretching.',
-  },
-  {
-    exerciseId: 'couchStretch',
-    whyThereIsNoMatch:
-      'The quad and hip flexor stretches in the set are lying or prone. There is no kneeling stretch with the rear foot elevated, so nothing shows the position this exercise is entirely about.',
-  },
-  {
-    exerciseId: 'doorwayPecStretch',
-    whyThereIsNoMatch:
-      'The chest stretches are a partner-assisted one, a bar held behind the back, and a dynamic arm swing. None uses a doorway, and the dynamic one would teach a swing where this asks for a hold.',
   },
 ];

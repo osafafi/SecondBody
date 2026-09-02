@@ -1,22 +1,33 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { exerciseMediaMatches } from '@/content/exerciseMedia/exerciseMediaMatches';
+import {
+  exerciseMediaMatches,
+  exercisesWithoutMediaMatch,
+} from '@/content/exerciseMedia/exerciseMediaMatches';
 
 import { ExerciseAnimation } from './ExerciseAnimation';
 
 /**
- * A real matched exercise and a real unmatched one.
+ * A real exercise with an animation and a real one without.
  *
- * Reading them out of the committed table rather than hard-coding two ids means
- * these tests keep testing both branches after somebody resolves one of the
- * gaps. A hard-coded `couchStretch` would start silently testing the matched
- * path the day a GIF is found for it.
+ * Both are read out of the committed table rather than hard-coded, so these
+ * tests keep testing both branches after somebody resolves one of the gaps. A
+ * hard-coded `couchStretch` used to stand in for the second one, and it started
+ * testing the matched path the day an animation was made for it.
  */
 const [firstMatch] = exerciseMediaMatches;
+const [firstExerciseWithoutMedia] = exercisesWithoutMediaMatch;
 
 if (!firstMatch) {
   throw new Error('The media match table is empty, so there is nothing to render.');
+}
+
+if (!firstExerciseWithoutMedia) {
+  throw new Error(
+    'Every exercise now has an animation, so the fallback cannot be rendered from real ' +
+      'content. Delete these two tests, or the fallback, rather than inventing an id.',
+  );
 }
 
 describe('ExerciseAnimation', () => {
@@ -37,8 +48,8 @@ describe('ExerciseAnimation', () => {
   it('says so, in words, when there is no animation yet', () => {
     render(
       <ExerciseAnimation
-        exerciseId="couchStretch"
-        displayName="Couch Stretch"
+        exerciseId={firstExerciseWithoutMedia.exerciseId}
+        displayName="Movement Without A Preview"
         primaryMuscleGroups={['hipFlexors']}
       />,
     );
@@ -46,7 +57,7 @@ describe('ExerciseAnimation', () => {
     // The accessible name carries the whole story, because a screen reader gets
     // nothing from the icon and nothing from the label beside it.
     const fallback = screen.getByRole('img', {
-      name: 'Couch Stretch. No preview available for this movement yet.',
+      name: 'Movement Without A Preview. No preview available for this movement yet.',
     });
 
     expect(fallback).toHaveTextContent('No preview yet');
@@ -56,8 +67,8 @@ describe('ExerciseAnimation', () => {
   it('does not request a file for an exercise that has none', () => {
     const { container } = render(
       <ExerciseAnimation
-        exerciseId="catCow"
-        displayName="Cat-Cow"
+        exerciseId={firstExerciseWithoutMedia.exerciseId}
+        displayName="Movement Without A Preview"
         primaryMuscleGroups={['thoracicSpine']}
       />,
     );

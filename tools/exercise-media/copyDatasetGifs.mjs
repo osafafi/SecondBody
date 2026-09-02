@@ -109,21 +109,33 @@ async function main() {
   const { matches, misses } = await loadExerciseMediaMatches();
   const datasetRecordsById = await loadDatasetRecordsById();
 
+  // Generated animations are this project's own files, committed by hand. There
+  // is nothing in the clone to copy for them, and asking the dataset for a
+  // record they never had would fail with a confusing complaint about ids.
+  const datasetMatches = matches.filter((match) => match.mediaSource !== 'generatedForThisApp');
+
   const matchesToCopy =
     requestedExerciseIds.length === 0
-      ? matches
-      : matches.filter((match) => requestedExerciseIds.includes(match.exerciseId));
+      ? datasetMatches
+      : datasetMatches.filter((match) => requestedExerciseIds.includes(match.exerciseId));
 
   if (matchesToCopy.length === 0) {
     const namesOfRequested = requestedExerciseIds.join(', ');
     const isDeliberatelyUnmatched = misses.some((miss) =>
       requestedExerciseIds.includes(miss.exerciseId),
     );
+    const isGeneratedForThisApp = matches.some(
+      (match) =>
+        match.mediaSource === 'generatedForThisApp' &&
+        requestedExerciseIds.includes(match.exerciseId),
+    );
 
     console.error(
       isDeliberatelyUnmatched
         ? `${namesOfRequested} is in exercisesWithoutMediaMatch — it draws the "No preview yet" fallback on purpose.`
-        : `Nothing in the match table matches: ${namesOfRequested}`,
+        : isGeneratedForThisApp
+          ? `${namesOfRequested} has an animation generated for this app. It is committed directly, not copied out of the dataset.`
+          : `Nothing in the match table matches: ${namesOfRequested}`,
     );
 
     process.exitCode = 1;
@@ -161,7 +173,11 @@ async function main() {
   console.log(`\n${copied.length} copied, ${totalSizeInKilobytes} KB total.`);
 
   if (requestedExerciseIds.length === 0) {
-    console.log(`${misses.length} exercises have no match and draw the fallback.`);
+    console.log(
+      `${matches.length - datasetMatches.length} animations are generated for this app and ` +
+        `were left alone. ${misses.length} exercise${misses.length === 1 ? '' : 's'} have no ` +
+        `animation at all and draw the fallback.`,
+    );
   }
 
   if (failed.length > 0) {

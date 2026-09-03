@@ -57,3 +57,19 @@ gcloud-service-key.json
 # Local Claude Code settings (machine-specific). launch.json IS committed, since
 # it tells any future session how to start the dev server.
 .claude/settings.local.json
+output/imagegen/bodyweightHipHinge-sprite-sheet.png
+output/imagegen/bodyweightHipHinge.gif
+output/imagegen/catCow-sprite-sheet.png
+output/imagegen/catCow.gif
+output/imagegen/chinTucks-sprite-sheet.png
+output/imagegen/chinTucks.gif
+output/imagegen/couchStretch-sprite-sheet.png
+output/imagegen/couchStretch.gif
+output/imagegen/doorwayPecStretch-sprite-sheet.png
+output/imagegen/doorwayPecStretch.gif
+output/imagegen/rowingMachine-sprite-sheet.png
+output/imagegen/rowingMachine.gif
+output/imagegen/threadTheNeedle-sprite-sheet.png
+output/imagegen/threadTheNeedle.gif
+output/imagegen/wallSlides-sprite-sheet.png
+output/imagegen/wallSlides.gif

@@ -27,8 +27,9 @@ export type ExerciseAnimationProps = {
  *
  * **Why an `<img>` and not an inlined SVG.** These used to be hand-generated
  * SVGs that took their colours from the active palette. They are now 180×180
- * GIFs from an open dataset — see docs/EXERCISE_MEDIA_SPEC.md — which are
- * raster images and cannot follow the palette however they are embedded. So
+ * GIFs, most from an open dataset and the rest generated for this app — see
+ * docs/EXERCISE_MEDIA_SPEC.md — which are raster images either way and cannot
+ * follow the palette however they are embedded. So
  * there is nothing to gain from inlining them and a good deal to lose: an
  * `<img>` gets lazy loading, decoding off the main thread and the browser's
  * cache for free.

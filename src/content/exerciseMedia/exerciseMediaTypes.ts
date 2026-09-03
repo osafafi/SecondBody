@@ -1,11 +1,34 @@
 /**
  * How an exercise's animation is sourced.
  *
- * The animations are not drawn for this app. They come from the open
+ * Most of them are not drawn for this app: they come from the open
  * `hasaneyldrm/exercises-dataset` collection, whose 1324 records are matched to
  * this app's 36 exercises by hand — see `exerciseMediaMatches.ts` for the table
  * and `tools/exercise-media/README.md` for how the files get copied in.
+ *
+ * The rest were generated for this app, for movements the dataset had nothing
+ * honest to offer. Which of the two a file is decides who owns it, so every row
+ * says which it is rather than leaving it to a default.
  */
+
+/** Where an exercise's animation came from, and therefore who owns it. */
+export const EXERCISE_MEDIA_SOURCES = [
+  /**
+   * Copied byte for byte out of `hasaneyldrm/exercises-dataset`. **Gym Visual's
+   * property, not this project's** — see `exerciseMediaAttribution.ts` and
+   * docs/EXERCISE_MEDIA_SPEC.md section 2.
+   */
+  'gymVisualDataset',
+
+  /**
+   * Generated for this app, for a movement the dataset did not have. These are
+   * this project's own files, so nothing outside it constrains what happens to
+   * them.
+   */
+  'generatedForThisApp',
+] as const;
+
+export type ExerciseMediaSource = (typeof EXERCISE_MEDIA_SOURCES)[number];
 
 /** How well a dataset animation actually shows the exercise it is attached to. */
 export const EXERCISE_MEDIA_MATCH_QUALITIES = [
@@ -29,9 +52,11 @@ export const EXERCISE_MEDIA_MATCH_QUALITIES = [
 export type ExerciseMediaMatchQuality = (typeof EXERCISE_MEDIA_MATCH_QUALITIES)[number];
 
 /** One exercise, and the dataset animation that was chosen for it. */
-export type ExerciseMediaMatch = {
+export type ExerciseMediaMatchedFromDataset = {
   /** The app's exercise. Also the name of the copied file, `{exerciseId}.gif`. */
   exerciseId: string;
+
+  mediaSource: 'gymVisualDataset';
 
   /** The record's id in `data/exercises.json`, e.g. `"0585"`. */
   datasetExerciseId: string;
@@ -49,6 +74,27 @@ export type ExerciseMediaMatch = {
   /** Empty for an exact match. One sentence for a close one. */
   differenceFromOurVersion: string;
 };
+
+/** One exercise, and the animation generated for it because the dataset had none. */
+export type ExerciseMediaGeneratedForThisApp = {
+  /** The app's exercise. Also the name of the file, `{exerciseId}.gif`. */
+  exerciseId: string;
+
+  mediaSource: 'generatedForThisApp';
+
+  /**
+   * What the frames actually show, in one sentence.
+   *
+   * A dataset row is reviewable because it names a record someone can go and
+   * look at. A generated one has no such record, so this is what a reviewer
+   * checks the file against — and what says whether the drawing is the movement
+   * the brief describes or merely something in the same position.
+   */
+  whatTheAnimationShows: string;
+};
+
+/** One exercise's animation, whoever it came from. */
+export type ExerciseMediaMatch = ExerciseMediaMatchedFromDataset | ExerciseMediaGeneratedForThisApp;
 
 /** One exercise the dataset has nothing usable for. */
 export type ExerciseWithoutMediaMatch = {

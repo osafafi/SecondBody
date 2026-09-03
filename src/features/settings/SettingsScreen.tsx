@@ -226,11 +226,16 @@ export function SettingsScreen() {
           {/*
            * The notice is the link text rather than sitting beside a second
            * copy of the same name. It has to appear verbatim, and it reads as
-           * one phrase — "Exercise animations © Gym visual" — rather than
+           * one phrase — "Dataset animations © Gym visual" — rather than
            * saying "Gym visual" twice in six words.
+           *
+           * "Dataset animations" rather than "Exercise animations" because some
+           * of the app's animations were generated for it and are not Gym
+           * Visual's. The notice has to cover their files; claiming it covers
+           * ours as well would be a different kind of wrong.
            */}
           <p className={styles.creditsLine}>
-            Exercise animations{' '}
+            Dataset animations{' '}
             <a
               className={styles.creditsLink}
               href={exerciseMediaAttribution.rightsHolderUrl}
@@ -252,6 +257,8 @@ export function SettingsScreen() {
               {exerciseMediaAttribution.datasetName}
             </a>
           </p>
+
+          <p className={styles.creditsLine}>The rest were generated for this app.</p>
         </GradientSurface>
       </section>
     </>

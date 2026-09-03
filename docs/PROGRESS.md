@@ -12,34 +12,40 @@ it is.
 
 ## Current state
 
-|                           |                                                                                                      |
-| ------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **Version**               | **v0 — shipped, and trained on once**                                                                |
-| **Milestones**            | M0 to M10, all done and all merged. The list is closed                                               |
-| **Current branches**      | Three, stacked, answering F7 to F13. See below. **None pushed**                                      |
-| **Live at**               | **https://osafafi.github.io/SecondBody/** — installed to a home screen and signed in                 |
-| **Deployed?**             | **Yes.** Every push to `main` builds, deploys the Firestore rules, then deploys Pages                |
-| **App runs locally?**     | Yes — `npm run dev`. Sign in, onboard, then all four tabs plus the journal are real                  |
-| **Backend wired?**        | Yes. Every collection in the data model has a caller both ways                                       |
-| **Real training?**        | **One session, on 2026-09-02.** Firestore also holds one nobody trained — F6, still Omar's to delete |
-| **Where work comes from** | [FEEDBACK.md](FEEDBACK.md), not the milestone table                                                  |
+|                           |                                                                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Version**               | **v0 — shipped, and trained on once**                                                                                    |
+| **Milestones**            | M0 to M10, all done and all merged. The list is closed                                                                   |
+| **Current branches**      | Three stacked ones answering F7 to F13, all now merged, plus `feat/generated-warmup-animations` for F14. **None pushed** |
+| **Live at**               | **https://osafafi.github.io/SecondBody/** — installed to a home screen and signed in                                     |
+| **Deployed?**             | **Yes.** Every push to `main` builds, deploys the Firestore rules, then deploys Pages                                    |
+| **App runs locally?**     | Yes — `npm run dev`. Sign in, onboard, then all four tabs plus the journal are real                                      |
+| **Backend wired?**        | Yes. Every collection in the data model has a caller both ways                                                           |
+| **Real training?**        | **One session, on 2026-09-02.** Firestore also holds one nobody trained — F6, still Omar's to delete                     |
+| **Where work comes from** | [FEEDBACK.md](FEEDBACK.md), not the milestone table                                                                      |
 
 > **Read session 6 in [SESSION_LOG.md](SESSION_LOG.md) before touching the exercise
-> animations.** The generated SVGs are gone. The media is now sourced from an open dataset,
-> and it is **not this project's to redistribute freely** — see
-> [EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md) section 2.
+> animations.** The generated SVGs are gone. 27 of the 35 animations are sourced from an open
+> dataset and are **not this project's to redistribute freely** — see
+> [EXERCISE_MEDIA_SPEC.md](EXERCISE_MEDIA_SPEC.md) section 2. The other 8 were generated for
+> this app in session 19 and are ours. Which is which is the `mediaSource` field on every row
+> of `src/content/exerciseMedia/exerciseMediaMatches.ts`, and it is the only thing that
+> answers the question.
 
-### The three branches, and the order they merge in
+### The branches, and the order they were merged in
 
-They are **stacked**: branch 2 is cut from branch 1, branch 3 from branch 2. Merging them
-out of order will conflict. Two of them touch `ExerciseBriefPanel` and `ActiveSessionScreen`
-and all three touch the docs, which is why they are stacked rather than parallel.
+The first three were **stacked**: branch 2 was cut from branch 1, branch 3 from branch 2.
+Two of them touch `ExerciseBriefPanel` and `ActiveSessionScreen` and all three touch the
+docs, which is why they were stacked rather than parallel. All three are merged into local
+`main`, along with `fix/formatting-and-the-verify-gate` behind them. `main` has not been
+pushed.
 
-| Order | Branch                             | Closes          |
-| ----- | ---------------------------------- | --------------- |
-| 1     | `feat/session-board-and-parking`   | F7, F8, F9, F10 |
-| 2     | `feat/warmup-you-can-work-through` | F11, F12        |
-| 3     | `feat/exercise-availability`       | F13             |
+| Order | Branch                             | Closes          | State                  |
+| ----- | ---------------------------------- | --------------- | ---------------------- |
+| 1     | `feat/session-board-and-parking`   | F7, F8, F9, F10 | Merged into `main`     |
+| 2     | `feat/warmup-you-can-work-through` | F11, F12        | Merged into `main`     |
+| 3     | `feat/exercise-availability`       | F13             | Merged into `main`     |
+| 4     | `feat/generated-warmup-animations` | F14             | Cut from `main`, ready |
 
 ### What production has actually exercised
 
@@ -67,14 +73,14 @@ Deleting `workoutSessions` wholesale would take the real one with it, so this no
 phantom document deleted **by id** and the real one from 2026-09-02 kept. Only Omar can do
 it; nothing in this repository has Firestore credentials.
 
-**1. Push and merge the three branches, in the order in the table above.** They answer
-everything Omar reported after the first session except F14, and the next session is on
-2026-09-04.
+**1. Push `feat/generated-warmup-animations`.** The three stacked branches are merged; this
+one is cut from `main` after them and answers F14. The next session is on 2026-09-04, and
+none of this is deployed until it is pushed.
 
 **2. Then read [FEEDBACK.md](FEEDBACK.md).** That is where what comes back from a real gym
 gets written down, and it is the planning surface now. Do not invent an M11 — the milestone
-table is a record of how v0 got built, not a plan. F14 is open and nobody has asked for it
-yet: four warm-up drills have no animation.
+table is a record of how v0 got built, not a plan. F15 is open and nobody has asked for it
+yet: the 90/90 hip switch is the last movement with no animation.
 
 **3. `npm run coach:export` has still never been run against the real project.** Its pure
 parts are tested — argument parsing, assembly, determinism — but the half that talks to

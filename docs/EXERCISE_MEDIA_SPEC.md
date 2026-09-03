@@ -7,13 +7,19 @@ before one is committed.
 
 ## 1. What the animations are
 
-180×180 looping GIFs from the open
-[`hasaneyldrm/exercises-dataset`](https://github.com/hasaneyldrm/exercises-dataset)
-collection: 1324 anatomical line-art animations, of which 27 are used here.
+180×180 looping GIFs, from two places.
 
-**They belong to Gym Visual, not to this project.** Read
+**27 are copied from the open
+[`hasaneyldrm/exercises-dataset`](https://github.com/hasaneyldrm/exercises-dataset)
+collection**: 1324 anatomical line-art animations, of which 27 are used here. **They belong
+to Gym Visual, not to this project.** Read
 [section 2](#2-the-licence-and-why-it-is-in-this-document) before adding, moving or
 publishing any of them.
+
+**8 were generated for this app**, in the same 180×180 line-art style, for movements the
+dataset had nothing honest to offer — the rowing ergometer and seven of the warm-up drills.
+Those are this project's own files. Each row in the match table says which of the two it is
+in its `mediaSource` field, because who owns a file follows from that and nothing else.
 
 ### Why not the generated SVGs
 
@@ -25,15 +31,15 @@ person has to already know.
 
 The trade was made knowingly, and this is what it cost:
 
-|                             | Generated SVG (was) | Dataset GIF (is)                  |
-| --------------------------- | ------------------- | --------------------------------- |
-| Actually legible as a human | No                  | **Yes**                           |
-| File size                   | ~5 KB               | ~100 KB (2.7 MB across all 27)    |
-| Sharp at any size           | Yes                 | No — fixed at 180×180             |
-| Recolours with the palette  | Yes                 | No, they are raster               |
-| Reviewable in a diff        | Yes, it is text     | No — the match table is instead   |
-| Coverage                    | All 36              | 27 of 36                          |
-| Licensing                   | Ours                | **Someone else's.** See section 2 |
+|                             | Generated SVG (was) | Dataset GIF (is)                 |
+| --------------------------- | ------------------- | -------------------------------- |
+| Actually legible as a human | No                  | **Yes**                          |
+| File size                   | ~5 KB               | ~90 KB (3.0 MB across all 35)    |
+| Sharp at any size           | Yes                 | No — fixed at 180×180            |
+| Recolours with the palette  | Yes                 | No, they are raster              |
+| Reviewable in a diff        | Yes, it is text     | No — the match table is instead  |
+| Coverage                    | All 36              | 35 of 36                         |
+| Licensing                   | Ours                | **27 someone else's.** Section 2 |
 
 The palette point is the one that was actively lost. It is partly bought back in CSS: the
 app inverts the images, so their white ground becomes the panel's black and the figures
@@ -90,11 +96,11 @@ committed.
 That is the whole rule, and it is stricter than "is it close enough". It divides candidates
 in three:
 
-| Verdict  | Means                                                        | Example                                                                       |
-| -------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| `exact`  | Same movement, same equipment                                | `legExtension` → `lever leg extension`                                        |
-| `close`  | Same movement, something visibly different                   | `pallofPress` → `band horizontal pallof press`. A band, not the cable station |
-| No match | A different movement, however similar the name or the target | `couchStretch`. Every quad stretch in the dataset is lying or prone           |
+| Verdict  | Means                                                        | Example                                                                         |
+| -------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| `exact`  | Same movement, same equipment                                | `legExtension` → `lever leg extension`                                          |
+| `close`  | Same movement, something visibly different                   | `pallofPress` → `band horizontal pallof press`. A band, not the cable station   |
+| No match | A different movement, however similar the name or the target | `ninetyNinetyHipSwitch`. The dataset's seated hip work is all static stretching |
 
 A `close` match carries a written sentence saying what differs. That sentence is the only
 thing that makes the compromise reviewable, so the verifier rejects a `close` match without
@@ -103,6 +109,11 @@ one.
 A no-match is not a failure to be hidden. It renders as **"No preview yet"** in the app,
 which is visible, honest, and fixable. A wrong animation is none of those: it is silently
 confident, and someone learns the wrong movement from it in a gym.
+
+An animation generated for this app is held to the same rule and checked the same way, by
+looking at the frames against the brief. What it does not have is a dataset record to be
+checked against, so its row carries a sentence saying what the frames show instead — see
+section 9.
 
 ### Matches are chosen by eye, not by string
 
@@ -151,6 +162,14 @@ of this pipeline.
 match table recorded for it. If the dataset is re-cloned and its ids have shifted, that check
 is what stops a squat being copied over a deadlift because a row number moved.
 
+### Adding a generated animation
+
+Two steps rather than three, because there is nothing to copy: put the `.gif` in
+`public/exercise-media/{exerciseId}.gif` yourself, and add a row with
+`mediaSource: 'generatedForThisApp'` and a `whatTheAnimationShows` sentence. `media:copy`
+skips these rows entirely and says so if asked for one by name. `media:verify` treats them
+like any other row: the file has to be there, and nothing else may be.
+
 ## 7. What the verifier checks
 
 `npm run media:verify`, and the same checks in
@@ -162,6 +181,8 @@ is what stops a squat being copied over a deadlift because a row number moved.
 - Every committed file is asked for by a match. Nothing is served to nobody.
 - No exercise is in both lists.
 - Every `close` match explains itself.
+- Every generated animation says what its frames show, which is the only thing standing in
+  for a dataset record somebody could go and look at.
 - Nothing that is not an animation is sitting in `public/exercise-media/`, which the app
   serves wholesale. (`ATTRIBUTION.md` is the one allowed exception, and it is required to be
   there.)
@@ -181,8 +202,9 @@ What to look for, none of which a script can check:
   as bright blocks. It is a fair trade against a white glare in a dark app, but it is worth
   looking at.
 
-## 9. The nine without previews
+## 9. The gaps the dataset left, and what filled them
 
+Nine exercises had nothing in the dataset that showed the movement they describe:
 `rowingMachineEasy`, `catCow`, `wallSlides`, `chinTucks`, `bodyweightHipHinge`,
 `threadTheNeedle`, `ninetyNinetyHipSwitch`, `couchStretch`, `doorwayPecStretch`.
 
@@ -190,7 +212,12 @@ Seven of the nine are mobility drills, which is not a coincidence: the dataset i
 strength-training collection, and it is thin on the corrective and positional work that
 makes up the warm-up here.
 
-Each one's entry in `exercisesWithoutMediaMatch` records what was searched for and what the
-nearest miss was, so the search does not have to be repeated from scratch. If a better
-source turns up for these — or if they end up filmed rather than found — the table is where
-that decision goes.
+**Eight of the nine are now animations generated for this app**, in the dataset's style so
+the contact sheet reads as one set: two frames each — the two ends of the movement — except
+the rower, which is four. Each was checked frame by frame against the exercise brief before
+it was committed, and its row records what the frames show, since there is no dataset record
+to check it against instead.
+
+`ninetyNinetyHipSwitch` is the one still drawing the fallback. Its entry in
+`exercisesWithoutMediaMatch` records what was searched for and what the nearest miss was, so
+the search does not have to be repeated from scratch.

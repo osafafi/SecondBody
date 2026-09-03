@@ -9,7 +9,7 @@ import {
   hasExerciseMedia,
 } from './allExerciseMedia';
 import { exerciseMediaMatches, exercisesWithoutMediaMatch } from './exerciseMediaMatches';
-import { EXERCISE_MEDIA_MATCH_QUALITIES } from './exerciseMediaTypes';
+import { EXERCISE_MEDIA_MATCH_QUALITIES, EXERCISE_MEDIA_SOURCES } from './exerciseMediaTypes';
 
 /**
  * These prove the table is internally consistent and that it covers every
@@ -41,8 +41,20 @@ describe('the exercise media match table', () => {
     }
   });
 
+  it('says where every animation came from', () => {
+    // Who owns a file follows from this and nothing else, so a row that does not
+    // say is a row nobody can answer the licence question about.
+    for (const match of exerciseMediaMatches) {
+      expect(EXERCISE_MEDIA_SOURCES, match.exerciseId).toContain(match.mediaSource);
+    }
+  });
+
   it('points at dataset records in the format the dataset uses', () => {
     for (const match of exerciseMediaMatches) {
+      if (match.mediaSource !== 'gymVisualDataset') {
+        continue;
+      }
+
       // Four or more digits, zero-padded. The dataset's schema promises four;
       // some of its later records run past that.
       expect(match.datasetExerciseId, match.exerciseId).toMatch(/^\d{4,}$/);
@@ -56,11 +68,28 @@ describe('the exercise media match table', () => {
     // someone reviewing this decide whether it is one worth keeping, so a close
     // match without one is not reviewable and does not belong in the table.
     for (const match of exerciseMediaMatches) {
+      if (match.mediaSource !== 'gymVisualDataset') {
+        continue;
+      }
+
       if (match.matchQuality === 'close') {
         expect(match.differenceFromOurVersion.length, match.exerciseId).toBeGreaterThan(30);
       } else {
         expect(match.differenceFromOurVersion, match.exerciseId).toBe('');
       }
+    }
+  });
+
+  it('says what every generated animation shows', () => {
+    // The dataset rows are checkable against a record someone can go and open.
+    // A generated one has no such record, so this sentence is the whole of what
+    // a reviewer has to check the file against.
+    for (const match of exerciseMediaMatches) {
+      if (match.mediaSource !== 'generatedForThisApp') {
+        continue;
+      }
+
+      expect(match.whatTheAnimationShows.length, match.exerciseId).toBeGreaterThan(40);
     }
   });
 
@@ -76,6 +105,7 @@ describe('the exercise media match table', () => {
 describe('looking media up', () => {
   it('finds the match for an exercise that has one', () => {
     expect(findExerciseMediaMatch('legExtension')).toMatchObject({
+      mediaSource: 'gymVisualDataset',
       datasetExerciseId: '0585',
       matchQuality: 'exact',
     });
@@ -84,10 +114,19 @@ describe('looking media up', () => {
     expect(findReasonExerciseHasNoMedia('legExtension')).toBeNull();
   });
 
+  it('finds the match for an exercise whose animation was generated', () => {
+    expect(findExerciseMediaMatch('catCow')).toMatchObject({
+      mediaSource: 'generatedForThisApp',
+    });
+
+    expect(hasExerciseMedia('catCow')).toBe(true);
+    expect(findReasonExerciseHasNoMedia('catCow')).toBeNull();
+  });
+
   it('gives the reason for an exercise that has none', () => {
-    expect(findExerciseMediaMatch('catCow')).toBeNull();
-    expect(hasExerciseMedia('catCow')).toBe(false);
-    expect(findReasonExerciseHasNoMedia('catCow')).toContain('quadruped');
+    expect(findExerciseMediaMatch('ninetyNinetyHipSwitch')).toBeNull();
+    expect(hasExerciseMedia('ninetyNinetyHipSwitch')).toBe(false);
+    expect(findReasonExerciseHasNoMedia('ninetyNinetyHipSwitch')).toContain('90/90');
   });
 
   it('treats an unknown id as having no media rather than throwing', () => {

@@ -81,11 +81,26 @@ export async function findExerciseMediaProblems({
       );
     }
 
-    if (!committedFileNames.has(buildMediaFileNameForExercise(match.exerciseId))) {
+    if (match.mediaSource === 'generatedForThisApp' && !match.whatTheAnimationShows?.trim()) {
       problems.push(
-        `"${match.exerciseId}" is matched to ${match.datasetExerciseId} but ` +
-          `${buildMediaFileNameForExercise(match.exerciseId)} is not committed. ` +
-          `Run: npm run media:copy ${match.exerciseId}`,
+        `"${match.exerciseId}" was generated for this app with no note saying what its ` +
+          `frames show. A generated animation has no dataset record to check it against, ` +
+          `so that note is the only thing that makes it reviewable.`,
+      );
+    }
+
+    if (!committedFileNames.has(buildMediaFileNameForExercise(match.exerciseId))) {
+      // A dataset row is fixed by re-running the copier; a generated one has no
+      // source to copy from, so saying "run media:copy" would send whoever hits
+      // this to a tool that will refuse them.
+      problems.push(
+        match.mediaSource === 'generatedForThisApp'
+          ? `"${match.exerciseId}" has a generated animation in the table but ` +
+              `${buildMediaFileNameForExercise(match.exerciseId)} is not committed. ` +
+              `The file has to be added by hand — nothing can regenerate it.`
+          : `"${match.exerciseId}" is matched to ${match.datasetExerciseId} but ` +
+              `${buildMediaFileNameForExercise(match.exerciseId)} is not committed. ` +
+              `Run: npm run media:copy ${match.exerciseId}`,
       );
     }
   }
@@ -185,12 +200,15 @@ async function main() {
     sizesInBytes.reduce((total, size) => total + size, 0) / 1024,
   );
 
-  const closeMatchCount = matches.filter((match) => match.matchQuality === 'close').length;
+  const datasetMatches = matches.filter((match) => match.mediaSource !== 'generatedForThisApp');
+  const closeMatchCount = datasetMatches.filter((match) => match.matchQuality === 'close').length;
 
   console.log(
-    `${matches.length} animations (${closeMatchCount} close, ` +
-      `${matches.length - closeMatchCount} exact), ${totalSizeInKilobytes} KB. ` +
-      `${misses.length} exercises draw the fallback.`,
+    `${matches.length} animations: ${datasetMatches.length} from the dataset ` +
+      `(${closeMatchCount} close, ${datasetMatches.length - closeMatchCount} exact) and ` +
+      `${matches.length - datasetMatches.length} generated for this app, ` +
+      `${totalSizeInKilobytes} KB. ` +
+      `${misses.length} exercise${misses.length === 1 ? '' : 's'} with no animation at all.`,
   );
 }
 

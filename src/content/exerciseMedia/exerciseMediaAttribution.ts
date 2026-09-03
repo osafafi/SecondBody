@@ -1,7 +1,11 @@
 /**
- * The copyright notice the exercise animations are used under.
+ * The copyright notice the dataset's exercise animations are used under.
  *
- * **This is a licence condition, not a courtesy.** The animations come from
+ * It covers the files whose `mediaSource` is `gymVisualDataset`, which is most
+ * of them. The rest were generated for this app and are its own — see
+ * `exerciseMediaMatches.ts`.
+ *
+ * **This is a licence condition, not a courtesy.** Those animations come from
  * `hasaneyldrm/exercises-dataset`, whose media is the property of Gym Visual and
  * is redistributed there with permission on two terms: that it stays at 180×180,
  * and that every use carries this notice. Removing it from the interface breaks

@@ -27,7 +27,9 @@ const CATEGORY_HEADINGS: Record<MovementCategory, string> = {
  * made a mess of it. Twenty-seven of the thirty-six are matched to an open
  * dataset rather than drawn for this app, and eight of those are marked as close
  * rather than exact, so "is this actually the right exercise" is a real question
- * with a real answer here.
+ * with a real answer here. The eight generated for this app are the other reason
+ * to look: whether they pass for the same set at 160 px is only answerable by
+ * putting them next to the ones they are imitating.
  *
  * Checking that across three dozen files by opening three dozen files is how it
  * stops getting done, so this screen puts them all in one place.

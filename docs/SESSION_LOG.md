@@ -1538,3 +1538,71 @@ survivable because every previous session happened to format everything.
 
 CLAUDE.md, README.md and DEPLOYMENT.md section 10 all described the old three steps and now
 describe the real seven.
+
+---
+
+### Session 19 - 2026-09-02 - The missing animations, generated rather than found
+
+**Agent:** Claude (Opus 5)
+**Branch:** `feat/generated-warmup-animations`
+**Closes:** F14. Opens F15.
+
+**Done**
+
+Omar generated eight animations for the movements the dataset had nothing for, in the
+dataset's own line-art style, and handed them over named by exercise id. This session put
+them in the app.
+
+- The eight files are in `public/exercise-media/`, at the same 180x180 as everything else.
+  `rowingMachine.gif` was committed as `rowingMachineEasy.gif` — the file name is the
+  exercise id, and the exercise id has the `Easy` on it.
+- **`ExerciseMediaMatch` is now a union on `mediaSource`.** A row is either
+  `gymVisualDataset` — the existing 27, with their record id, record name and match quality —
+  or `generatedForThisApp`, which has no dataset record and carries a
+  `whatTheAnimationShows` sentence instead. Every one of the 27 existing rows was tagged
+  explicitly rather than left to a default, because who owns a file follows from that field
+  and nothing else.
+- `exercisesWithoutMediaMatch` went from nine entries to one: `ninetyNinetyHipSwitch`.
+- `media:copy` skips generated rows and says so if asked for one by name. `media:verify`
+  treats them like any other row — the file must be there — but tells whoever hits a missing
+  one to add it by hand rather than sending them to a copier that will refuse them. It also
+  rejects a generated row with no note, which is the same rule `close` matches have.
+- The attribution was corrected in three places. Settings said "Exercise animations (c) Gym
+  visual" over every animation in the app; it now says "Dataset animations", with a line
+  saying the rest were generated for this app. `ATTRIBUTION.md` and EXERCISE_MEDIA_SPEC.md
+  sections 1, 4, 6, 7 and 9 say the same.
+
+**Decisions made and why**
+
+| Decision                                                      | Reason                                                                                                                                                                                                                                                                                                            |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A `mediaSource` field rather than filling in fake dataset ids | The cheap version of this change is to write something plausible into `datasetExerciseId` and move on. The whole media subsystem exists so that provenance is a fact somebody wrote down, and a public repository redistributing someone else's media cannot afford a table that lies about which files those are |
+| Tag all 27 existing rows rather than default to dataset       | An implicit default answers the licence question by omission. Twenty-seven mechanical lines is a cheaper price than a reader having to know a rule to find out who owns a file                                                                                                                                    |
+| Settings copy changed, not just the docs                      | The notice has to travel with Gym Visual's media. Claiming it covers ours as well is a different kind of wrong, and the app is where the claim is actually made                                                                                                                                                   |
+| The 90/90 hip switch opened as F15                            | It is the only "No preview yet" left. Leaving it as a line in a spec is how it stops being anybody's                                                                                                                                                                                                              |
+
+**How it was verified**
+
+- Every one of the eight was looked at before it was committed — the sprite sheet next to
+  each GIF holds all its frames, so both ends of every movement were checked against the
+  exercise brief, not just the frame that happens to be first. They are what they are named:
+  cat-cow rounds and extends, thread the needle threads and opens, the rower catches, drives,
+  finishes and recovers. None carries a watermark.
+- `npm run dev` and `#/exercise-media`, which is the screen that exists for this. All eleven
+  mobility cards draw, the seven generated ones read at 160 px beside the three dataset ones,
+  and the 90/90 hip switch is the one fallback left. `media:verify` now reports "35
+  animations: 27 from the dataset and 8 generated for this app".
+- `npm run verify` green: 1233 tests.
+
+**Notes for the next session**
+
+- `ExerciseAnimation.test.tsx` hard-coded `couchStretch` as its example of an exercise with
+  no animation, with a comment warning that it would silently start testing the wrong branch
+  the day one was found. That day was today. It now reads both examples out of the committed
+  table, so it cannot happen again.
+- **F6 is still Omar's to run.** Three sessions now.
+- The generated files are ours, which means the 180x180 limit is not binding on them. They
+  are that size because the app draws one fixed picture size, not because anything requires
+  it — worth remembering if a bigger picture is ever wanted.
+- Nothing in the repository can regenerate these. If one needs redoing, it needs Omar and
+  whatever drew them; `tools/exercise-media/` copies and checks, it does not draw.

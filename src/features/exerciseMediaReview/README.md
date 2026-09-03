@@ -27,11 +27,14 @@ them.
   those 27 are marked `close` — same movement, something visibly different. If a `close`
   match turns out to teach the wrong thing, demote it to `exercisesWithoutMediaMatch` rather
   than keeping it because it is better than nothing.
+- **The eight generated ones sit beside the dataset ones without looking borrowed.** They
+  were drawn for this app in the dataset's style, so this page is where you find out whether
+  that holds at 160 px next to the real thing.
 - **It reads at 160 px**, which is the size it is used at.
 - **The inversion has not made a mess of it.** The source files are dark line art on white
   and the app inverts them; a machine with dark pads comes out with bright blocks in it.
-- **The nine fallbacks say "No preview yet"** rather than showing something wrong. Those are
-  listed in `src/content/exerciseMedia/exerciseMediaMatches.ts` with the reason for each.
+- **The one remaining fallback says "No preview yet"** rather than showing something wrong.
+  It is listed in `src/content/exerciseMedia/exerciseMediaMatches.ts` with the reason.
 
 The palette switcher no longer changes the animations themselves — they are raster. It still
 changes everything around them, which is worth a glance.
